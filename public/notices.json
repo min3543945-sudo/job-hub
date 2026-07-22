@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "source": "강원대",
+    "category": "IT/SW",
+    "title": "2026학년도 대학원 ICT 혁신인재 양성사업 참여학생 모집",
+    "deadline": "2026-07-30",
+    "dDay": "D-8",
+    "isRecommended": true,
+    "description": "ICT 분야 석·박사 과정 학생을 대상으로 연구 장학금 및 산학협력 프로젝트 참여 기회를 제공합니다.",
+    "url": "https://www.kangwon.ac.kr"
+  },
+  {
+    "id": 2,
+    "source": "나라장터",
+    "category": "웹/시스템",
+    "title": "지자체 통합 정보시스템 UI/UX 개편 및 데이터 정제 용역",
+    "deadline": "2026-08-05",
+    "dDay": "D-14",
+    "isRecommended": true,
+    "description": "주민 편의성 향상을 위한 지자체 웹사이트 반응형 UI 개편 작업입니다.",
+    "url": "https://www.g2b.go.kr"
+  },
+  {
+    "id": 3,
+    "source": "한림대",
+    "category": "데이터/AI",
+    "title": "SW중심대학사업단 캡스톤디자인 경진대회 참가자 모집",
+    "deadline": "2026-07-25",
+    "dDay": "D-3",
+    "isRecommended": false,
+    "description": "재학생 대상 AI/SW 활용 아이디어 경진대회입니다. 총 상금 500만원 규모입니다.",
+    "url": "https://www.hallym.ac.kr"
+  }
+]
