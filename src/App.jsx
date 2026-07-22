@@ -1,52 +1,77 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useDeferredValue } from 'react';
 import './App.css';
 
+// 🌟 디바운스 커스텀 훅 (검색 최적화)
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+}
+
 export default function App() {
-  // 1. 상태(State) 정의
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [searchTerm, setSearchTerm] = useState('');
+  const deferredSearchTerm = useDeferredValue(searchTerm);
   const [selectedPost, setSelectedPost] = useState(null);
-  const [bookmarks, setBookmarks] = useState([]);
 
-  // 🔥 [P1/P2 신규] 가중치 및 정렬 상태
-  const [sortBy, setSortBy] = useState('latest'); // 'latest' | 'recommend' | 'popular'
-  const [categoryWeights, setCategoryWeights] = useState({}); // { "IT/SW": 3, "데이터/AI": 1 }
-  const [viewCounts, setViewCounts] = useState({}); // { 1: 5, 2: 2 } (공고 ID별 조회수)
+  // 🌟 검색어 디바운스 적용 (300ms 지연)
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  // 2. notices.json 데이터 불러오기
+  // 🌟 북마크 로컬 스토리지 연동 (에러 방지 적용)
+  const [bookmarks, setBookmarks] = useState(() => {
+    try {
+      const saved = localStorage.getItem('bookmarks');
+      return saved ? JSON.parse(saved) : [];
+    } catch (error) {
+      console.error('북마크 데이터를 불러오는데 실패했습니다.', error);
+      return [];
+    }
+  });
+
+  const [sortBy, setSortBy] = useState('latest');
+  const [categoryWeights, setCategoryWeights] = useState({});
+  const [viewCounts, setViewCounts] = useState({});
+
+  // 북마크 상태가 변경될 때마다 로컬 스토리지 업데이트
   useEffect(() => {
-    fetch('/notices.json')
-      .then((res) => res.json())
-      .then((data) => {
-        setNotices(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('데이터 가져오기 실패:', err);
-        setLoading(false);
-      });
+    localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+  }, [bookmarks]);
+
+  // 공고 데이터 불러오기 (스켈레톤 UI를 보기 위해 의도적 1초 지연)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetch('/notices.json')
+        .then((res) => res.json())
+        .then((data) => {
+          setNotices(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error('데이터 가져오기 실패:', err);
+          setLoading(false);
+        });
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, []);
 
-  // 카드 클릭 시 모달 열기 + 가중치 및 조회수 증가
   const handleCardClick = (post) => {
     setSelectedPost(post);
-
-    // 1) 클릭한 카테고리 가중치 +1
     setCategoryWeights((prev) => ({
       ...prev,
       [post.category]: (prev[post.category] || 0) + 1,
     }));
-
-    // 2) 클릭한 공고 조회수 +1
     setViewCounts((prev) => ({
       ...prev,
       [post.id]: (prev[post.id] || 0) + 1,
     }));
   };
 
-  // 북마크 토글
   const toggleBookmark = (e, id) => {
     e.stopPropagation();
     setBookmarks((prev) =>
@@ -54,38 +79,37 @@ export default function App() {
     );
   };
 
-  // 카테고리 + 검색어 1차 필터링
+ 
+ // 🌟 안전하고 깔끔한 통합 필터링 로직 (수정됨)
   const filteredData = notices.filter((item) => {
     const matchesCategory = selectedCategory === '전체' || item.source === selectedCategory;
+    
+    // 이 부분이 핵심! 안전하게 소문자로 변환
+    const searchLower = debouncedSearchTerm ? debouncedSearchTerm.toLowerCase() : '';
+    
     const matchesSearch =
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchTerm.toLowerCase());
+      (item.title?.toLowerCase() || '').includes(searchLower) ||
+      (item.category?.toLowerCase() || '').includes(searchLower);
+      
     return matchesCategory && matchesSearch;
   });
 
-  // 🔥 [P1/P2 신규] 정렬 알고리즘 적용
+  // 데이터 정렬
   const sortedData = [...filteredData].sort((a, b) => {
     if (sortBy === 'popular') {
-      // 인기순: 조회수가 높은 순서대로
       const viewsA = viewCounts[a.id] || 0;
       const viewsB = viewCounts[b.id] || 0;
       return viewsB - viewsA;
     }
 
     if (sortBy === 'recommend') {
-      // 맞춤 추천순: (카테고리 가중치 * 2) + (추천 공고 점수)
       const weightA = (categoryWeights[a.category] || 0) * 2 + (a.isRecommended ? 3 : 0);
       const weightB = (categoryWeights[b.category] || 0) * 2 + (b.isRecommended ? 3 : 0);
       return weightB - weightA;
     }
 
-    // 최신순 (기본값): ID 기준 역순
     return b.id - a.id;
   });
-
-  if (loading) {
-    return <div className="loading">공고 데이터를 불러오는 중입니다... ⏳</div>;
-  }
 
   return (
     <div className="container">
@@ -118,12 +142,10 @@ export default function App() {
         ))}
       </nav>
 
-      {/* 공고 카드 목록 & 정렬 바 */}
       <main className="content">
         <div className="content-header">
-          <h2>📌 통합 공고 목록 ({sortedData.length})</h2>
+          <h2>📌 통합 공고 목록 ({!loading ? sortedData.length : 0})</h2>
           
-          {/* 🔥 정렬 옵션 선택 */}
           <div className="sort-buttons">
             <button
               className={sortBy === 'latest' ? 'active' : ''}
@@ -146,39 +168,70 @@ export default function App() {
           </div>
         </div>
 
-        <div className="card-grid">
-          {sortedData.map((item) => {
-            const views = viewCounts[item.id] || 0;
-            return (
-              <div
-                key={item.id}
-                className={`card ${item.isRecommended ? 'recommended' : ''}`}
-                onClick={() => handleCardClick(item)}
-              >
-                <div className="card-header">
-                  <span className={`badge ${item.source}`}>{item.source}</span>
-                  <div className="card-header-right">
-                    <span className="d-day">{item.dDay}</span>
-                    <button
-                      className={`btn-bookmark ${bookmarks.includes(item.id) ? 'active' : ''}`}
-                      onClick={(e) => toggleBookmark(e, item.id)}
-                    >
-                      {bookmarks.includes(item.id) ? '★' : '☆'}
-                    </button>
+        {/* 🌟 조건부 렌더링: 로딩 중 -> 결과 없음 -> 목록 표시 */}
+        {loading ? (
+          <div className="card-grid">
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <div key={n} className="skeleton-card">
+                <div className="skeleton skeleton-badge"></div>
+                <div className="skeleton skeleton-title"></div>
+                <div className="skeleton skeleton-title short"></div>
+                <div className="skeleton skeleton-text"></div>
+              </div>
+            ))}
+          </div>
+        ) : sortedData.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-icon">📂</div>
+            <h3>조건에 맞는 공고가 없습니다.</h3>
+            <p>다른 검색어나 카테고리를 선택해 보세요.</p>
+            <button
+              className="btn-reset"
+              onClick={() => {
+                setSearchTerm('');
+                setSelectedCategory('전체');
+              }}
+            >
+              초기화하기
+            </button>
+          </div>
+        ) : (
+          <div className="card-grid">
+            {sortedData.map((item) => {
+              const views = viewCounts[item.id] || 0;
+              const isBookmarked = bookmarks.includes(item.id);
+
+              return (
+                <div
+                  key={item.id}
+                  className={`card ${item.isRecommended ? 'recommended' : ''}`}
+                  onClick={() => handleCardClick(item)}
+                >
+                  <div className="card-header">
+                    <span className={`badge ${item.source}`}>{item.source}</span>
+                    <div className="card-header-right">
+                      <span className="d-day">{item.dDay}</span>
+                      <button
+                        className={`btn-bookmark ${isBookmarked ? 'active' : ''}`}
+                        onClick={(e) => toggleBookmark(e, item.id)}
+                      >
+                        {isBookmarked ? '★' : '☆'}
+                      </button>
+                    </div>
+                  </div>
+                  <h3 className="card-title">{item.title}</h3>
+                  <p className="card-category">
+                    분야: {item.category} {views > 0 && <span className="view-count">• 조회 {views}</span>}
+                  </p>
+                  <div className="card-footer">
+                    <span className="deadline">마감일: {item.deadline}</span>
+                    <span className="btn-detail">상세보기 ➔</span>
                   </div>
                 </div>
-                <h3 className="card-title">{item.title}</h3>
-                <p className="card-category">
-                  분야: {item.category} {views > 0 && <span className="view-count">• 조회 {views}</span>}
-                </p>
-                <div className="card-footer">
-                  <span className="deadline">마감일: {item.deadline}</span>
-                  <span className="btn-detail">상세보기 ➔</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </main>
 
       {/* 모달 팝업 */}
