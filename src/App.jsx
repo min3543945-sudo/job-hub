@@ -13,24 +13,26 @@ function useDebounce(value, delay) {
 
 // 🌟 검색어 하이라이팅 함수
 const highlightText = (text, query) => {
-  if (!text) return '';
-  if (!query) return text;
+  if (!text || typeof text !== 'string') return text || '';
+  if (!query) return <>{text}</>;
   const parts = text.split(new RegExp(`(${query})`, 'gi'));
   return parts.map((part, index) => 
     part.toLowerCase() === query.toLowerCase() ? (
-      <span key={index} className="highlight-text">{part}</span>
+      <span key={index} style={{backgroundColor: '#fef08a', color: '#1e293b', fontWeight: '800', padding: '0 2px', borderRadius: '4px'}}>{part}</span>
     ) : (
-      part
+      <span key={index}>{part}</span>
     )
   );
 };
 
-// 🌟 D-Day 자동 계산 함수 (새 규격 반영)
+// 🌟 D-Day 자동 계산 함수
 const calculateDDay = (endDate) => {
-  if (!endDate) return '';
+  if (!endDate) return '상시모집';
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const end = new Date(endDate);
+  
+  if (isNaN(end.getTime())) return '상시모집';
   end.setHours(0, 0, 0, 0);
   
   const diffTime = end - today;
@@ -39,6 +41,80 @@ const calculateDDay = (endDate) => {
   if (diffDays < 0) return '마감됨';
   if (diffDays === 0) return 'D-Day';
   return `D-${diffDays}`;
+};
+
+// 🌟 엑셀 규격 코드값 번역 딕셔너리
+const contentTypeMap = {
+  'PROGRAM': '교육·강좌',
+  'CONTEST': '공모전·해커톤',
+  'JOB': '채용·인턴',
+  'PROJECT': '공공사업',
+  'POLICY': '정책·지원금',
+  'EVENT': '행사·세미나',
+  'SCHOLARSHIP': '장학금',
+  'NEWS': '청년 소식',
+  'VOLUNTEER': '자원봉사'
+};
+
+const categoryMap = {
+  'PRACTICE_STARTUP': '실무 경험 및 창업',
+  'SKILL_EDUCATION': '교육·강좌',
+  'GLOBAL_LOCAL': '글로벌·로컬',
+  'YOUTH_NEWS': '청년 소식'
+};
+
+const locationTypeMap = {
+  'OFFLINE': '오프라인',
+  'ONLINE': '온라인',
+  'MIXED': '온·오프라인 혼합'
+};
+
+// 🌟 어떤 JSON이 들어와도 정제해주는 함수
+const normalizeItem = (item, index) => {
+  let orgName = '주관기관 미상';
+  if (item.organization && typeof item.organization === 'object') {
+    orgName = item.organization.name || '주관기관 미상';
+  } else if (typeof item.organization === 'string') {
+    orgName = item.organization;
+  } else if (item.organizer) {
+    orgName = item.organizer;
+  }
+
+  const deadline = item.dates?.applicationEndAt || item.recruit_end_date || item.deadline || '';
+  let sourceName = item.source?.sourceName || item.source_site || item.source || '기타';
+  if (typeof sourceName !== 'string') sourceName = '기타';
+
+  let categoryRaw = item.category || item.fields || '분야 미상';
+  let category = categoryMap[categoryRaw] || categoryRaw;
+
+  let contentTypeRaw = item.contentType || item.activity_type || '';
+  let typeTag = contentTypeMap[contentTypeRaw] || contentTypeRaw;
+  
+  let locType = item.location?.type || item.operation_type || '';
+  let locName = item.location?.region || (typeof item.location === 'string' ? item.location : '');
+  let locTag = locationTypeMap[locType] || locType;
+  if (locName) locTag += `(${locName})`;
+
+  const tag = typeTag || locTag || '기타';
+  const id = item.externalId || item.id || `item-${index}`;
+
+  return {
+    id: String(id),
+    title: item.title || '제목 없음',
+    orgName,
+    deadline,
+    sourceName,
+    category,
+    tag,
+    imageUrl: item.imageUrl || `https://picsum.photos/seed/${String(id).length + index}/600/400`,
+    url: item.source?.listUrl || item.source?.detailUrl || item.source_url || item.url || '#',
+    targets: item.target?.targetText || item.targets || '제한없음',
+    activityStart: item.dates?.activityStartAt || item.activity_start_date || '',
+    activityEnd: item.dates?.activityEndAt || item.activity_end_date || '',
+    benefits: item.benefits || '',
+    description: item.description || item.summary || '',
+    capacity: item.recruitment?.capacity || null
+  };
 };
 
 export default function App() {
@@ -52,7 +128,6 @@ export default function App() {
   const [authModal, setAuthModal] = useState(null); 
   const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
   const [currentBannerIdx, setCurrentBannerIdx] = useState(0); 
-  
   const [showTopBtn, setShowTopBtn] = useState(false);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -79,7 +154,8 @@ export default function App() {
       fetch('/notices.json')
         .then((res) => res.json())
         .then((data) => {
-          setNotices(data);
+          const normalizedData = data.map((item, index) => normalizeItem(item, index));
+          setNotices(normalizedData);
           setLoading(false);
         })
         .catch((err) => {
@@ -109,11 +185,9 @@ export default function App() {
 
   const handleCardClick = (post) => {
     setSelectedPost(post);
-    // 추천 가중치를 fields(관심분야) 기준으로 누적
-    const fieldKey = post.fields || '기타';
     setCategoryWeights((prev) => ({
       ...prev,
-      [fieldKey]: (prev[fieldKey] || 0) + 1,
+      [post.category]: (prev[post.category] || 0) + 1,
     }));
     setViewCounts((prev) => ({
       ...prev,
@@ -128,34 +202,31 @@ export default function App() {
     );
   };
 
-  // 🌟 새 JSON 규격 필드에 맞춘 필터링
   const filteredData = notices.filter((item) => {
     if (showBookmarksOnly && !bookmarks.includes(item.id)) return false;
-
-    const matchesCategory = selectedCategory === '전체' || item.source_site === selectedCategory;
+    const matchesCategory = selectedCategory === '전체' || item.sourceName.includes(selectedCategory);
     const searchLower = debouncedSearchTerm ? debouncedSearchTerm.toLowerCase() : '';
     const matchesSearch =
-      (item.title?.toLowerCase() || '').includes(searchLower) ||
-      (item.fields?.toLowerCase() || '').includes(searchLower) ||
-      (item.organization?.toLowerCase() || '').includes(searchLower);
+      item.title.toLowerCase().includes(searchLower) ||
+      item.category.toLowerCase().includes(searchLower) ||
+      item.orgName.toLowerCase().includes(searchLower);
       
     return matchesCategory && matchesSearch;
   });
 
-  // 🌟 새 JSON 규격 필드에 맞춘 정렬
   const sortedData = [...filteredData].sort((a, b) => {
     if (sortBy === 'popular') return (viewCounts[b.id] || 0) - (viewCounts[a.id] || 0);
     if (sortBy === 'recommend') {
-      const weightA = (categoryWeights[a.fields || '기타'] || 0);
-      const weightB = (categoryWeights[b.fields || '기타'] || 0);
+      const weightA = (categoryWeights[a.category] || 0);
+      const weightB = (categoryWeights[b.category] || 0);
       return weightB - weightA;
     }
     if (sortBy === 'deadline') {
-      if (!a.recruit_end_date) return 1;
-      if (!b.recruit_end_date) return -1;
-      return new Date(a.recruit_end_date) - new Date(b.recruit_end_date);
+      if (!a.deadline) return 1;
+      if (!b.deadline) return -1;
+      return new Date(a.deadline) - new Date(b.deadline);
     }
-    return b.id - a.id; // 최신순 (id가 클수록 최신)
+    return a.id > b.id ? -1 : 1; 
   });
 
   const topPicks = notices.length > 0 
@@ -181,7 +252,7 @@ export default function App() {
         <div className="header-inner">
           <div className="logo-area" onClick={() => { setSearchTerm(''); setSelectedCategory('전체'); setShowBookmarksOnly(false); }}>
             <span className="logo-icon">🎓</span>
-            <h1 className="logo-text">대학·공공 데이터 Hub</h1>
+            <h1 className="logo-text">모아봄</h1>
           </div>
           
           <div className="search-area">
@@ -205,10 +276,10 @@ export default function App() {
         </div>
       </header>
 
-      {/* 네비게이션 탭 (임의의 카테고리 구성) */}
+      {/* 네비게이션 탭 */}
       <nav className="main-nav">
         <div className="nav-inner">
-          {['전체', '강원대', '한림대', '나라장터', '온통청년'].map((tab) => (
+          {['전체', '배워봄', '강원대', '한림대', '나라장터', '온통청년'].map((tab) => (
             <button
               key={tab}
               className={`nav-item ${selectedCategory === tab ? 'active' : ''}`}
@@ -229,15 +300,14 @@ export default function App() {
                 <div className="banner-text">
                   <span className="banner-badge">🔥 실시간 인기/추천 공고</span>
                   <h2>{activePick.title}</h2>
-                  <p>{activePick.organization || '주관기관'} | 마감: {activePick.recruit_end_date}</p>
+                  <p>{activePick.orgName} | 마감: {activePick.deadline || '상시모집'}</p>
                   <button className="btn-go">바로가기 &gt;</button>
                 </div>
                 <img 
-                  src={activePick.imageUrl || `https://picsum.photos/seed/${activePick.id}/600/400`} 
+                  src={activePick.imageUrl} 
                   alt="인기 공고 이미지" 
                   className="banner-image"
                 />
-                
                 <div className="banner-controls">
                   <button onClick={prevBanner}>◀</button>
                   <span className="banner-page">{currentBannerIdx + 1} / {topPicks.length}</span>
@@ -277,18 +347,12 @@ export default function App() {
           </div>
         </div>
 
-        {/* 리스트 영역 헤더 */}
         <div className="content-header">
           <h2>
             {showBookmarksOnly ? '⭐ 내가 찜한 공고 ' : '📌 통합 공고 목록 '}
             <span className="count-text">({!loading ? sortedData.length : 0}건)</span>
           </h2>
-          
-          <select 
-            className="sort-dropdown"
-            value={sortBy} 
-            onChange={(e) => setSortBy(e.target.value)}
-          >
+          <select className="sort-dropdown" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
             <option value="latest">최신순</option>
             <option value="deadline">⏳ 마감 임박순</option>
             <option value="recommend">✨ 맞춤 추천순</option>
@@ -296,138 +360,171 @@ export default function App() {
           </select>
         </div>
 
-        {/* 리스트 출력 */}
-        {loading ? (
-          <div className="card-grid">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-              <div key={n} className="skeleton-card">
-                <div className="skeleton-image"></div>
-                <div className="skeleton-content">
-                  <div className="skeleton skeleton-badge"></div>
-                  <div className="skeleton skeleton-title"></div>
+        {/* 🚨 완전 100% 인라인 스타일 적용 카드 그리드 🚨 */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: '24px'
+        }}>
+          {loading ? (
+            // 스켈레톤 로딩
+            [1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+              <div key={n} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', height: '350px', background: '#fff' }}>
+                <div style={{ width: '100%', height: '180px', background: '#e2e8f0' }}></div>
+                <div style={{ padding: '20px' }}>
+                  <div style={{ width: '50px', height: '20px', background: '#e2e8f0', marginBottom: '10px' }}></div>
+                  <div style={{ width: '100%', height: '24px', background: '#e2e8f0' }}></div>
                 </div>
               </div>
-            ))}
-          </div>
-        ) : sortedData.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">{showBookmarksOnly ? '⭐' : '📂'}</div>
-            <h3>{showBookmarksOnly ? '아직 북마크한 공고가 없습니다.' : '검색결과가 없습니다.'}</h3>
-            <button className="btn-reset" onClick={() => { setSearchTerm(''); setSelectedCategory('전체'); setShowBookmarksOnly(false); }}>
-              초기화하기
-            </button>
-          </div>
-        ) : (
-          <div className="card-grid">
-            {sortedData.map((item) => {
+            ))
+          ) : sortedData.length === 0 ? (
+            <div className="empty-state" style={{ gridColumn: '1 / -1' }}>
+              <div className="empty-icon">{showBookmarksOnly ? '⭐' : '📂'}</div>
+              <h3>{showBookmarksOnly ? '아직 북마크한 공고가 없습니다.' : '검색결과가 없습니다.'}</h3>
+              <button className="btn-reset" onClick={() => { setSearchTerm(''); setSelectedCategory('전체'); setShowBookmarksOnly(false); }}>
+                초기화하기
+              </button>
+            </div>
+          ) : (
+            sortedData.map((item) => {
               const views = viewCounts[item.id] || 0;
               const isBookmarked = bookmarks.includes(item.id);
-              
-              // 🌟 마감 여부 판별 및 자동 D-Day
               const today = new Date();
               today.setHours(0, 0, 0, 0);
-              const isExpired = item.recruit_end_date ? new Date(item.recruit_end_date) < today : false;
-              const dynamicDDay = calculateDDay(item.recruit_end_date);
+              const isExpired = item.deadline ? new Date(item.deadline) < today : false;
+              const dynamicDDay = calculateDDay(item.deadline);
 
               return (
                 <div 
                   key={item.id} 
-                  className={`card ${isExpired ? 'expired' : ''}`} 
                   onClick={() => handleCardClick(item)}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    minHeight: '350px',
+                    filter: isExpired ? 'grayscale(100%)' : 'none',
+                    opacity: isExpired ? 0.7 : 1,
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
                 >
-                  <div className="card-thumbnail-wrap">
+                  {/* 1. 상단 이미지 영역 (절대 높이 180px로 고정, 삐져나오지 못함) */}
+                  <div style={{
+                    width: '100%',
+                    height: '180px',
+                    minHeight: '180px',
+                    maxHeight: '180px',
+                    flex: '0 0 180px', 
+                    position: 'relative',
+                    backgroundColor: '#f1f5f9'
+                  }}>
                     <img 
-                      src={item.imageUrl || `https://picsum.photos/seed/${item.id}/400/400`} 
+                      src={item.imageUrl} 
                       alt={item.title} 
-                      className="card-image"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} 
                     />
-                    {isExpired && <div className="expired-badge">마감됨</div>}
-                    
-                    <div className="bookmark-overlay">
-                      <button
-                        className={`btn-bookmark ${isBookmarked ? 'active' : ''}`}
+                    {isExpired && (
+                      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'rgba(0,0,0,0.8)', color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold' }}>
+                        마감됨
+                      </div>
+                    )}
+                    <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+                      <button 
                         onClick={(e) => toggleBookmark(e, item.id)}
+                        style={{ background: 'rgba(0,0,0,0.5)', border: 'none', color: isBookmarked ? '#fbbf24' : '#fff', fontSize: '1.2rem', padding: '4px 8px', borderRadius: '6px', cursor: 'pointer' }}
                       >
                         {isBookmarked ? '★' : '☆'}
                       </button>
                     </div>
                   </div>
                   
-                  <div className="card-body">
-                    <div className="card-tags">
-                      <span className={`tag source-default`}>[{item.source_site || '기타'}]</span>
-                      {item.activity_type && <span className="tag">#{item.activity_type}</span>}
+                  {/* 2. 하단 텍스트 영역 (남은 공간을 모두 차지하도록 강제) */}
+                  <div style={{
+                    padding: '20px 16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    flexGrow: 1,
+                    backgroundColor: '#ffffff'
+                  }}>
+                    {/* 태그 */}
+                    <div style={{ display: 'flex', gap: '6px', marginBottom: '10px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 'bold', padding: '4px 8px', borderRadius: '4px', background: '#f1f5f9', color: '#475569' }}>
+                        [{item.sourceName}]
+                      </span>
+                      {item.tag && (
+                        <span style={{ fontSize: '0.75rem', fontWeight: 'bold', padding: '4px 8px', borderRadius: '4px', background: '#f1f5f9', color: '#475569' }}>
+                          #{item.tag}
+                        </span>
+                      )}
                     </div>
                     
-                    <h3 className="card-title">
+                    {/* 제목 */}
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: 'bold', lineHeight: '1.4', marginBottom: '8px', color: '#1e293b', wordBreak: 'break-word' }}>
                       {highlightText(item.title, debouncedSearchTerm)}
                     </h3>
-                    <div className="card-sub-info">
-                      {item.summary || (item.fields ? highlightText(`분야: ${item.fields}`, debouncedSearchTerm) : '분야 미지정')}
+                    
+                    {/* 분야 */}
+                    <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '16px' }}>
+                      분야: {highlightText(item.category, debouncedSearchTerm)}
                     </div>
 
-                    <div className="card-footer">
-                      <div className="footer-left">
-                        <span className="organizer">
-                          {highlightText(item.organization || '주관기관 미상', debouncedSearchTerm)}
-                        </span>
+                    {/* 푸터 (주관기관 및 날짜) */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid #f1f5f9', fontSize: '0.85rem' }}>
+                      <div style={{ color: '#475569', fontWeight: 'bold' }}>
+                        {highlightText(item.orgName, debouncedSearchTerm)}
                       </div>
-                      <div className="footer-right">
-                        <span className={`d-day ${isExpired ? 'expired-text' : ''}`}>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <span style={{ color: isExpired ? '#94a3b8' : '#ef4444', fontWeight: 'bold', textDecoration: isExpired ? 'line-through' : 'none' }}>
                           {dynamicDDay}
                         </span>
-                        <span className="views">조회 {views}</span>
+                        <span style={{ color: '#94a3b8' }}>조회 {views}</span>
                       </div>
                     </div>
                   </div>
                 </div>
               );
-            })}
-          </div>
-        )}
+            })
+          )}
+        </div>
       </main>
 
-      {/* 맨 위로 가기 버튼 */}
-      <button 
-        className={`btn-scroll-top ${showTopBtn ? 'visible' : ''}`} 
-        onClick={scrollToTop}
-        title="맨 위로 가기"
-      >
-        ↑
-      </button>
+      {/* 맨 위로 가기 */}
+      <button className={`btn-scroll-top ${showTopBtn ? 'visible' : ''}`} onClick={scrollToTop} title="맨 위로 가기">↑</button>
 
-      {/* 🌟 상세정보 모달 (새 규격 필드 반영) */}
+      {/* 🌟 상세정보 모달 */}
       {selectedPost && (
         <div className="modal-overlay" onClick={() => setSelectedPost(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <span className="tag">{selectedPost.source_site}</span>
+              <span className="tag" style={{ background: '#f1f5f9', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', fontSize: '0.8rem' }}>{selectedPost.sourceName}</span>
               <button className="modal-close" onClick={() => setSelectedPost(null)}>✕</button>
             </div>
-            {selectedPost.imageUrl && (
-              <img src={selectedPost.imageUrl} alt="포스터" className="modal-poster" />
-            )}
+            
+            <img src={selectedPost.imageUrl} alt="포스터" className="modal-poster" />
+            
             <h3>{selectedPost.title}</h3>
             
             <div className="modal-info-box">
-              {selectedPost.summary && <p style={{marginBottom: '12px', color: '#3b82f6'}}><strong>"{selectedPost.summary}"</strong></p>}
-              <p><strong>🏢 주관기관:</strong> {selectedPost.organization}</p>
-              <p><strong>🎯 지원대상:</strong> {selectedPost.targets || '제한없음'}</p>
-              <p><strong>💡 활동유형:</strong> {selectedPost.activity_type} ({selectedPost.operation_type || '온/오프라인 미정'})</p>
+              {selectedPost.description && <p style={{marginBottom: '12px', color: '#3b82f6'}}><strong>"{selectedPost.description}"</strong></p>}
+              <p><strong>🏢 주관기관:</strong> {selectedPost.orgName}</p>
+              <p><strong>🎯 지원대상:</strong> {selectedPost.targets}</p>
+              {selectedPost.tag && <p><strong>💡 진행방식:</strong> {selectedPost.tag}</p>}
+              {selectedPost.capacity && <p><strong>👤 모집인원:</strong> {selectedPost.capacity}명</p>}
               {selectedPost.benefits && <p><strong>🎁 혜택:</strong> {selectedPost.benefits}</p>}
               <hr style={{margin: '12px 0', border: 'none', borderTop: '1px solid #e2e8f0'}} />
-              <p><strong>모집마감:</strong> {selectedPost.recruit_end_date || '상시모집'} ({calculateDDay(selectedPost.recruit_end_date)})</p>
+              <p><strong>모집마감:</strong> {selectedPost.deadline || '상시모집'} ({calculateDDay(selectedPost.deadline)})</p>
+              {selectedPost.activityStart && (
+                <p><strong>활동기간:</strong> {selectedPost.activityStart} ~ {selectedPost.activityEnd}</p>
+              )}
               <p><strong>누적 조회수:</strong> {viewCounts[selectedPost.id] || 1}회</p>
             </div>
-            
-            {selectedPost.description && (
-              <div className="modal-description" style={{fontSize: '0.9rem', color: '#475569', padding: '0 8px', maxHeight: '100px', overflowY: 'auto'}}>
-                {selectedPost.description}
-              </div>
-            )}
 
             <div className="modal-footer-btn">
-              <a href={selectedPost.source_url} target="_blank" rel="noreferrer" className="btn-primary">
+              <a href={selectedPost.url} target="_blank" rel="noreferrer" className="btn-primary">
                 원문 페이지로 이동 🔗
               </a>
             </div>
@@ -435,7 +532,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 로그인/회원가입 모달 */}
+      {/* 로그인 모달 */}
       {authModal && (
         <div className="modal-overlay" onClick={() => setAuthModal(null)}>
           <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
@@ -458,21 +555,10 @@ export default function App() {
                   <input type="password" placeholder="비밀번호를 다시 입력해주세요" />
                 </div>
               )}
-              <button 
-                className="btn-login-main auth-submit"
-                onClick={() => {
-                  alert(authModal === 'login' ? '로그인 되었습니다.' : '회원가입이 완료되었습니다.');
-                  setAuthModal(null);
-                }}
-              >
+              <button className="btn-login-main auth-submit" onClick={() => { alert(authModal === 'login' ? '로그인 되었습니다.' : '회원가입이 완료되었습니다.'); setAuthModal(null); }} style={{marginTop: '16px'}}>
                 {authModal === 'login' ? '로그인' : '가입하기'}
               </button>
             </div>
-            {authModal === 'login' ? (
-              <p className="auth-switch">계정이 없으신가요? <span onClick={() => setAuthModal('signup')}>회원가입</span></p>
-            ) : (
-              <p className="auth-switch">이미 계정이 있으신가요? <span onClick={() => setAuthModal('login')}>로그인</span></p>
-            )}
           </div>
         </div>
       )}

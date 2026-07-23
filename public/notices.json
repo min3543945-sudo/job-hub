@@ -1,74 +1,382 @@
 [
   {
-    "id": 1,
-    "title": "2026 AI 도시·지역혁신 아이디어 공모전",
-    "summary": "AI를 활용한 스마트 도시 혁신 아이디어 발굴",
-    "organization": "국토교통부",
-    "activity_type": "공모전",
-    "fields": "데이터/AI",
-    "targets": "대학생·청년",
-    "location": "전국",
-    "region_code": "000",
-    "operation_type": "온·오프라인 혼합",
-    "recruit_start_date": "2026-06-29",
-    "recruit_end_date": "2026-08-28",
-    "activity_start_date": "2026-09-01",
-    "activity_end_date": "2026-11-30",
-    "recruitment_status": "모집중",
-    "benefits": "장관상 및 상금 300만원",
-    "description": "국토교통부장관상 포함 2026 AI 도시·지역혁신 아이디어를 모집합니다. 관련 전공자 및 관심 있는 청년들의 많은 참여 바랍니다.",
-    "source_site": "온통청년",
-    "source_url": "https://www.youthcenter.go.kr",
-    "published_at": "2026-06-20",
-    "collected_at": "2026-07-23",
-    "imageUrl": "https://picsum.photos/seed/1/400/400"
+    "externalId": null,
+    "contentType": "PROGRAM",
+    "category": "SKILL_EDUCATION",
+    "title": "스마트폰으로 찍는 사진반",
+    "organization": {
+      "name": "춘천시 평생학습관",
+      "department": null
+    },
+    "source": {
+      "sourceCode": "BAEWOBOHM",
+      "sourceName": "배워봄",
+      "listUrl": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
+      "detailUrl": null
+    },
+    "dates": {
+      "publishedAt": null,
+      "applicationStartAt": "2026-07-20",
+      "applicationEndAt": "2026-07-31",
+      "activityStartAt": "2026-08-24",
+      "activityEndAt": "2026-12-07"
+    },
+    "target": {
+      "targetText": "성인"
+    },
+    "location": {
+      "type": "OFFLINE",
+      "name": null,
+      "region": "춘천시"
+    },
+    "recruitment": {
+      "capacity": 30,
+      "status": "OPEN",
+      "applicationUrl": null
+    },
+    "tags": [],
+    "collectedAt": "2026-07-23T14:00:16+00:00"
   },
   {
-    "id": 2,
-    "title": "우리동네 청일강소 기업분석 기반 입사지원서 공모전",
-    "summary": "청년 친화 강소기업을 분석하고 입사지원서 작성",
-    "organization": "고용노동부",
-    "activity_type": "공모전",
-    "fields": "취업/창업",
-    "targets": "전국 대학생",
-    "location": "서울",
-    "region_code": "011",
-    "operation_type": "온라인",
-    "recruit_start_date": "2026-07-01",
-    "recruit_end_date": "2026-08-05",
-    "activity_start_date": "2026-08-10",
-    "activity_end_date": "2026-08-20",
-    "recruitment_status": "모집중",
-    "benefits": "노동부 장관상 및 취업 컨설팅",
-    "description": "우리동네 청년일자리 강소기업은 어디에? 입사지원 준비는 물론 시상금까지 잡을 수 있는 기회!",
-    "source_site": "나라장터",
-    "source_url": "https://www.g2b.go.kr",
-    "published_at": "2026-06-25",
-    "collected_at": "2026-07-23",
-    "imageUrl": "https://picsum.photos/seed/2/400/400"
+    "externalId": null,
+    "contentType": "PROGRAM",
+    "category": "SKILL_EDUCATION",
+    "title": "컴퓨터와 생성형 AI활용",
+    "organization": {
+      "name": "춘천시 평생학습관",
+      "department": null
+    },
+    "source": {
+      "sourceCode": "BAEWOBOHM",
+      "sourceName": "배워봄",
+      "listUrl": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
+      "detailUrl": null
+    },
+    "dates": {
+      "publishedAt": null,
+      "applicationStartAt": "2026-07-20",
+      "applicationEndAt": "2026-07-31",
+      "activityStartAt": "2026-08-18",
+      "activityEndAt": "2026-12-03"
+    },
+    "target": {
+      "targetText": "성인"
+    },
+    "location": {
+      "type": "OFFLINE",
+      "name": null,
+      "region": "춘천시"
+    },
+    "recruitment": {
+      "capacity": 25,
+      "status": "OPEN",
+      "applicationUrl": null
+    },
+    "tags": [],
+    "collectedAt": "2026-07-23T14:00:16+00:00"
   },
   {
-    "id": 3,
-    "title": "제2회 매일유업 대학생 AI 영상 공모전",
-    "summary": "총 1,200만원 상당의 상금 기회!",
-    "organization": "매일유업",
-    "activity_type": "공모전",
-    "fields": "영상/미디어",
-    "targets": "대학생",
-    "location": "온라인",
-    "region_code": "000",
-    "operation_type": "온라인",
-    "recruit_start_date": "2026-07-13",
-    "recruit_end_date": "2026-07-15",
-    "activity_start_date": "2026-08-01",
-    "activity_end_date": "2026-08-30",
-    "recruitment_status": "마감됨",
-    "benefits": "총 상금 1,200만원 및 인턴십 기회",
-    "description": "AI를 활용하여 매일유업의 브랜드를 알릴 수 있는 참신한 영상을 제작해주세요.",
-    "source_site": "강원대",
-    "source_url": "https://www.kangwon.ac.kr",
-    "published_at": "2026-07-01",
-    "collected_at": "2026-07-23",
-    "imageUrl": "https://picsum.photos/seed/3/400/400"
+    "externalId": null,
+    "contentType": "PROGRAM",
+    "category": "SKILL_EDUCATION",
+    "title": "AI 미디어 콘텐츠 활용",
+    "organization": {
+      "name": "춘천시 평생학습관",
+      "department": null
+    },
+    "source": {
+      "sourceCode": "BAEWOBOHM",
+      "sourceName": "배워봄",
+      "listUrl": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
+      "detailUrl": null
+    },
+    "dates": {
+      "publishedAt": null,
+      "applicationStartAt": "2026-07-20",
+      "applicationEndAt": "2026-07-31",
+      "activityStartAt": "2026-08-19",
+      "activityEndAt": "2026-12-07"
+    },
+    "target": {
+      "targetText": "성인"
+    },
+    "location": {
+      "type": "OFFLINE",
+      "name": null,
+      "region": "춘천시"
+    },
+    "recruitment": {
+      "capacity": 25,
+      "status": "OPEN",
+      "applicationUrl": null
+    },
+    "tags": [],
+    "collectedAt": "2026-07-23T14:00:16+00:00"
+  },
+  {
+    "externalId": null,
+    "contentType": "PROGRAM",
+    "category": "SKILL_EDUCATION",
+    "title": "생활 속 다양한 AI·디지털활용",
+    "organization": {
+      "name": "춘천시 평생학습관",
+      "department": null
+    },
+    "source": {
+      "sourceCode": "BAEWOBOHM",
+      "sourceName": "배워봄",
+      "listUrl": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
+      "detailUrl": null
+    },
+    "dates": {
+      "publishedAt": null,
+      "applicationStartAt": "2026-07-20",
+      "applicationEndAt": "2026-07-31",
+      "activityStartAt": "2026-08-21",
+      "activityEndAt": "2026-12-04"
+    },
+    "target": {
+      "targetText": "성인"
+    },
+    "location": {
+      "type": "OFFLINE",
+      "name": null,
+      "region": "춘천시"
+    },
+    "recruitment": {
+      "capacity": 25,
+      "status": "OPEN",
+      "applicationUrl": null
+    },
+    "tags": [],
+    "collectedAt": "2026-07-23T14:00:16+00:00"
+  },
+  {
+    "externalId": null,
+    "contentType": "PROGRAM",
+    "category": "SKILL_EDUCATION",
+    "title": "컴퓨터기초 및 스마트폰활용",
+    "organization": {
+      "name": "춘천시 평생학습관",
+      "department": null
+    },
+    "source": {
+      "sourceCode": "BAEWOBOHM",
+      "sourceName": "배워봄",
+      "listUrl": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
+      "detailUrl": null
+    },
+    "dates": {
+      "publishedAt": null,
+      "applicationStartAt": "2026-07-20",
+      "applicationEndAt": "2026-07-31",
+      "activityStartAt": "2026-08-19",
+      "activityEndAt": "2026-12-07"
+    },
+    "target": {
+      "targetText": "성인"
+    },
+    "location": {
+      "type": "OFFLINE",
+      "name": null,
+      "region": "춘천시"
+    },
+    "recruitment": {
+      "capacity": 25,
+      "status": "OPEN",
+      "applicationUrl": null
+    },
+    "tags": [],
+    "collectedAt": "2026-07-23T14:00:16+00:00"
+  },
+  {
+    "externalId": null,
+    "contentType": "PROGRAM",
+    "category": "SKILL_EDUCATION",
+    "title": "스마트폰100%활용",
+    "organization": {
+      "name": "춘천시 평생학습관",
+      "department": null
+    },
+    "source": {
+      "sourceCode": "BAEWOBOHM",
+      "sourceName": "배워봄",
+      "listUrl": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
+      "detailUrl": null
+    },
+    "dates": {
+      "publishedAt": null,
+      "applicationStartAt": "2026-07-20",
+      "applicationEndAt": "2026-07-31",
+      "activityStartAt": "2026-08-21",
+      "activityEndAt": "2026-12-04"
+    },
+    "target": {
+      "targetText": "성인"
+    },
+    "location": {
+      "type": "OFFLINE",
+      "name": null,
+      "region": "춘천시"
+    },
+    "recruitment": {
+      "capacity": 25,
+      "status": "OPEN",
+      "applicationUrl": null
+    },
+    "tags": [],
+    "collectedAt": "2026-07-23T14:00:16+00:00"
+  },
+  {
+    "externalId": null,
+    "contentType": "PROGRAM",
+    "category": "SKILL_EDUCATION",
+    "title": "영상 제작 첫걸음",
+    "organization": {
+      "name": "춘천시 평생학습관",
+      "department": null
+    },
+    "source": {
+      "sourceCode": "BAEWOBOHM",
+      "sourceName": "배워봄",
+      "listUrl": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
+      "detailUrl": null
+    },
+    "dates": {
+      "publishedAt": null,
+      "applicationStartAt": "2026-07-20",
+      "applicationEndAt": "2026-07-31",
+      "activityStartAt": "2026-08-18",
+      "activityEndAt": "2026-12-03"
+    },
+    "target": {
+      "targetText": "성인"
+    },
+    "location": {
+      "type": "OFFLINE",
+      "name": null,
+      "region": "춘천시"
+    },
+    "recruitment": {
+      "capacity": 25,
+      "status": "OPEN",
+      "applicationUrl": null
+    },
+    "tags": [],
+    "collectedAt": "2026-07-23T14:00:16+00:00"
+  },
+  {
+    "externalId": null,
+    "contentType": "PROGRAM",
+    "category": "SKILL_EDUCATION",
+    "title": "여행영어",
+    "organization": {
+      "name": "춘천시 평생학습관",
+      "department": null
+    },
+    "source": {
+      "sourceCode": "BAEWOBOHM",
+      "sourceName": "배워봄",
+      "listUrl": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
+      "detailUrl": null
+    },
+    "dates": {
+      "publishedAt": null,
+      "applicationStartAt": "2026-07-20",
+      "applicationEndAt": "2026-07-31",
+      "activityStartAt": "2026-08-19",
+      "activityEndAt": "2026-12-04"
+    },
+    "target": {
+      "targetText": "성인"
+    },
+    "location": {
+      "type": "OFFLINE",
+      "name": null,
+      "region": "춘천시"
+    },
+    "recruitment": {
+      "capacity": 30,
+      "status": "OPEN",
+      "applicationUrl": null
+    },
+    "tags": [],
+    "collectedAt": "2026-07-23T14:00:16+00:00"
+  },
+  {
+    "externalId": null,
+    "contentType": "PROGRAM",
+    "category": "SKILL_EDUCATION",
+    "title": "기초 중국어&회화",
+    "organization": {
+      "name": "춘천시 평생학습관",
+      "department": null
+    },
+    "source": {
+      "sourceCode": "BAEWOBOHM",
+      "sourceName": "배워봄",
+      "listUrl": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
+      "detailUrl": null
+    },
+    "dates": {
+      "publishedAt": null,
+      "applicationStartAt": "2026-07-20",
+      "applicationEndAt": "2026-07-31",
+      "activityStartAt": "2026-08-20",
+      "activityEndAt": "2026-12-07"
+    },
+    "target": {
+      "targetText": "성인"
+    },
+    "location": {
+      "type": "OFFLINE",
+      "name": null,
+      "region": "춘천시"
+    },
+    "recruitment": {
+      "capacity": 20,
+      "status": "OPEN",
+      "applicationUrl": null
+    },
+    "tags": [],
+    "collectedAt": "2026-07-23T14:00:16+00:00"
+  },
+  {
+    "externalId": null,
+    "contentType": "POLICY",
+    "category": "YOUTH_NEWS",
+    "title": "2026년 청년월세 특별지원",
+    "organization": {
+      "name": "국토교통부",
+      "department": null
+    },
+    "source": {
+      "sourceCode": "YOUTHCENTER",
+      "sourceName": "온통청년",
+      "listUrl": "https://www.youthcenter.go.kr",
+      "detailUrl": null
+    },
+    "dates": {
+      "publishedAt": null,
+      "applicationStartAt": "2026-02-26",
+      "applicationEndAt": "2026-08-25",
+      "activityStartAt": null,
+      "activityEndAt": null
+    },
+    "target": {
+      "targetText": "19세~34세 무주택 청년"
+    },
+    "location": {
+      "type": "ONLINE",
+      "name": null,
+      "region": "전국"
+    },
+    "recruitment": {
+      "capacity": null,
+      "status": "OPEN",
+      "applicationUrl": null
+    },
+    "tags": [],
+    "collectedAt": "2026-07-23T14:00:16+00:00"
   }
 ]
