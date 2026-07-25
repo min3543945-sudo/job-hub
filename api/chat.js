@@ -32,7 +32,8 @@ export default async function handler(req, res) {
 
 지시사항:
 1. 사용자의 질문 의도를 파악하고, 아래 공고 데이터 중에서 가장 적절한 공고를 1~3개 골라서 추천해줘.
-2. 질문과 관련 있는 공고가 전혀 없다면, 꾸며내지 말고 "현재 관련된 공고가 등록되어 있지 않습니다."라고 솔직하게 말해줘.`;
+2. 공고를 추천할 때는 반드시 HTML 링크 태그를 사용해서 제목을 감싸줘. (예: <a href="공고URL" target="_blank" style="color: blue; text-decoration: underline;">공고제목</a>)
+3. 질문과 관련 있는 공고가 전혀 없다면, 꾸며내지 말고 "현재 관련된 공고가 등록되어 있지 않습니다."라고 솔직하게 말해줘.`;
 
     const userContent = `현재 등록된 전체 공고 데이터:\n---\n${noticesSummary || '(공고 없음)'}\n---\n\n사용자의 질문: "${message}"`;
 
