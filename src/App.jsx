@@ -43,7 +43,7 @@ const calculateDDay = (endDate) => {
   return `D-${diffDays}`;
 };
 
-// 🌟 [핵심] JSON의 영문 카테고리를 한글로 번역하는 맵핑
+// 🌟 영문 카테고리를 한글로 번역
 const categoryMap = {
   'INTERN': '인턴',
   'HACKATHON': '해커톤',
@@ -57,7 +57,19 @@ const categoryMap = {
   'VOLUNTEER': '자원봉사'
 };
 
-// 🌟 [핵심] JSON details 안의 영어 변수명을 한글 라벨로 예쁘게 바꿔주는 맵핑
+// 🌟 카테고리별 맞춤 이모지 맵핑
+const categoryEmojiMap = {
+  '인턴': '💼',
+  '채용·일자리': '🏢',
+  '공모전': '🏆',
+  '해커톤': '💻',
+  '교육·강좌': '📚',
+  '대외활동': '🤝',
+  '지원금·정책': '💰',
+  '기타': '📌'
+};
+
+// 🌟 영어 변수명을 한글 라벨로 예쁘게 바꿔주는 맵핑
 const detailKeyMap = {
   capacity: '모집 인원',
   team_size: '팀원 수',
@@ -74,9 +86,8 @@ const detailKeyMap = {
   contact_email: '이메일 주소'
 };
 
-// 🌟 새로운 통합 JSON 규격에 맞춘 데이터 정제 함수
+// 🌟 데이터 정제 함수
 const normalizeItem = (item, index) => {
-  // 기관명 추출
   let orgName = '주관기관 미상';
   if (item.organization && typeof item.organization === 'object') {
     orgName = item.organization.name || item.organization.department || '주관기관 미상';
@@ -84,20 +95,16 @@ const normalizeItem = (item, index) => {
     orgName = item.organization;
   }
 
-  // 날짜 추출
   const deadline = item.dates?.recruit_end_at || item.dates?.applicationEndAt || '';
   const activityStart = item.dates?.activity_start_at || item.dates?.activityStartAt || '';
   const activityEnd = item.dates?.activity_end_at || item.dates?.activityEndAt || '';
   
-  // 데이터 출처
   const sourceName = item.source || item.source?.sourceName || '기타';
 
-  // 분류 (category) 및 관심 분야 (topics)
   let categoryRaw = item.category || '기타';
   let category = categoryMap[categoryRaw] || categoryRaw;
   let topics = item.topics || [];
 
-  // 장소
   let locType = item.location?.operation_type || item.location?.type || '';
   let locName = item.location?.region || '';
   let locTag = locType === 'OFFLINE' ? '오프라인' : locType === 'ONLINE' ? '온라인' : locType === 'MIXED' ? '온·오프라인 혼합' : locType;
@@ -111,15 +118,15 @@ const normalizeItem = (item, index) => {
     orgName,
     deadline,
     sourceName,
-    category,       // 상단 메뉴바 필터용 (해커톤, 인턴 등)
-    topics,         // 해시태그용 (IT, 디자인 등)
-    locTag,         // 해시태그용 (오프라인 등)
+    category,
+    topics,
+    locTag,
     imageUrl: item.thumbnail_url || item.imageUrl || `https://picsum.photos/seed/${String(id).length + index}/800/800`,
     url: item.source_url || item.url || '#',
     targets: item.targets?.length > 0 ? item.targets.join(', ') : '제한없음',
     activityStart,
     activityEnd,
-    details: item.details || {}, // 급여, 인원, 상금 등 동적 데이터
+    details: item.details || {},
     description: item.summary || item.description || '상세 내용이 없습니다.'
   };
 };
@@ -128,7 +135,7 @@ export default function App() {
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // 🌟 선택된 네비게이션 탭 (기본값: 전체)
+  // 선택된 네비게이션 탭 (기본값: 전체)
   const [selectedCategory, setSelectedCategory] = useState('전체');
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -173,7 +180,6 @@ export default function App() {
           setLoading(false);
         });
     }, 1000);
-
     return () => clearTimeout(timer);
   }, []);
 
@@ -213,11 +219,10 @@ export default function App() {
     );
   };
 
-  // 🌟 네비게이션 탭에서 선택한 '카테고리(category)' 기준으로 목록 필터링
   const filteredData = notices.filter((item) => {
     if (showBookmarksOnly && !bookmarks.includes(item.id)) return false;
     
-    // 선택된 탭이 '전체'이거나, 공고의 category(인턴, 공모전 등)가 탭 이름과 일치할 때 통과
+    // 선택된 탭이 '전체'이거나, 카테고리가 일치할 때 통과
     const matchesCategory = selectedCategory === '전체' || item.category.includes(selectedCategory);
     
     const searchLower = debouncedSearchTerm ? debouncedSearchTerm.toLowerCase() : '';
@@ -225,7 +230,7 @@ export default function App() {
       item.title.toLowerCase().includes(searchLower) ||
       item.category.toLowerCase().includes(searchLower) ||
       item.orgName.toLowerCase().includes(searchLower) ||
-      item.topics.some(t => t.toLowerCase().includes(searchLower)); // 관심 분야로도 검색 가능
+      item.topics.some(t => t.toLowerCase().includes(searchLower)); 
       
     return matchesCategory && matchesSearch;
   });
@@ -263,8 +268,18 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* 🚨 링커리어 스타일 강력 CSS 적용 🚨 */}
+      {/* 🚨 애니메이션 및 링커리어 스타일 적용 🚨 */}
       <style>{`
+        /* 🌟 탭 이동 시 스르륵 나타나는 애니메이션 정의 */
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+          animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
         .force-grid {
           display: grid !important;
           grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)) !important;
@@ -331,7 +346,7 @@ export default function App() {
 
       {/* 상세 페이지 화면 */}
       {selectedPost ? (
-        <main style={{ maxWidth: '850px', margin: '0 auto', padding: '40px 20px' }}>
+        <main className="animate-fade-in" style={{ maxWidth: '850px', margin: '0 auto', padding: '40px 20px' }}>
           <button 
             onClick={() => setSelectedPost(null)}
             style={{ background: 'none', border: 'none', fontSize: '1rem', fontWeight: 'bold', color: '#64748b', cursor: 'pointer', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}
@@ -341,7 +356,6 @@ export default function App() {
 
           <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '40px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
             
-            {/* 카테고리 & 출처 뱃지 */}
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
               <span style={{ background: '#e0e7ff', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', color: '#4338ca', fontSize: '0.9rem' }}>
                 {selectedPost.category}
@@ -351,47 +365,39 @@ export default function App() {
               </span>
             </div>
             
-            {/* 제목 */}
             <h1 style={{ fontSize: '2.2rem', fontWeight: '800', lineHeight: '1.3', marginBottom: '24px', color: '#0f172a', wordBreak: 'keep-all' }}>
               {selectedPost.title}
             </h1>
             
-            {/* 포스터 이미지 */}
             <img 
               src={selectedPost.imageUrl} 
               alt="포스터" 
               style={{ width: '100%', maxHeight: '450px', objectFit: 'cover', borderRadius: '12px', marginBottom: '32px' }} 
             />
             
-            {/* 동적 요약 정보 박스 (details 안의 내용들을 모두 출력) */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', background: '#f8fafc', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '40px', fontSize: '1rem' }}>
               <p><strong>🏢 주관기관:</strong> {selectedPost.orgName}</p>
               {selectedPost.targets !== '제한없음' && <p><strong>🎯 지원대상:</strong> {selectedPost.targets}</p>}
               <p><strong>⏳ 모집마감:</strong> <span style={{color: '#ef4444', fontWeight: 'bold'}}>{selectedPost.deadline || '상시모집'} ({calculateDDay(selectedPost.deadline)})</span></p>
               
-              {/* 활동기간 */}
               {selectedPost.activityStart && (
                 <p style={{ gridColumn: '1 / -1' }}><strong>📅 활동/근무 기간:</strong> {selectedPost.activityStart} ~ {selectedPost.activityEnd}</p>
               )}
 
-              {/* 🌟 [핵심] JSON의 details 객체 안에 있는 키값들을 동적으로 자동 출력 */}
               {Object.entries(selectedPost.details).map(([key, value]) => {
-                // 값이 없거나 파일 첨부 같은 배열/객체 형태면 건너뜀
                 if (!value || typeof value === 'object') return null; 
-                const label = detailKeyMap[key] || key; // 한글 라벨로 변환
+                const label = detailKeyMap[key] || key; 
                 return (
                   <p key={key}><strong>💡 {label}:</strong> {value}</p>
                 );
               })}
             </div>
 
-            {/* 본문 내용 */}
             <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '16px', borderBottom: '2px solid #e2e8f0', paddingBottom: '8px' }}>상세 안내</h3>
             <div style={{ lineHeight: '1.8', fontSize: '1.05rem', color: '#334155', marginBottom: '40px', whiteSpace: 'pre-line' }}>
               {selectedPost.description}
             </div>
 
-            {/* CTA 원문 이동 버튼 */}
             <div style={{ textAlign: 'center', marginTop: '40px', paddingTop: '32px', borderTop: '1px solid #e2e8f0' }}>
               <a 
                 href={selectedPost.url} 
@@ -408,7 +414,7 @@ export default function App() {
       ) : (
         // 기본 목록 화면
         <>
-          {/* 🌟 상단 네비게이션 (활동 종류 기반) */}
+          {/* 네비게이션 탭 */}
           <nav className="main-nav">
             <div className="nav-inner">
               {['전체', '인턴', '채용·일자리', '공모전', '해커톤', '교육·강좌', '대외활동', '지원금·정책'].map((tab) => (
@@ -424,64 +430,69 @@ export default function App() {
           </nav>
 
           <main className="content-area">
-            {/* 히어로 배너 및 로그인 */}
-            <div className="hero-section">
-              <div className="hero-banner">
-                {activePick ? (
-                  <div className="banner-content" onClick={() => handleCardClick(activePick)}>
-                    <div className="banner-text">
-                      <span className="banner-badge">🔥 실시간 인기/추천 공고</span>
-                      <h2>{activePick.title}</h2>
-                      <p>{activePick.orgName} | 마감: {activePick.deadline || '상시모집'}</p>
-                      <button className="btn-go">바로가기 &gt;</button>
+            {/* 🌟 [핵심] '전체' 탭이면서 '북마크 보기' 상태가 아닐 때만 배너/로그인 화면 노출 */}
+            {selectedCategory === '전체' && !showBookmarksOnly && (
+              <div className="hero-section animate-fade-in">
+                <div className="hero-banner">
+                  {activePick ? (
+                    <div className="banner-content" onClick={() => handleCardClick(activePick)}>
+                      <div className="banner-text">
+                        <span className="banner-badge">🔥 실시간 인기/추천 공고</span>
+                        <h2>{activePick.title}</h2>
+                        <p>{activePick.orgName} | 마감: {activePick.deadline || '상시모집'}</p>
+                        <button className="btn-go">바로가기 &gt;</button>
+                      </div>
+                      <img 
+                        src={activePick.imageUrl} 
+                        alt="인기 공고 이미지" 
+                        className="banner-image"
+                      />
+                      <div className="banner-controls">
+                        <button onClick={prevBanner}>◀</button>
+                        <span className="banner-page">{currentBannerIdx + 1} / {topPicks.length}</span>
+                        <button onClick={nextBanner}>▶</button>
+                      </div>
                     </div>
-                    <img 
-                      src={activePick.imageUrl} 
-                      alt="인기 공고 이미지" 
-                      className="banner-image"
-                    />
-                    <div className="banner-controls">
-                      <button onClick={prevBanner}>◀</button>
-                      <span className="banner-page">{currentBannerIdx + 1} / {topPicks.length}</span>
-                      <button onClick={nextBanner}>▶</button>
+                  ) : (
+                    <div className="banner-loading">로딩 중...</div>
+                  )}
+                </div>
+
+                <div className="login-box">
+                  <div className="login-box-header">
+                    <div className="profile-icon">👤</div>
+                    <p>로그인하시면 상세한<br/>맞춤 정보를 확인할 수 있습니다.</p>
+                  </div>
+                  <p className="login-subtext">회원가입 시 다양한 서비스를 제공합니다.</p>
+                  <div className="login-box-quick">
+                    <div 
+                      className={`quick-btn ${showBookmarksOnly ? 'active' : ''}`}
+                      onClick={() => setShowBookmarksOnly(!showBookmarksOnly)}
+                    >
+                      <span className="icon">📄</span>
+                      <span>{showBookmarksOnly ? '전체 보기' : '북마크한 공고'}</span>
+                    </div>
+                    <div className="quick-btn" onClick={() => setAuthModal('login')}>
+                      <span className="icon">💡</span>
+                      <span>내게 맞는 공고</span>
                     </div>
                   </div>
-                ) : (
-                  <div className="banner-loading">로딩 중...</div>
-                )}
-              </div>
-
-              <div className="login-box">
-                <div className="login-box-header">
-                  <div className="profile-icon">👤</div>
-                  <p>로그인하시면 상세한<br/>맞춤 정보를 확인할 수 있습니다.</p>
-                </div>
-                <p className="login-subtext">회원가입 시 다양한 서비스를 제공합니다.</p>
-                <div className="login-box-quick">
-                  <div 
-                    className={`quick-btn ${showBookmarksOnly ? 'active' : ''}`}
-                    onClick={() => setShowBookmarksOnly(!showBookmarksOnly)}
-                  >
-                    <span className="icon">📄</span>
-                    <span>{showBookmarksOnly ? '전체 보기' : '북마크한 공고'}</span>
-                  </div>
-                  <div className="quick-btn" onClick={() => setAuthModal('login')}>
-                    <span className="icon">💡</span>
-                    <span>내게 맞는 공고</span>
+                  <button className="btn-login-main" onClick={() => setAuthModal('login')}>로그인</button>
+                  <div className="login-links-bottom">
+                    <span>아이디 찾기</span>
+                    <span>비밀번호 찾기</span>
+                    <span onClick={() => setAuthModal('signup')}>회원가입</span>
                   </div>
                 </div>
-                <button className="btn-login-main" onClick={() => setAuthModal('login')}>로그인</button>
-                <div className="login-links-bottom">
-                  <span>아이디 찾기</span>
-                  <span>비밀번호 찾기</span>
-                  <span onClick={() => setAuthModal('signup')}>회원가입</span>
-                </div>
               </div>
-            </div>
+            )}
 
-            <div className="content-header">
+            {/* 🌟 리스트 헤더 (탭 변경 시 타이틀 맞춤 변경) */}
+            <div className="content-header animate-fade-in" key={`header-${selectedCategory}`}>
               <h2>
-                {showBookmarksOnly ? '⭐ 내가 찜한 공고 ' : '📌 통합 공고 목록 '}
+                {showBookmarksOnly ? '⭐ 내가 찜한 공고 ' : 
+                  selectedCategory === '전체' ? '📌 통합 공고 목록 ' : 
+                  `${categoryEmojiMap[selectedCategory] || '📌'} ${selectedCategory} 모아보기 `}
                 <span className="count-text">({!loading ? sortedData.length : 0}건)</span>
               </h2>
               <select className="sort-dropdown" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
@@ -492,8 +503,8 @@ export default function App() {
               </select>
             </div>
 
-            {/* 카드 리스트 영역 */}
-            <div className="force-grid">
+            {/* 🌟 카드 리스트 영역 (탭 변경 시 fade-in 애니메이션 재생을 위해 key 부여) */}
+            <div className="force-grid animate-fade-in" key={`grid-${selectedCategory}-${showBookmarksOnly}`}>
               {loading ? (
                 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                   <div key={n} className="force-card">
@@ -529,7 +540,6 @@ export default function App() {
                       onClick={() => handleCardClick(item)}
                       style={{ filter: isExpired ? 'grayscale(100%)' : 'none', opacity: isExpired ? 0.7 : 1, minHeight: '360px' }}
                     >
-                      {/* 1. 카드 이미지 (1:1 정사각형) */}
                       <div className="force-img-wrap">
                         <img 
                           src={item.imageUrl} 
@@ -551,15 +561,11 @@ export default function App() {
                         </div>
                       </div>
                       
-                      {/* 2. 카드 텍스트 (초압축 링커리어 스타일) */}
                       <div className="force-body">
                         <div style={{ display: 'flex', gap: '4px', marginBottom: '8px', flexWrap: 'wrap' }}>
-                          {/* 메인 카테고리 뱃지 */}
                           <span style={{ fontSize: '0.7rem', fontWeight: 'bold', padding: '3px 6px', borderRadius: '4px', background: '#e0e7ff', color: '#4338ca' }}>
                             {item.category}
                           </span>
-                          
-                          {/* topics (관심분야)가 있으면 해시태그로 출력 */}
                           {item.topics.length > 0 && item.topics.slice(0, 2).map((topic, idx) => (
                             <span key={idx} style={{ fontSize: '0.7rem', fontWeight: 'bold', padding: '3px 6px', borderRadius: '4px', background: '#f1f5f9', color: '#475569' }}>
                               #{topic}
@@ -567,7 +573,6 @@ export default function App() {
                           ))}
                         </div>
                         
-                        {/* 제목 (최대 2줄 제한) */}
                         <h3 style={{ 
                           fontSize: '1.05rem', 
                           fontWeight: '800', 
@@ -583,12 +588,10 @@ export default function App() {
                           {highlightText(item.title, debouncedSearchTerm)}
                         </h3>
 
-                        {/* 기관명 */}
                         <div style={{ fontSize: '0.8rem', color: '#475569', marginBottom: 'auto', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {highlightText(item.orgName, debouncedSearchTerm)}
                         </div>
 
-                        {/* 하단 정보 */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #f1f5f9', fontSize: '0.8rem' }}>
                           <span style={{ color: isExpired ? '#94a3b8' : '#ef4444', fontWeight: 'bold', textDecoration: isExpired ? 'line-through' : 'none' }}>
                             {dynamicDDay}
@@ -607,7 +610,6 @@ export default function App() {
         </>
       )}
 
-      {/* 맨 위로 가기 버튼 */}
       <button className={`btn-scroll-top ${showTopBtn ? 'visible' : ''}`} onClick={scrollToTop} title="맨 위로 가기">↑</button>
 
       {/* 로그인 모달 */}
