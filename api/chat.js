@@ -1,5 +1,5 @@
 // api/chat.js
-// Vercel Serverless Function - Google Gemini REST API (별도 라이브러리 설치 불필요)
+// Vercel Serverless Function - Google Gemini REST API (Gemini 3.5 / 3.6 Flash 사용)
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -22,7 +22,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: '메시지가 없거나 올바르지 않습니다.' });
     }
 
-    // 1. Vercel 환경 변수 검사
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: '서버에 GEMINI_API_KEY가 설정되지 않았습니다.' });
@@ -37,28 +36,25 @@ export default async function handler(req, res) {
 
     const userContent = `현재 등록된 전체 공고 데이터:\n---\n${noticesSummary || '(공고 없음)'}\n---\n\n사용자의 질문: "${message}"`;
 
-    // 2. Gemini REST API 직접 호출 (gemini-2.0-flash)
+    // 최신 안정 모델인 gemini-3.5-flash 사용 (필요시 gemini-3.6-flash로 변경 가능)
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: systemPrompt }],
-          },
           contents: [
             {
-              parts: [{ text: userContent }],
-            },
-          ],
+              role: 'user',
+              parts: [{ text: `${systemPrompt}\n\n${userContent}` }]
+            }
+          ]
         }),
       }
     );
 
-    // 3. API 응답 에러 처리
     if (!geminiRes.ok) {
       const errorText = await geminiRes.text();
       console.error('Gemini API Error Response:', errorText);
