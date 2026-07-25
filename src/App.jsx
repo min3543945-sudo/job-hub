@@ -82,7 +82,6 @@ const categoryEmojiMap = {
   '기타': '📌'
 };
 
-// 🌟 [추가됨] 새로운 데이터 필드명에 대응하는 라벨 추가
 const detailKeyMap = {
   capacity: '모집 인원',
   recruitment_count: '모집 인원',
@@ -118,7 +117,6 @@ const normalizeItem = (item, index) => {
     orgName = item.organization;
   }
 
-  // 🌟 [추가됨] 모집 마감이 없으면 행사 종료일을 마감일로 사용
   const deadline = item.dates?.recruit_end_at || item.dates?.applicationEndAt || item.dates?.activity_end_at || '';
   const activityStart = item.dates?.activity_start_at || item.dates?.activityStartAt || '';
   const activityEnd = item.dates?.activity_end_at || item.dates?.activityEndAt || '';
@@ -135,7 +133,6 @@ const normalizeItem = (item, index) => {
 
   const id = item.id || item.externalId || `item-${index}`;
 
-  // 🌟 [추가됨] contact 등 중첩된 객체를 평탄화하여 화면에 나오도록 처리
   const details = { ...(item.details || {}) };
   if (details.contact) {
     if (details.contact.name) details.contact_name = details.contact.name;
@@ -338,7 +335,7 @@ export default function App() {
               style={{
                 background: 'none', border: 'none', color: '#2563eb', 
                 textDecoration: 'underline', cursor: 'pointer', 
-                padding: 0, fontSize: 'inherit', fontWeight: 'bold'
+                padding: 0, fontSize: 'inherit', fontWeight: 'bold', textAlign: 'left'
               }}
             >
               {label}
@@ -509,6 +506,62 @@ export default function App() {
         }
         .chatbot-input button {
           background: #3b82f6; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold;
+        }
+
+        /* 🌟 [핵심] 📱 모바일 반응형 디자인 적용 (화면 너비 768px 이하) */
+        @media (max-width: 768px) {
+          .header-inner {
+            flex-direction: column;
+            align-items: stretch !important;
+            gap: 12px;
+          }
+          .search-area {
+            flex-direction: column;
+            width: 100%;
+            gap: 12px;
+          }
+          .search-bar { width: 100%; }
+          .header-links { width: 100%; justify-content: space-between; }
+          
+          .nav-inner {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding-bottom: 5px;
+          }
+          .nav-item {
+            flex-shrink: 0;
+            white-space: nowrap;
+          }
+
+          .hero-section {
+            flex-direction: column !important;
+          }
+          .hero-banner { width: 100%; margin-bottom: 20px; }
+          .login-box { width: 100%; min-width: auto; margin-top: 0; }
+
+          /* 모바일에서는 카드를 큼직하게 1열로 배치 */
+          .force-grid {
+            grid-template-columns: 1fr !important; 
+          }
+          
+          /* 챗봇 플로팅 버튼과 창 크기 조절 */
+          .chatbot-fab {
+            width: 56px; height: 56px;
+            bottom: 20px; right: 20px;
+            font-size: 1.5rem;
+          }
+          .chatbot-window {
+            width: calc(100% - 40px); /* 양옆 여백 20px씩 */
+            height: 65vh;             /* 높이도 모바일에 맞게 조절 */
+            bottom: 90px;
+            right: 20px;
+          }
+          
+          /* 알림창 위치 조절 */
+          .noti-dropdown {
+            width: 280px;
+            right: -10px;
+          }
         }
       `}</style>
 
