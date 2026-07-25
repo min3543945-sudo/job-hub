@@ -423,11 +423,11 @@ export default function App() {
         }
         .animate-fade-in { animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
 
-        /* 🌟 스마트폰에서도 PC처럼 바둑판 배열을 유지하도록 너비값(150px)으로 조정 */
+        /* 🌟 기본 PC 화면: 정확히 5개 열로 고정 */
         .force-grid {
           display: grid !important;
-          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
-          gap: 20px 16px !important;
+          grid-template-columns: repeat(5, 1fr) !important;
+          gap: 40px 20px !important;
         }
         .force-card {
           display: flex !important;
@@ -509,25 +509,79 @@ export default function App() {
           background: #3b82f6; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold;
         }
 
-        /* 🌟 모바일 환경에서 "챗봇 창 크기"만 화면에 맞게 조절하고, PC 레이아웃은 그대로 유지 */
-        @media (max-width: 768px) {
-          .chatbot-fab {
-            width: 56px; height: 56px;
-            bottom: 20px; right: 20px;
-            font-size: 1.5rem;
+        /* 🌟 위로 가기 버튼 (CSS 클래스로 변경) */
+        .btn-scroll-top {
+          position: fixed;
+          bottom: 40px;
+          right: 40px;
+          width: 48px;
+          height: 48px;
+          background: white;
+          border: 1px solid #e2e8f0;
+          border-radius: 50%;
+          cursor: pointer;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.2rem;
+          z-index: 998;
+          transition: right 0.3s, transform 0.2s;
+        }
+        .btn-scroll-top:hover {
+          transform: translateY(-4px);
+        }
+        .btn-scroll-top.chat-open {
+          right: 120px; /* PC에서 챗봇 열리면 옆으로 이동 */
+        }
+
+        /* 🌟 태블릿 환경: 3개씩 배치 */
+        @media (max-width: 1024px) {
+          .force-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
           }
+        }
+
+        /* 🌟 스마트폰 모바일 환경: 2열 바둑판 및 버튼 위치 조정 */
+        @media (max-width: 768px) {
+          .force-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 24px 12px !important;
+          }
+          .force-card {
+            min-height: auto !important;
+          }
+          
+          /* 챗봇 윈도우 조절 */
           .chatbot-window {
-            width: calc(100% - 40px); /* 양옆 여백 20px씩 */
-            height: 65vh;             /* 높이 조절 */
+            width: calc(100% - 40px);
+            height: 65vh;
             bottom: 90px;
             right: 20px;
           }
+
+          /* 챗봇 플로팅 버튼 조절 */
+          .chatbot-fab {
+            width: 56px; height: 56px;
+            bottom: 24px; right: 24px;
+            font-size: 1.5rem;
+          }
+
+          /* 🌟 위로 가기 버튼 조절 (챗봇 버튼 왼쪽으로 배치) */
+          .btn-scroll-top {
+            bottom: 28px; 
+            right: 96px; /* 챗봇버튼 우측여백 24 + 너비 56 + 추가여백 16 */
+            width: 48px; height: 48px;
+          }
+          /* 🌟 모바일에서 챗봇이 열려있을 땐 위로 가기 버튼 숨김 */
+          .btn-scroll-top.chat-open {
+            display: none; 
+          }
+
           .noti-dropdown {
             width: 280px;
             right: -10px;
           }
-          
-          /* 가로로 너무 긴 메뉴는 스크롤 가능하게 처리 (선택사항) */
           .nav-inner {
             flex-wrap: nowrap;
             overflow-x: auto;
@@ -921,11 +975,11 @@ export default function App() {
         </div>
       )}
 
-      {/* 🌟 위로 가기 버튼 */}
+      {/* 🌟 위로 가기 버튼 (CSS 클래스로 변경 적용됨) */}
       {showTopBtn && (
         <button 
+          className={`btn-scroll-top ${showChat ? 'chat-open' : ''}`}
           onClick={scrollToTop} 
-          style={{ position: 'fixed', bottom: '40px', right: showChat ? '120px' : '40px', width: '48px', height: '48px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '50%', cursor: 'pointer', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', zIndex: 998, transition: 'right 0.3s' }}
         >
           ↑
         </button>
