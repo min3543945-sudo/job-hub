@@ -1,5 +1,5 @@
 // api/chat.js
-// Vercel Serverless Function - Google Gemini REST API (Gemini 3.5 / 3.6 Flash 사용)
+// Vercel Serverless Function - Google Gemini REST API
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -37,7 +37,6 @@ export default async function handler(req, res) {
 
     const userContent = `현재 등록된 전체 공고 데이터:\n---\n${noticesSummary || '(공고 없음)'}\n---\n\n사용자의 질문: "${message}"`;
 
-    // 최신 안정 모델인 gemini-3.5-flash 사용 (필요시 gemini-3.6-flash로 변경 가능)
     const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`,
       {
