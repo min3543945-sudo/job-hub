@@ -423,10 +423,11 @@ export default function App() {
         }
         .animate-fade-in { animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
 
+        /* 🌟 스마트폰에서도 PC처럼 바둑판 배열을 유지하도록 너비값(150px)으로 조정 */
         .force-grid {
           display: grid !important;
-          grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)) !important;
-          gap: 40px 20px !important;
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+          gap: 20px 16px !important;
         }
         .force-card {
           display: flex !important;
@@ -508,21 +509,25 @@ export default function App() {
           background: #3b82f6; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold;
         }
 
-        /* 🌟 [핵심] 📱 모바일 반응형 디자인 적용 (화면 너비 768px 이하) */
+        /* 🌟 모바일 환경에서 "챗봇 창 크기"만 화면에 맞게 조절하고, PC 레이아웃은 그대로 유지 */
         @media (max-width: 768px) {
-          .header-inner {
-            flex-direction: column;
-            align-items: stretch !important;
-            gap: 12px;
+          .chatbot-fab {
+            width: 56px; height: 56px;
+            bottom: 20px; right: 20px;
+            font-size: 1.5rem;
           }
-          .search-area {
-            flex-direction: column;
-            width: 100%;
-            gap: 12px;
+          .chatbot-window {
+            width: calc(100% - 40px); /* 양옆 여백 20px씩 */
+            height: 65vh;             /* 높이 조절 */
+            bottom: 90px;
+            right: 20px;
           }
-          .search-bar { width: 100%; }
-          .header-links { width: 100%; justify-content: space-between; }
+          .noti-dropdown {
+            width: 280px;
+            right: -10px;
+          }
           
+          /* 가로로 너무 긴 메뉴는 스크롤 가능하게 처리 (선택사항) */
           .nav-inner {
             flex-wrap: nowrap;
             overflow-x: auto;
@@ -531,36 +536,6 @@ export default function App() {
           .nav-item {
             flex-shrink: 0;
             white-space: nowrap;
-          }
-
-          .hero-section {
-            flex-direction: column !important;
-          }
-          .hero-banner { width: 100%; margin-bottom: 20px; }
-          .login-box { width: 100%; min-width: auto; margin-top: 0; }
-
-          /* 모바일에서는 카드를 큼직하게 1열로 배치 */
-          .force-grid {
-            grid-template-columns: 1fr !important; 
-          }
-          
-          /* 챗봇 플로팅 버튼과 창 크기 조절 */
-          .chatbot-fab {
-            width: 56px; height: 56px;
-            bottom: 20px; right: 20px;
-            font-size: 1.5rem;
-          }
-          .chatbot-window {
-            width: calc(100% - 40px); /* 양옆 여백 20px씩 */
-            height: 65vh;             /* 높이도 모바일에 맞게 조절 */
-            bottom: 90px;
-            right: 20px;
-          }
-          
-          /* 알림창 위치 조절 */
-          .noti-dropdown {
-            width: 280px;
-            right: -10px;
           }
         }
       `}</style>
