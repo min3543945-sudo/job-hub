@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useDeferredValue } from 'react';
 import './App.css'; 
 
-// 🌟 검색 최적화를 위한 디바운스 훅
 function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {
@@ -11,7 +10,6 @@ function useDebounce(value, delay) {
   return debouncedValue;
 }
 
-// 🌟 검색어 하이라이팅 함수
 const highlightText = (text, query) => {
   if (!text || typeof text !== 'string') return text || '';
   if (!query) return <>{text}</>;
@@ -246,9 +244,9 @@ export default function App() {
     setChatMessages(prev => [...prev, { type: 'bot', text: '춘천시 공고 데이터를 분석하고 있습니다... 🔍' }]);
 
     try {
-      // 🌟 [수정됨] 챗봇이 특정 공고 ID를 인식할 수 있도록 ID 포함
+      // 🌟 ID 없이 심플하게 요약 (제목 기반 매칭을 위해)
       const noticesSummary = notices.map(n =>
-        `- [ID: ${n.id}] [${n.category}] ${n.title} (기관: ${n.orgName}, 마감: ${n.deadline || '상시'})`
+        `- [${n.category}] ${n.title} (기관: ${n.orgName}, 마감: ${n.deadline || '상시'})`
       ).join('\n');
 
       const response = await fetch('/api/chat', {
@@ -263,7 +261,6 @@ export default function App() {
       try {
         data = text ? JSON.parse(text) : {};
       } catch (parseError) {
-        console.error('서버 응답 원본:', text);
         throw new Error(`서버가 올바른 응답을 주지 않았습니다. (상태 코드: ${response.status})`);
       }
 
@@ -289,31 +286,36 @@ export default function App() {
     }
   };
 
-  // 🌟 [추가됨] 챗봇 텍스트 내의 마크다운 링크를 분석하여 클릭 가능한 버튼(앱 내 공고 연결)으로 렌더링
+  // 🌟 [핵심 변경] ID 대신 무조건 '제목'으로 매칭하여 가장 확실한 공고를 띄웁니다.
   const renderChatMessage = (text) => {
     if (!text) return null;
     
-    // 만약 봇이 실수로 <a> 태그를 리턴한 경우 마크다운 형식으로 변환
     let cleanText = text.replace(/<a href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)');
-    
-    // 마크다운 형식 [텍스트](url) 파싱
     const parts = cleanText.split(/(\[.*?\]\(.*?\))/g);
     
     return parts.map((part, i) => {
       const match = part.match(/\[(.*?)\]\((.*?)\)/);
       if (match) {
-        const label = match[1];
-        const target = match[2];
+        const label = match[1]; // 생성된 마크다운 제목 
+        const target = match[2]; // 'open_post'
         
-        if (target.includes('post_id:')) {
-          const postId = target.replace('post_id:', '').trim();
+        if (target === 'open_post' || target.includes('post_id:')) {
           return (
             <button 
               key={i} 
               onClick={() => {
-                const post = notices.find(n => String(n.id) === postId);
+                const cleanLabel = label.replace(/\s/g, ''); // 띄어쓰기 무시
+                
+                // 1. 정확한 제목 일치 확인
+                let post = notices.find(n => n.title.replace(/\s/g, '') === cleanLabel);
+                
+                // 2. 혹시나 정확히 일치하지 않으면 제목이 포함되어 있는지 확인
+                if (!post) {
+                  post = notices.find(n => n.title.includes(label) || label.includes(n.title));
+                }
+
                 if (post) handleCardClick(post);
-                else alert('해당 공고를 찾을 수 없거나 이미 마감되었습니다.');
+                else alert(`"${label}" 공고를 찾을 수 없거나 이미 마감되었습니다.`);
               }} 
               style={{
                 background: 'none', border: 'none', color: '#2563eb', 
@@ -471,7 +473,7 @@ export default function App() {
         }
         .chatbot-header {
           background: #3b82f6; color: white; padding: 16px 20px; font-weight: bold;
-          display: flex; justify-content: space-between; align-items: center; /* 🌟 오타수정 justify-between -> justify-content */
+          display: flex; justify-content: space-between; align-items: center; 
         }
         .chatbot-messages {
           flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #f8fafc;
@@ -830,7 +832,6 @@ export default function App() {
             <button onClick={() => setShowChat(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
           </div>
           <div className="chatbot-messages" style={{ display: 'flex', flexDirection: 'column' }}>
-            {/* 🌟 [수정됨] 마크다운 버튼 렌더링 적용 */}
             {chatMessages.map((msg, idx) => (
               <div key={idx} className={`msg-bubble ${msg.type === 'bot' ? 'msg-bot' : 'msg-user'}`}>
                 {msg.type === 'bot' ? renderChatMessage(msg.text) : msg.text}
@@ -864,7 +865,6 @@ export default function App() {
             <button className="social-btn kakao-btn">카카오로 {authModal === 'login' ? '로그인' : '3초만에 시작하기'}</button>
             <button className="social-btn google-btn">Google로 {authModal === 'login' ? '로그인' : '시작하기'}</button>
             
-            {/* 테스트용 임시 로그인 버튼 */}
             <button 
               onClick={() => { setIsLoggedIn(true); setAuthModal(null); }} 
               style={{ width: '100%', padding: '12px', marginTop: '16px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
