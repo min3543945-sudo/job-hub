@@ -43,34 +43,40 @@ const calculateDDay = (endDate) => {
   return `D-${diffDays}`;
 };
 
-// 🌟 엑셀 규격 코드값 번역 딕셔너리
-const contentTypeMap = {
-  'PROGRAM': '교육·강좌',
-  'CONTEST': '공모전·해커톤',
+// 🌟 [핵심] JSON의 영문 카테고리를 한글로 번역하는 맵핑
+const categoryMap = {
+  'INTERN': '인턴',
+  'HACKATHON': '해커톤',
+  'CONTEST': '공모전',
   'JOB': '채용·일자리',
-  'PROJECT': '공공사업',
-  'POLICY': '정책·지원금',
+  'EDUCATION': '교육·강좌',
+  'PROGRAM': '교육·강좌',
+  'ACTIVITY': '대외활동',
+  'POLICY': '지원금·정책',
   'EVENT': '행사·세미나',
-  'SCHOLARSHIP': '장학금',
-  'NEWS': '청년 소식',
   'VOLUNTEER': '자원봉사'
 };
 
-const categoryMap = {
-  'PRACTICE_STARTUP': '실무 경험 및 창업',
-  'SKILL_EDUCATION': '교육·강좌',
-  'GLOBAL_LOCAL': '글로벌·로컬',
-  'YOUTH_NEWS': '청년 소식'
+// 🌟 [핵심] JSON details 안의 영어 변수명을 한글 라벨로 예쁘게 바꿔주는 맵핑
+const detailKeyMap = {
+  capacity: '모집 인원',
+  team_size: '팀원 수',
+  employmentType: '고용 형태',
+  salaryText: '급여 / 지원금',
+  prize: '상금 내역',
+  tuition: '교육비',
+  certificate: '수료증 발급',
+  working_hours: '근무 시간',
+  event_hours: '행사 시간',
+  applicationMethod: '지원 방법',
+  contact_name: '담당자',
+  contact_phone: '연락처',
+  contact_email: '이메일 주소'
 };
 
-const locationTypeMap = {
-  'OFFLINE': '오프라인',
-  'ONLINE': '온라인',
-  'MIXED': '온·오프라인 혼합'
-};
-
-// 🌟 어떤 JSON이 들어와도 화면에 맞게 처리하는 함수
+// 🌟 새로운 통합 JSON 규격에 맞춘 데이터 정제 함수
 const normalizeItem = (item, index) => {
+  // 기관명 추출
   let orgName = '주관기관 미상';
   if (item.organization && typeof item.organization === 'object') {
     orgName = item.organization.name || item.organization.department || '주관기관 미상';
@@ -78,22 +84,25 @@ const normalizeItem = (item, index) => {
     orgName = item.organization;
   }
 
-  const deadline = item.dates?.recruit_end_at || item.dates?.applicationEndAt || item.deadline || '';
+  // 날짜 추출
+  const deadline = item.dates?.recruit_end_at || item.dates?.applicationEndAt || '';
+  const activityStart = item.dates?.activity_start_at || item.dates?.activityStartAt || '';
+  const activityEnd = item.dates?.activity_end_at || item.dates?.activityEndAt || '';
   
-  let sourceName = item.source || item.source_site || '기타';
-  if (typeof item.source === 'object') {
-    sourceName = item.source.sourceName || '기타';
-  }
+  // 데이터 출처
+  const sourceName = item.source || item.source?.sourceName || '기타';
 
-  let categoryRaw = item.category || (item.topics && item.topics[0]) || '분야 미상';
-  let category = categoryMap[categoryRaw] || contentTypeMap[categoryRaw] || categoryRaw;
+  // 분류 (category) 및 관심 분야 (topics)
+  let categoryRaw = item.category || '기타';
+  let category = categoryMap[categoryRaw] || categoryRaw;
+  let topics = item.topics || [];
 
+  // 장소
   let locType = item.location?.operation_type || item.location?.type || '';
   let locName = item.location?.region || '';
-  let locTag = locationTypeMap[locType] || locType;
-  if (locName) locTag += `(${locName})`;
+  let locTag = locType === 'OFFLINE' ? '오프라인' : locType === 'ONLINE' ? '온라인' : locType === 'MIXED' ? '온·오프라인 혼합' : locType;
+  if (locName && locName !== 'UNKNOWN') locTag += `(${locName})`;
 
-  const tag = locTag || '기타';
   const id = item.id || item.externalId || `item-${index}`;
 
   return {
@@ -102,31 +111,28 @@ const normalizeItem = (item, index) => {
     orgName,
     deadline,
     sourceName,
-    category,
-    tag,
+    category,       // 상단 메뉴바 필터용 (해커톤, 인턴 등)
+    topics,         // 해시태그용 (IT, 디자인 등)
+    locTag,         // 해시태그용 (오프라인 등)
     imageUrl: item.thumbnail_url || item.imageUrl || `https://picsum.photos/seed/${String(id).length + index}/800/800`,
-    url: item.source_url || item.url || item.source?.listUrl || '#',
-    targets: (item.targets && item.targets[0]) || item.target?.targetText || '제한없음',
-    activityStart: item.dates?.activity_start_at || item.dates?.activityStartAt || '',
-    activityEnd: item.dates?.activity_end_at || item.dates?.activityEndAt || '',
-    benefits: item.details?.salaryText || item.benefits || '',
-    description: item.summary || item.description || '상세 내용이 없습니다.',
-    capacity: item.details?.capacity || item.recruitment?.capacity || null,
-    contact: {
-      name: item.details?.contact_name || item.contact?.name,
-      phone: item.details?.contact_phone || item.contact?.phone,
-      email: item.details?.contact_email || item.contact?.email
-    }
+    url: item.source_url || item.url || '#',
+    targets: item.targets?.length > 0 ? item.targets.join(', ') : '제한없음',
+    activityStart,
+    activityEnd,
+    details: item.details || {}, // 급여, 인원, 상금 등 동적 데이터
+    description: item.summary || item.description || '상세 내용이 없습니다.'
   };
 };
 
 export default function App() {
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // 🌟 선택된 네비게이션 탭 (기본값: 전체)
   const [selectedCategory, setSelectedCategory] = useState('전체');
+  
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearchTerm = useDeferredValue(searchTerm);
-  
   const [selectedPost, setSelectedPost] = useState(null);
   
   const [authModal, setAuthModal] = useState(null); 
@@ -207,14 +213,19 @@ export default function App() {
     );
   };
 
+  // 🌟 네비게이션 탭에서 선택한 '카테고리(category)' 기준으로 목록 필터링
   const filteredData = notices.filter((item) => {
     if (showBookmarksOnly && !bookmarks.includes(item.id)) return false;
-    const matchesCategory = selectedCategory === '전체' || item.sourceName.includes(selectedCategory);
+    
+    // 선택된 탭이 '전체'이거나, 공고의 category(인턴, 공모전 등)가 탭 이름과 일치할 때 통과
+    const matchesCategory = selectedCategory === '전체' || item.category.includes(selectedCategory);
+    
     const searchLower = debouncedSearchTerm ? debouncedSearchTerm.toLowerCase() : '';
     const matchesSearch =
       item.title.toLowerCase().includes(searchLower) ||
       item.category.toLowerCase().includes(searchLower) ||
-      item.orgName.toLowerCase().includes(searchLower);
+      item.orgName.toLowerCase().includes(searchLower) ||
+      item.topics.some(t => t.toLowerCase().includes(searchLower)); // 관심 분야로도 검색 가능
       
     return matchesCategory && matchesSearch;
   });
@@ -256,14 +267,12 @@ export default function App() {
       <style>{`
         .force-grid {
           display: grid !important;
-          /* 🌟 최소 너비를 210px로 확 줄여서 한 화면에 4~5개가 들어가게 설정 */
           grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)) !important;
-          gap: 40px 20px !important; /* 위아래 간격은 넓게, 양옆은 좁게 */
+          gap: 40px 20px !important;
         }
         .force-card {
           display: flex !important;
           flex-direction: column !important;
-          /* 🌟 흰색 배경과 테두리를 없애서 군더더기 없는 디자인 연출 */
           background-color: transparent !important;
           border: none !important;
           cursor: pointer !important;
@@ -275,17 +284,15 @@ export default function App() {
         }
         .force-img-wrap {
           width: 100% !important;
-          /* 🌟 사진을 무조건 1:1 완벽한 정사각형으로 고정 (비율 65% 체감) */
           aspect-ratio: 1 / 1 !important;
           height: auto !important;
           position: relative !important;
           background-color: #f1f5f9 !important;
-          border-radius: 12px !important; /* 이미지에만 둥근 테두리 적용 */
+          border-radius: 12px !important; 
           border: 1px solid #e2e8f0 !important;
           overflow: hidden !important;
         }
         .force-body {
-          /* 🌟 세로 폭 압축의 핵심: 패딩을 획기적으로 줄임 */
           padding: 12px 4px 0px 4px !important;
           display: flex !important;
           flex-direction: column !important;
@@ -305,7 +312,7 @@ export default function App() {
             <div className="search-bar">
               <input
                 type="text"
-                placeholder="관심 공고나 키워드를 입력하세요"
+                placeholder="공고 제목, 분야, 주관기관 검색"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -333,53 +340,58 @@ export default function App() {
           </button>
 
           <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '40px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-              <span style={{ background: '#f1f5f9', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', color: '#475569', fontSize: '0.9rem' }}>
-                {selectedPost.sourceName}
-              </span>
+            
+            {/* 카테고리 & 출처 뱃지 */}
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
               <span style={{ background: '#e0e7ff', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', color: '#4338ca', fontSize: '0.9rem' }}>
                 {selectedPost.category}
               </span>
+              <span style={{ background: '#f1f5f9', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', color: '#475569', fontSize: '0.9rem' }}>
+                출처: {selectedPost.sourceName}
+              </span>
             </div>
             
-            <h1 style={{ fontSize: '2.2rem', fontWeight: '800', lineHeight: '1.3', marginBottom: '24px', color: '#0f172a' }}>
+            {/* 제목 */}
+            <h1 style={{ fontSize: '2.2rem', fontWeight: '800', lineHeight: '1.3', marginBottom: '24px', color: '#0f172a', wordBreak: 'keep-all' }}>
               {selectedPost.title}
             </h1>
             
+            {/* 포스터 이미지 */}
             <img 
               src={selectedPost.imageUrl} 
               alt="포스터" 
               style={{ width: '100%', maxHeight: '450px', objectFit: 'cover', borderRadius: '12px', marginBottom: '32px' }} 
             />
             
+            {/* 동적 요약 정보 박스 (details 안의 내용들을 모두 출력) */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', background: '#f8fafc', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '40px', fontSize: '1rem' }}>
               <p><strong>🏢 주관기관:</strong> {selectedPost.orgName}</p>
-              <p><strong>🎯 지원대상:</strong> {selectedPost.targets}</p>
+              {selectedPost.targets !== '제한없음' && <p><strong>🎯 지원대상:</strong> {selectedPost.targets}</p>}
               <p><strong>⏳ 모집마감:</strong> <span style={{color: '#ef4444', fontWeight: 'bold'}}>{selectedPost.deadline || '상시모집'} ({calculateDDay(selectedPost.deadline)})</span></p>
-              <p><strong>💡 진행방식:</strong> {selectedPost.tag}</p>
               
-              {selectedPost.capacity && <p><strong>👤 모집규모:</strong> {selectedPost.capacity}</p>}
-              {selectedPost.benefits && <p><strong>🎁 혜택/급여:</strong> {selectedPost.benefits}</p>}
-              
+              {/* 활동기간 */}
               {selectedPost.activityStart && (
-                <p style={{ gridColumn: '1 / -1' }}><strong>📅 활동기간:</strong> {selectedPost.activityStart} ~ {selectedPost.activityEnd}</p>
+                <p style={{ gridColumn: '1 / -1' }}><strong>📅 활동/근무 기간:</strong> {selectedPost.activityStart} ~ {selectedPost.activityEnd}</p>
               )}
-              
-              {selectedPost.contact?.phone && (
-                <p style={{ gridColumn: '1 / -1' }}>
-                  <strong>📞 문의처:</strong> {selectedPost.contact.name ? `${selectedPost.contact.name} (` : ''} 
-                  {selectedPost.contact.phone} 
-                  {selectedPost.contact.name ? ')' : ''} 
-                  {selectedPost.contact.email ? ` / ${selectedPost.contact.email}` : ''}
-                </p>
-              )}
+
+              {/* 🌟 [핵심] JSON의 details 객체 안에 있는 키값들을 동적으로 자동 출력 */}
+              {Object.entries(selectedPost.details).map(([key, value]) => {
+                // 값이 없거나 파일 첨부 같은 배열/객체 형태면 건너뜀
+                if (!value || typeof value === 'object') return null; 
+                const label = detailKeyMap[key] || key; // 한글 라벨로 변환
+                return (
+                  <p key={key}><strong>💡 {label}:</strong> {value}</p>
+                );
+              })}
             </div>
 
+            {/* 본문 내용 */}
             <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '16px', borderBottom: '2px solid #e2e8f0', paddingBottom: '8px' }}>상세 안내</h3>
             <div style={{ lineHeight: '1.8', fontSize: '1.05rem', color: '#334155', marginBottom: '40px', whiteSpace: 'pre-line' }}>
               {selectedPost.description}
             </div>
 
+            {/* CTA 원문 이동 버튼 */}
             <div style={{ textAlign: 'center', marginTop: '40px', paddingTop: '32px', borderTop: '1px solid #e2e8f0' }}>
               <a 
                 href={selectedPost.url} 
@@ -387,7 +399,7 @@ export default function App() {
                 rel="noreferrer" 
                 style={{ display: 'inline-block', background: '#3b82f6', color: 'white', padding: '16px 48px', borderRadius: '50px', fontSize: '1.2rem', fontWeight: '800', textDecoration: 'none', boxShadow: '0 4px 6px rgba(59, 130, 246, 0.3)', transition: 'transform 0.2s' }}
               >
-                원문 페이지로 이동하여 신청하기 🔗
+                원문 페이지로 이동하여 확인하기 🔗
               </a>
             </div>
           </div>
@@ -396,9 +408,10 @@ export default function App() {
       ) : (
         // 기본 목록 화면
         <>
+          {/* 🌟 상단 네비게이션 (활동 종류 기반) */}
           <nav className="main-nav">
             <div className="nav-inner">
-              {['전체', '배워봄', '강원대', '한림대', '나라장터', '채용정보'].map((tab) => (
+              {['전체', '인턴', '채용·일자리', '공모전', '해커톤', '교육·강좌', '대외활동', '지원금·정책'].map((tab) => (
                 <button
                   key={tab}
                   className={`nav-item ${selectedCategory === tab ? 'active' : ''}`}
@@ -411,6 +424,7 @@ export default function App() {
           </nav>
 
           <main className="content-area">
+            {/* 히어로 배너 및 로그인 */}
             <div className="hero-section">
               <div className="hero-banner">
                 {activePick ? (
@@ -481,7 +495,6 @@ export default function App() {
             {/* 카드 리스트 영역 */}
             <div className="force-grid">
               {loading ? (
-                // 1:1 비율에 맞춘 스켈레톤 로딩
                 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                   <div key={n} className="force-card">
                     <div className="force-img-wrap" style={{background: '#e2e8f0'}}></div>
@@ -495,9 +508,9 @@ export default function App() {
               ) : sortedData.length === 0 ? (
                 <div className="empty-state" style={{ gridColumn: '1 / -1' }}>
                   <div className="empty-icon">{showBookmarksOnly ? '⭐' : '📂'}</div>
-                  <h3>{showBookmarksOnly ? '아직 북마크한 공고가 없습니다.' : '검색결과가 없습니다.'}</h3>
+                  <h3>{showBookmarksOnly ? '아직 북마크한 공고가 없습니다.' : '해당 카테고리의 공고가 없습니다.'}</h3>
                   <button className="btn-reset" onClick={() => { setSearchTerm(''); setSelectedCategory('전체'); setShowBookmarksOnly(false); }}>
-                    초기화하기
+                    전체 보기로 돌아가기
                   </button>
                 </div>
               ) : (
@@ -514,9 +527,9 @@ export default function App() {
                       key={item.id} 
                       className="force-card"
                       onClick={() => handleCardClick(item)}
-                      style={{ filter: isExpired ? 'grayscale(100%)' : 'none', opacity: isExpired ? 0.7 : 1 }}
+                      style={{ filter: isExpired ? 'grayscale(100%)' : 'none', opacity: isExpired ? 0.7 : 1, minHeight: '360px' }}
                     >
-                      {/* 1. 카드 이미지 (1:1 정사각형 고정 비율) */}
+                      {/* 1. 카드 이미지 (1:1 정사각형) */}
                       <div className="force-img-wrap">
                         <img 
                           src={item.imageUrl} 
@@ -538,53 +551,51 @@ export default function App() {
                         </div>
                       </div>
                       
-                      {/* 2. 카드 텍스트 (군더더기 없이 초압축) */}
+                      {/* 2. 카드 텍스트 (초압축 링커리어 스타일) */}
                       <div className="force-body">
-                        {/* 링커리어 스타일의 작은 출처 태그 & 추천 느낌 */}
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', marginBottom: '8px' }}>
-                          <span style={{ 
-                            flexShrink: 0, 
-                            color: '#ec4899', 
-                            border: '1px solid #fbcfe8', 
-                            padding: '1px 6px', 
-                            fontSize: '0.7rem', 
-                            fontWeight: 'bold', 
-                            borderRadius: '4px', 
-                            background: '#fdf2f8', 
-                            marginTop: '2px' 
-                          }}>
-                            {item.sourceName === '배워봄' ? '추천' : item.sourceName.substring(0,4)}
+                        <div style={{ display: 'flex', gap: '4px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                          {/* 메인 카테고리 뱃지 */}
+                          <span style={{ fontSize: '0.7rem', fontWeight: 'bold', padding: '3px 6px', borderRadius: '4px', background: '#e0e7ff', color: '#4338ca' }}>
+                            {item.category}
                           </span>
                           
-                          {/* 제목 (가장 크게, 최대 2줄까지만 표시 후 말줄임) */}
-                          <h3 style={{ 
-                            fontSize: '1.05rem', 
-                            fontWeight: '800', 
-                            lineHeight: '1.3', 
-                            color: '#0f172a', 
-                            margin: 0, 
-                            display: '-webkit-box', 
-                            WebkitLineClamp: 2, 
-                            WebkitBoxOrient: 'vertical', 
-                            overflow: 'hidden', 
-                            wordBreak: 'keep-all' 
-                          }}>
-                            {highlightText(item.title, debouncedSearchTerm)}
-                          </h3>
+                          {/* topics (관심분야)가 있으면 해시태그로 출력 */}
+                          {item.topics.length > 0 && item.topics.slice(0, 2).map((topic, idx) => (
+                            <span key={idx} style={{ fontSize: '0.7rem', fontWeight: 'bold', padding: '3px 6px', borderRadius: '4px', background: '#f1f5f9', color: '#475569' }}>
+                              #{topic}
+                            </span>
+                          ))}
                         </div>
                         
-                        {/* 기관명 (한 줄 초과 시 말줄임) */}
-                        <div style={{ fontSize: '0.8rem', color: '#475569', marginBottom: '8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {/* 제목 (최대 2줄 제한) */}
+                        <h3 style={{ 
+                          fontSize: '1.05rem', 
+                          fontWeight: '800', 
+                          lineHeight: '1.3', 
+                          marginBottom: '6px', 
+                          color: '#0f172a', 
+                          display: '-webkit-box', 
+                          WebkitLineClamp: 2, 
+                          WebkitBoxOrient: 'vertical', 
+                          overflow: 'hidden', 
+                          wordBreak: 'keep-all' 
+                        }}>
+                          {highlightText(item.title, debouncedSearchTerm)}
+                        </h3>
+
+                        {/* 기관명 */}
+                        <div style={{ fontSize: '0.8rem', color: '#475569', marginBottom: 'auto', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {highlightText(item.orgName, debouncedSearchTerm)}
                         </div>
 
-                        {/* 하단 D-Day 및 조회수 (여백 최소화) */}
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '0.75rem', marginTop: 'auto' }}>
+                        {/* 하단 정보 */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #f1f5f9', fontSize: '0.8rem' }}>
                           <span style={{ color: isExpired ? '#94a3b8' : '#ef4444', fontWeight: 'bold', textDecoration: isExpired ? 'line-through' : 'none' }}>
                             {dynamicDDay}
                           </span>
-                          <span style={{ color: '#94a3b8' }}>조회 {views}</span>
-                          {item.capacity && <span style={{ color: '#94a3b8' }}>· 모집 {item.capacity}</span>}
+                          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                            <span style={{ color: '#94a3b8' }}>조회 {views}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -596,7 +607,7 @@ export default function App() {
         </>
       )}
 
-      {/* 맨 위로 가기 */}
+      {/* 맨 위로 가기 버튼 */}
       <button className={`btn-scroll-top ${showTopBtn ? 'visible' : ''}`} onClick={scrollToTop} title="맨 위로 가기">↑</button>
 
       {/* 로그인 모달 */}
