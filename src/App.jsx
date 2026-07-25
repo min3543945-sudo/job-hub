@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useDeferredValue } from 'react';
-import './App.css';
+import './App.css'; // 사용하는 환경에 맞게 css 파일명 확인
 
 // 🌟 검색 최적화를 위한 디바운스 훅
 function useDebounce(value, delay) {
@@ -25,7 +25,6 @@ const highlightText = (text, query) => {
   );
 };
 
-// 🌟 [핵심] 날짜와 시간을 예쁘게 바꿔주는 함수 (T, +09:00 같은 기호 제거)
 const formatDateString = (dateStr) => {
   if (!dateStr) return '상시모집';
   const date = new Date(dateStr);
@@ -37,15 +36,12 @@ const formatDateString = (dateStr) => {
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
   
-  // 시간이 00:00 이거나 23:59 인 경우는 날짜만 깔끔하게 보여줌
   if ((hours === '00' && minutes === '00') || (hours === '23' && minutes === '59')) {
     return `${year}. ${month}. ${day}`;
   }
-  
   return `${year}. ${month}. ${day} (${hours}:${minutes})`;
 };
 
-// 🌟 D-Day 자동 계산 함수
 const calculateDDay = (endDate) => {
   if (!endDate) return '상시모집';
   const today = new Date();
@@ -63,7 +59,6 @@ const calculateDDay = (endDate) => {
   return `D-${diffDays}`;
 };
 
-// 🌟 영문 카테고리를 한글로 번역
 const categoryMap = {
   'INTERN': '인턴',
   'HACKATHON': '해커톤',
@@ -77,7 +72,6 @@ const categoryMap = {
   'VOLUNTEER': '자원봉사'
 };
 
-// 🌟 카테고리별 맞춤 이모지 맵핑
 const categoryEmojiMap = {
   '인턴': '💼',
   '채용·일자리': '🏢',
@@ -89,7 +83,6 @@ const categoryEmojiMap = {
   '기타': '📌'
 };
 
-// 🌟 영어 변수명을 한글 라벨로 예쁘게 바꿔주는 맵핑
 const detailKeyMap = {
   capacity: '모집 인원',
   team_size: '팀원 수',
@@ -106,7 +99,6 @@ const detailKeyMap = {
   contact_email: '이메일 주소'
 };
 
-// 🌟 데이터 정제 함수
 const normalizeItem = (item, index) => {
   let orgName = '주관기관 미상';
   if (item.organization && typeof item.organization === 'object') {
@@ -118,7 +110,6 @@ const normalizeItem = (item, index) => {
   const deadline = item.dates?.recruit_end_at || item.dates?.applicationEndAt || '';
   const activityStart = item.dates?.activity_start_at || item.dates?.activityStartAt || '';
   const activityEnd = item.dates?.activity_end_at || item.dates?.activityEndAt || '';
-  
   const sourceName = item.source || item.source?.sourceName || '기타';
 
   let categoryRaw = item.category || '기타';
@@ -160,14 +151,21 @@ export default function App() {
   const deferredSearchTerm = useDeferredValue(searchTerm);
   const [selectedPost, setSelectedPost] = useState(null);
   
-  const [authModal, setAuthModal] = useState(null); 
-  const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authModal, setAuthModal] = useState(null); // 'login' 또는 'signup' 또는 null
   
-  // 🌟 [핵심] 모집 중인 공고만 볼지, 마감된 공고도 볼지 결정하는 상태 (기본값 true: 모집 중만 보기)
+  const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
   const [showActiveOnly, setShowActiveOnly] = useState(true); 
-
   const [currentBannerIdx, setCurrentBannerIdx] = useState(0); 
   const [showTopBtn, setShowTopBtn] = useState(false);
+
+  const [showNoti, setShowNoti] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [chatInput, setChatInput] = useState('');
+  
+  const [chatMessages, setChatMessages] = useState([
+    { type: 'bot', text: '안녕하세요! 춘천 청년들을 위한 AI 모아봄 챗봇입니다. 🎓\n\n어떤 공고를 찾고 계신가요? (예: "주말에 할 수 있는 대외활동 찾아줘", "컴퓨터 관련 강좌 있어?")' }
+  ]);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
@@ -207,11 +205,8 @@ export default function App() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 300) {
-        setShowTopBtn(true);
-      } else {
-        setShowTopBtn(false);
-      }
+      if (window.scrollY > 300) setShowTopBtn(true);
+      else setShowTopBtn(false);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -241,13 +236,63 @@ export default function App() {
     );
   };
 
+  // 🌟 [핵심] JSON 파싱 에러 방지 로직이 적용된 챗봇 전송 함수
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+
+    const userMsg = chatInput;
+    setChatMessages(prev => [...prev, { type: 'user', text: userMsg }]);
+    setChatInput('');
+    setChatMessages(prev => [...prev, { type: 'bot', text: '춘천시 공고 데이터를 분석하고 있습니다... 🔍' }]);
+
+    try {
+      const noticesSummary = notices.map(n =>
+        `- [${n.category}] ${n.title} (기관: ${n.orgName}, 마감: ${n.deadline || '상시'})`
+      ).join('\n');
+
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMsg, noticesSummary }),
+      });
+
+      // 서버 응답을 텍스트로 먼저 확인하여 억지 JSON 파싱 방지
+      const text = await response.text();
+      let data;
+      
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (parseError) {
+        console.error('서버 응답 원본:', text);
+        throw new Error(`서버가 올바른 응답을 주지 않았습니다. (상태 코드: ${response.status})`);
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || `API 요청 실패 (${response.status})`);
+      }
+
+      setChatMessages(prev => {
+        const newMessages = [...prev];
+        newMessages.pop();
+        newMessages.push({ type: 'bot', text: data.reply });
+        return newMessages;
+      });
+      
+    } catch (error) {
+      console.error('Chat API Error:', error);
+      setChatMessages(prev => {
+        const newMessages = [...prev];
+        newMessages.pop();
+        newMessages.push({ type: 'bot', text: `앗, 오류가 발생했어요. 😢\n(에러: ${error.message})` });
+        return newMessages;
+      });
+    }
+  };
+
   const filteredData = notices.filter((item) => {
     if (showBookmarksOnly && !bookmarks.includes(item.id)) return false;
-    
-    // 카테고리 필터
     const matchesCategory = selectedCategory === '전체' || item.category.includes(selectedCategory);
-    
-    // 검색어 필터
     const searchLower = debouncedSearchTerm ? debouncedSearchTerm.toLowerCase() : '';
     const matchesSearch =
       item.title.toLowerCase().includes(searchLower) ||
@@ -255,7 +300,6 @@ export default function App() {
       item.orgName.toLowerCase().includes(searchLower) ||
       item.topics.some(t => t.toLowerCase().includes(searchLower)); 
 
-    // 🌟 [핵심] 만약 '모집 중만 보기'가 켜져있고, 공고가 마감되었다면 숨김 처리
     let isExpired = false;
     if (item.deadline) {
       const today = new Date();
@@ -266,9 +310,7 @@ export default function App() {
         if (end < today) isExpired = true;
       }
     }
-    
     if (showActiveOnly && isExpired) return false;
-      
     return matchesCategory && matchesSearch;
   });
 
@@ -310,10 +352,7 @@ export default function App() {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        
-        .animate-fade-in {
-          animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
+        .animate-fade-in { animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
 
         .force-grid {
           display: grid !important;
@@ -329,9 +368,7 @@ export default function App() {
           transition: transform 0.2s !important;
           height: 100% !important;
         }
-        .force-card:hover {
-          transform: translateY(-4px) !important;
-        }
+        .force-card:hover { transform: translateY(-4px) !important; }
         .force-img-wrap {
           width: 100% !important;
           aspect-ratio: 1 / 1 !important;
@@ -347,6 +384,59 @@ export default function App() {
           display: flex !important;
           flex-direction: column !important;
           flex-grow: 1 !important;
+        }
+        
+        .social-btn {
+          width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+          padding: 12px; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; margin-bottom: 10px; border: none;
+        }
+        .kakao-btn { background-color: #FEE500; color: #000000; }
+        .google-btn { background-color: #ffffff; color: #333333; border: 1px solid #d1d5db; }
+        
+        .noti-dropdown {
+          position: absolute; top: 50px; right: 0; width: 320px; background: white;
+          border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;
+          z-index: 100; overflow: hidden; animation: fadeInUp 0.2s;
+        }
+        .noti-item { padding: 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; text-align: left; }
+        .noti-item:hover { background-color: #f8fafc; }
+        .noti-item h4 { font-size: 0.9rem; margin-bottom: 4px; color: #1e293b; }
+        .noti-item p { font-size: 0.8rem; color: #64748b; line-height: 1.4; }
+        
+        .chatbot-fab {
+          position: fixed; bottom: 40px; right: 40px; width: 64px; height: 64px;
+          background: linear-gradient(135deg, #6366f1, #3b82f6); color: white; border: none;
+          border-radius: 50%; font-size: 1.8rem; cursor: pointer; box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+          z-index: 999; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;
+        }
+        .chatbot-fab:hover { transform: scale(1.1); }
+        
+        .chatbot-window {
+          position: fixed; bottom: 120px; right: 40px; width: 380px; height: 550px;
+          background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+          display: flex; flex-direction: column; z-index: 999; overflow: hidden; border: 1px solid #e2e8f0;
+          animation: fadeInUp 0.3s;
+        }
+        .chatbot-header {
+          background: #3b82f6; color: white; padding: 16px 20px; font-weight: bold;
+          display: flex; justify-between: space-between; align-items: center;
+        }
+        .chatbot-messages {
+          flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #f8fafc;
+        }
+        .msg-bubble {
+          max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 0.95rem; line-height: 1.5; white-space: pre-line; word-break: break-word;
+        }
+        .msg-bot { background: white; color: #334155; border: 1px solid #e2e8f0; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .msg-user { background: #3b82f6; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .chatbot-input {
+          padding: 16px; background: white; border-top: 1px solid #e2e8f0; display: flex; gap: 8px;
+        }
+        .chatbot-input input {
+          flex: 1; padding: 10px 16px; border: 1px solid #cbd5e1; border-radius: 20px; outline: none; font-size: 0.95rem;
+        }
+        .chatbot-input button {
+          background: #3b82f6; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold;
         }
       `}</style>
 
@@ -371,9 +461,40 @@ export default function App() {
               )}
               <button className="btn-search">🔍</button>
             </div>
-            <div className="header-links">
-              <button onClick={() => setAuthModal('login')}>로그인</button>
-              <button onClick={() => setAuthModal('signup')}>회원가입</button>
+            
+            <div className="header-links" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button 
+                onClick={() => setShowNoti(!showNoti)} 
+                style={{ position: 'relative', fontSize: '1.2rem', marginRight: '4px', background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                🔔
+                <span style={{ position: 'absolute', top: '-4px', right: '-4px', width: '8px', height: '8px', backgroundColor: '#ef4444', borderRadius: '50%' }}></span>
+              </button>
+              
+              {showNoti && (
+                <div className="noti-dropdown">
+                  <div style={{ padding: '12px 16px', fontWeight: 'bold', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
+                    알림 <span style={{ color: '#3b82f6', fontSize: '0.8rem', cursor: 'pointer' }}>모두 읽음 처리</span>
+                  </div>
+                  <div className="noti-item">
+                    <h4>🔥 [해커톤] 신청 마감 D-1</h4>
+                    <p>북마크하신 '강원 해커톤 대회' 마감이 내일입니다. 잊지 말고 지원하세요!</p>
+                  </div>
+                  <div className="noti-item">
+                    <h4>✨ 맞춤 공고 추천</h4>
+                    <p>회원님을 위한 새로운 [마케팅 인턴] 공고가 3건 등록되었습니다.</p>
+                  </div>
+                </div>
+              )}
+
+              {isLoggedIn ? (
+                <button onClick={() => { setIsLoggedIn(false); alert('로그아웃 되었습니다.'); }} style={{ fontWeight: 'bold', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>로그아웃</button>
+              ) : (
+                <>
+                  <button onClick={() => setAuthModal('login')} style={{ fontWeight: 'bold', background: 'none', border: 'none', cursor: 'pointer' }}>로그인</button>
+                  <button onClick={() => setAuthModal('signup')} style={{ fontWeight: 'bold', background: 'none', border: 'none', cursor: 'pointer', color: '#3b82f6' }}>회원가입</button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -414,7 +535,6 @@ export default function App() {
               <p><strong>🏢 주관기관:</strong> {selectedPost.orgName}</p>
               {selectedPost.targets !== '제한없음' && <p><strong>🎯 지원대상:</strong> {selectedPost.targets}</p>}
               
-              {/* 🌟 수정된 날짜 표시 포맷 적용 */}
               <p><strong>⏳ 모집마감:</strong> <span style={{color: '#ef4444', fontWeight: 'bold'}}>{formatDateString(selectedPost.deadline)} ({calculateDDay(selectedPost.deadline)})</span></p>
               
               {selectedPost.activityStart && (
@@ -431,7 +551,7 @@ export default function App() {
             </div>
 
             <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '16px', borderBottom: '2px solid #e2e8f0', paddingBottom: '8px' }}>상세 안내</h3>
-            <div style={{ lineHeight: '1.8', fontSize: '1.05rem', color: '#334155', marginBottom: '40px', whiteSpace: 'pre-line' }}>
+            <div style={{ lineHeight: '1.8', fontSize: '1.05rem', color: '#334155', marginBottom: '40px', whiteSpace: 'pre-line', wordBreak: 'break-word' }}>
               {selectedPost.description}
             </div>
 
@@ -451,7 +571,6 @@ export default function App() {
       ) : (
         // 기본 목록 화면
         <>
-          {/* 네비게이션 탭 */}
           <nav className="main-nav">
             <div className="nav-inner">
               {['전체', '인턴', '채용·일자리', '공모전', '해커톤', '교육·강좌', '대외활동', '지원금·정책'].map((tab) => (
@@ -467,7 +586,6 @@ export default function App() {
           </nav>
 
           <main className="content-area">
-            {/* '전체' 탭이면서 '북마크 보기' 상태가 아닐 때만 배너/로그인 화면 노출 */}
             {selectedCategory === '전체' && !showBookmarksOnly && (
               <div className="hero-section animate-fade-in">
                 <div className="hero-banner">
@@ -495,6 +613,7 @@ export default function App() {
                   )}
                 </div>
 
+                {/* 메인 로그인 박스 */}
                 <div className="login-box">
                   <div className="login-box-header">
                     <div className="profile-icon">👤</div>
@@ -518,13 +637,12 @@ export default function App() {
                   <div className="login-links-bottom">
                     <span>아이디 찾기</span>
                     <span>비밀번호 찾기</span>
-                    <span onClick={() => setAuthModal('signup')}>회원가입</span>
+                    <span onClick={() => setAuthModal('signup')} style={{ cursor: 'pointer' }}>회원가입</span>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* 🌟 리스트 헤더 및 모집 중만 보기 토글 버튼 */}
             <div className="content-header animate-fade-in" key={`header-${selectedCategory}`}>
               <h2>
                 {showBookmarksOnly ? '⭐ 내가 찜한 공고 ' : 
@@ -534,7 +652,6 @@ export default function App() {
               </h2>
               
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                {/* 🌟 [핵심] 모집 중만 보기 체크박스 추가 */}
                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', color: '#475569', cursor: 'pointer', fontWeight: '600' }}>
                   <input 
                     type="checkbox" 
@@ -542,7 +659,7 @@ export default function App() {
                     onChange={(e) => setShowActiveOnly(e.target.checked)} 
                     style={{ width: '16px', height: '16px', accentColor: '#3b82f6', cursor: 'pointer' }}
                   />
-                   모집 중
+                  ✅ 모집 중만 보기
                 </label>
 
                 <select className="sort-dropdown" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
@@ -554,7 +671,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* 🌟 카드 리스트 영역 */}
             <div className="force-grid animate-fade-in" key={`grid-${selectedCategory}-${showBookmarksOnly}-${showActiveOnly}`}>
               {loading ? (
                 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
@@ -602,59 +718,42 @@ export default function App() {
                           alt={item.title} 
                           style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} 
                         />
+                        
+                        {/* 마감된 공고일 경우 오버레이 표시 */}
                         {isExpired && (
-                          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'rgba(0,0,0,0.8)', color: 'white', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '1.2rem', fontWeight: 'bold' }}>
                             마감됨
                           </div>
                         )}
-                        <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
-                          <button 
-                            onClick={(e) => toggleBookmark(e, item.id)}
-                            style={{ background: 'rgba(0,0,0,0.5)', border: 'none', color: isBookmarked ? '#fbbf24' : '#fff', fontSize: '1.1rem', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                          >
-                            {isBookmarked ? '★' : '☆'}
-                          </button>
-                        </div>
+                        
+                        {/* 북마크 버튼 */}
+                        <button 
+                          onClick={(e) => toggleBookmark(e, item.id)}
+                          style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', zIndex: 10 }}
+                        >
+                          {isBookmarked ? '⭐' : '☆'}
+                        </button>
                       </div>
-                      
+
                       <div className="force-body">
-                        <div style={{ display: 'flex', gap: '4px', marginBottom: '8px', flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: '0.7rem', fontWeight: 'bold', padding: '3px 6px', borderRadius: '4px', background: '#e0e7ff', color: '#4338ca' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                          <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#3b82f6', background: '#eff6ff', padding: '4px 8px', borderRadius: '4px' }}>
                             {item.category}
                           </span>
-                          {item.topics.length > 0 && item.topics.slice(0, 2).map((topic, idx) => (
-                            <span key={idx} style={{ fontSize: '0.7rem', fontWeight: 'bold', padding: '3px 6px', borderRadius: '4px', background: '#f1f5f9', color: '#475569' }}>
-                              #{topic}
-                            </span>
-                          ))}
-                        </div>
-                        
-                        <h3 style={{ 
-                          fontSize: '1.05rem', 
-                          fontWeight: '800', 
-                          lineHeight: '1.3', 
-                          marginBottom: '6px', 
-                          color: '#0f172a', 
-                          display: '-webkit-box', 
-                          WebkitLineClamp: 2, 
-                          WebkitBoxOrient: 'vertical', 
-                          overflow: 'hidden', 
-                          wordBreak: 'keep-all' 
-                        }}>
-                          {highlightText(item.title, debouncedSearchTerm)}
-                        </h3>
-
-                        <div style={{ fontSize: '0.8rem', color: '#475569', marginBottom: 'auto', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {highlightText(item.orgName, debouncedSearchTerm)}
-                        </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #f1f5f9', fontSize: '0.8rem' }}>
-                          <span style={{ color: isExpired ? '#94a3b8' : '#ef4444', fontWeight: 'bold', textDecoration: isExpired ? 'line-through' : 'none' }}>
+                          <span style={{ fontSize: '0.85rem', fontWeight: '900', color: isExpired ? '#94a3b8' : '#ef4444' }}>
                             {dynamicDDay}
                           </span>
-                          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                            <span style={{ color: '#94a3b8' }}>조회 {views}</span>
-                          </div>
+                        </div>
+                        <h3 style={{ fontSize: '1.05rem', fontWeight: '800', margin: '0 0 8px 0', color: '#1e293b', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.4' }}>
+                          {highlightText(item.title, debouncedSearchTerm)}
+                        </h3>
+                        <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {highlightText(item.orgName, debouncedSearchTerm)}
+                        </p>
+                        
+                        <div style={{ marginTop: 'auto', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', color: '#94a3b8' }}>
+                          <span>조회 {views}</span>
+                          <span>마감: {formatDateString(item.deadline)}</span>
                         </div>
                       </div>
                     </div>
@@ -666,38 +765,73 @@ export default function App() {
         </>
       )}
 
-      <button className={`btn-scroll-top ${showTopBtn ? 'visible' : ''}`} onClick={scrollToTop} title="맨 위로 가기">↑</button>
+      {/* 🌟 챗봇 플로팅 버튼 */}
+      <button className="chatbot-fab" onClick={() => setShowChat(!showChat)}>
+        {showChat ? '✕' : '💬'}
+      </button>
+      
+      {/* 🌟 챗봇 윈도우 */}
+      {showChat && (
+        <div className="chatbot-window">
+          <div className="chatbot-header">
+            <span>🤖 모아봄 AI 챗봇</span>
+            <button onClick={() => setShowChat(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
+          </div>
+          <div className="chatbot-messages" style={{ display: 'flex', flexDirection: 'column' }}>
+            {chatMessages.map((msg, idx) => (
+              <div key={idx} className={`msg-bubble ${msg.type === 'bot' ? 'msg-bot' : 'msg-user'}`}>
+                {msg.text}
+              </div>
+            ))}
+          </div>
+          <form className="chatbot-input" onSubmit={handleSendMessage}>
+            <input 
+              type="text" 
+              placeholder="공고에 대해 물어보세요!" 
+              value={chatInput} 
+              onChange={(e) => setChatInput(e.target.value)} 
+            />
+            <button type="submit">↑</button>
+          </form>
+        </div>
+      )}
 
-      {/* 로그인 모달 */}
+      {/* 🌟 인증 모달 (로그인/회원가입) */}
       {authModal && (
-        <div className="modal-overlay" onClick={() => setAuthModal(null)}>
-          <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="auth-header">
-              <h2>{authModal === 'login' ? '로그인' : '회원가입'}</h2>
-              <button className="modal-close" onClick={() => setAuthModal(null)}>✕</button>
-            </div>
-            <div className="auth-body">
-              <div className="input-group">
-                <label>아이디</label>
-                <input type="text" placeholder="아이디를 입력해주세요" />
-              </div>
-              <div className="input-group">
-                <label>비밀번호</label>
-                <input type="password" placeholder="비밀번호를 입력해주세요" />
-              </div>
-              {authModal === 'signup' && (
-                <div className="input-group">
-                  <label>비밀번호 확인</label>
-                  <input type="password" placeholder="비밀번호를 다시 입력해주세요" />
-                </div>
-              )}
-              <button className="btn-login-main auth-submit" onClick={() => { alert(authModal === 'login' ? '로그인 되었습니다.' : '회원가입이 완료되었습니다.'); setAuthModal(null); }} style={{marginTop: '16px'}}>
-                {authModal === 'login' ? '로그인' : '가입하기'}
-              </button>
-            </div>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, animation: 'fadeInUp 0.2s' }}>
+          <div style={{ background: 'white', padding: '40px', borderRadius: '16px', width: '90%', maxWidth: '400px', position: 'relative', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
+            <button onClick={() => setAuthModal(null)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#64748b' }}>✕</button>
+            <h2 style={{ marginBottom: '8px', textAlign: 'center', color: '#0f172a' }}>
+              {authModal === 'login' ? '환영합니다! 👋' : '모아봄 시작하기 🚀'}
+            </h2>
+            <p style={{ textAlign: 'center', color: '#64748b', marginBottom: '32px', fontSize: '0.9rem' }}>
+              {authModal === 'login' ? '로그인하고 맞춤 공고를 추천받으세요.' : '간편하게 가입하고 춘천시 공고를 한눈에!'}
+            </p>
+            
+            <button className="social-btn kakao-btn">카카오로 {authModal === 'login' ? '로그인' : '3초만에 시작하기'}</button>
+            <button className="social-btn google-btn">Google로 {authModal === 'login' ? '로그인' : '시작하기'}</button>
+            
+            {/* 테스트용 임시 로그인 버튼 */}
+            <button 
+              onClick={() => { setIsLoggedIn(true); setAuthModal(null); }} 
+              style={{ width: '100%', padding: '12px', marginTop: '16px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              (테스트) 비회원으로 둘러보기
+            </button>
           </div>
         </div>
       )}
+
+      {/* 🌟 위로 가기 버튼 */}
+      {showTopBtn && (
+        <button 
+          onClick={scrollToTop} 
+          style={{ position: 'fixed', bottom: '40px', right: showChat ? '120px' : '40px', width: '48px', height: '48px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '50%', cursor: 'pointer', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', zIndex: 998, transition: 'right 0.3s' }}
+        >
+          ↑
+        </button>
+      )}
+
     </div>
   );
 }
