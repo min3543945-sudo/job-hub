@@ -13,7 +13,7 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; background-color: var(--bg-light); color: var(--text-dark); line-height: 1.5; }
-.app-container { width: 100%; position: relative; }
+.app-container { width: 100%; position: relative; min-height: 100vh; }
 
 /* -------------------------------------
    헤더 & 네비게이션
@@ -39,8 +39,6 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .nav-item.active { color: var(--primary-color); }
 .nav-item.active::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background-color: var(--primary-color); }
 
-.highlight-text { background-color: #fef08a; color: #1e293b; font-weight: 800; padding: 0 2px; border-radius: 4px; }
-
 /* -------------------------------------
    메인 레이아웃 & 배너
 ------------------------------------- */
@@ -61,6 +59,7 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .banner-controls button:hover { transform: scale(1.2); color: #fbbf24; }
 .banner-page { color: white; font-size: 0.95rem; font-weight: 700; letter-spacing: 2px; }
 
+/* 우측 로그인 박스 */
 .login-box { width: 320px; background: #f1f5f9; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; border: 1px solid var(--border-color); }
 .login-box-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 .profile-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #a78bfa, #818cf8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; }
@@ -77,108 +76,32 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .login-links-bottom span { cursor: pointer; }
 .login-links-bottom span:hover { text-decoration: underline; color: var(--primary-color); }
 
+/* 리스트 정렬 & 드롭다운 */
 .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .content-header h2 { font-size: 1.4rem; font-weight: 700; }
 .count-text { color: var(--primary-color); font-size: 1.2rem; }
 .sort-dropdown { padding: 8px 36px 8px 16px; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--card-bg); font-size: 0.95rem; font-weight: 500; cursor: pointer; outline: none; appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 12px auto; }
 
 /* -------------------------------------
-   🌟 [강제 수정] 하단 카드 그리드
-------------------------------------- */
-.hub-card-grid {
-  display: grid; 
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-  gap: 24px; 
-}
-
-.hub-card { 
-  background: var(--card-bg); 
-  border: 1px solid var(--border-color); 
-  border-radius: 12px; 
-  overflow: hidden; 
-  display: flex; 
-  flex-direction: column; 
-  cursor: pointer; 
-  transition: transform 0.2s, box-shadow 0.2s, filter 0.2s; 
-}
-
-.hub-card:hover { transform: translateY(-5px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08); }
-.hub-card.expired { filter: grayscale(100%); opacity: 0.7; }
-.hub-card.expired:hover { filter: grayscale(80%); opacity: 0.9; }
-
-/* 🌟 이미지 높이 무조건 200px 강제 고정 (aspect-ratio 전면 삭제) */
-.hub-card-img-wrap { 
-  position: relative; 
-  width: 100%; 
-  height: 200px !important; 
-  min-height: 200px !important; 
-  max-height: 200px !important; 
-  flex: 0 0 200px !important; /* 절대로 늘어나거나 줄어들지 못하게 방어 */
-  background-color: #f1f5f9; 
-  overflow: hidden; 
-}
-
-.hub-card-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
-.hub-card:hover .hub-card-image { transform: scale(1.05); }
-
-/* 배지 & 북마크 */
-.expired-badge { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.8); color: white; padding: 10px 20px; border-radius: 8px; font-weight: 800; font-size: 1.1rem; z-index: 3; letter-spacing: 2px; }
-.bookmark-overlay { position: absolute; top: 12px; right: 12px; z-index: 2; }
-.btn-bookmark { background: rgba(0, 0, 0, 0.5); border: none; color: #fff; font-size: 1.2rem; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(4px); transition: color 0.2s; }
-.btn-bookmark.active { color: #fbbf24; }
-
-/* 🌟 텍스트 영역이 무조건 보이도록 공간 강제 확보 */
-.hub-card-body { 
-  padding: 20px 16px; 
-  display: flex; 
-  flex-direction: column; 
-  flex: 1 1 auto !important; /* 남은 공간을 차지하며 내용물에 맞춰 늘어남 */
-  min-height: 180px !important; /* 글씨 공간 절대 보장 */
-  background-color: #ffffff;
-}
-
-.hub-card-tags { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
-.hub-tag { font-size: 0.75rem; font-weight: 700; padding: 3px 6px; border-radius: 4px; background: #f1f5f9; color: #475569; }
-
-.hub-card-title { font-size: 1.15rem; font-weight: 700; line-height: 1.4; margin-bottom: 12px; color: #1e293b; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.hub-card-sub-info { font-size: 0.85rem; color: var(--text-gray); margin-bottom: 20px; }
-
-.hub-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 16px; border-top: 1px solid #f1f5f9; font-size: 0.85rem; }
-.footer-left .organizer { color: var(--text-gray); font-weight: 600; }
-.footer-right { display: flex; gap: 8px; align-items: center; }
-.d-day { color: #ef4444; font-weight: 700; }
-.expired-text { color: #94a3b8; text-decoration: line-through; }
-.views { color: #94a3b8; }
-
-/* -------------------------------------
-   스켈레톤 및 모달 디자인
+   기타 요소 (스켈레톤, 빈 화면, 버튼)
 ------------------------------------- */
 .empty-state { text-align: center; padding: 80px 20px; background: var(--card-bg); border: 1px dashed #cbd5e1; border-radius: 12px; }
 .empty-icon { font-size: 3rem; margin-bottom: 16px; }
 .btn-reset { margin-top: 16px; padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; }
 
-.hub-skeleton-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
-.hub-skeleton-image { width: 100%; height: 200px; flex: 0 0 200px; background: #e2e8f0; animation: shimmer 1.5s infinite linear; }
-.hub-skeleton-content { padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; flex: 1 1 auto; min-height: 180px; }
-.hub-skeleton-badge { width: 50px; height: 20px; background: #e2e8f0; border-radius: 4px; animation: shimmer 1.5s infinite linear; }
-.hub-skeleton-title { width: 100%; height: 24px; background: #e2e8f0; border-radius: 4px; animation: shimmer 1.5s infinite linear; }
-@keyframes shimmer { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-
 .btn-scroll-top { position: fixed; bottom: 40px; right: 40px; width: 56px; height: 56px; background-color: var(--primary-color); color: white; border: none; border-radius: 50%; font-size: 1.5rem; font-weight: bold; cursor: pointer; box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4); z-index: 99; opacity: 0; transform: translateY(20px); pointer-events: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 .btn-scroll-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
 .btn-scroll-top:hover { background-color: var(--primary-hover); transform: translateY(-5px); }
 
+/* -------------------------------------
+   로그인 팝업 (모달) 전용
+------------------------------------- */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; backdrop-filter: blur(2px); }
-.modal-content { background: #fff; border-radius: 16px; width: 100%; max-width: 500px; padding: 24px; display: flex; flex-direction: column; gap: 16px; max-height: 90vh; overflow-y: auto; }
-.modal-header { display: flex; justify-content: space-between; align-items: center; }
 .modal-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-gray); }
-.modal-poster { width: 100%; border-radius: 8px; max-height: 250px; object-fit: cover; }
-.modal-info-box { background: #f8fafc; padding: 16px; border-radius: 8px; font-size: 0.9rem; }
-.btn-primary { display: block; text-align: center; padding: 12px; background: var(--primary-color); color: white; border-radius: 8px; text-decoration: none; font-weight: 700; }
 
-.auth-modal { background: #fff; border-radius: 16px; width: 100%; max-width: 400px; padding: 32px; display: flex; flex-direction: column; gap: 24px; }
-.auth-header h2 { font-size: 1.5rem; font-weight: 800; color: #1e293b; }
+.auth-modal { background: #fff; border-radius: 16px; width: 100%; max-width: 400px; padding: 32px; display: flex; flex-direction: column; gap: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
 .auth-header { display: flex; justify-content: space-between; align-items: center; }
+.auth-header h2 { font-size: 1.5rem; font-weight: 800; color: #1e293b; }
 .input-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
 .input-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-gray); }
 .input-group input { padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
@@ -187,7 +110,9 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .auth-switch { text-align: center; font-size: 0.85rem; color: var(--text-gray); }
 .auth-switch span { color: var(--primary-color); font-weight: 700; cursor: pointer; margin-left: 8px; text-decoration: underline; }
 
-/* 모바일 반응형 미디어 쿼리 */
+/* -------------------------------------
+   모바일 반응형
+------------------------------------- */
 @media screen and (max-width: 860px) {
   .header-inner { flex-direction: column; gap: 16px; align-items: stretch; }
   .search-area { flex-direction: column; width: 100%; }

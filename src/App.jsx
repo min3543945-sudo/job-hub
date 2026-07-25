@@ -69,7 +69,7 @@ const locationTypeMap = {
   'MIXED': '온·오프라인 혼합'
 };
 
-// 🌟 [핵심] 새롭게 주신 통합 JSON 규격을 완벽하게 읽어들이는 함수
+// 🌟 어떤 JSON이 들어와도 화면에 맞게 처리하는 함수
 const normalizeItem = (item, index) => {
   let orgName = '주관기관 미상';
   if (item.organization && typeof item.organization === 'object') {
@@ -78,20 +78,16 @@ const normalizeItem = (item, index) => {
     orgName = item.organization;
   }
 
-  // 마감일 (새 규격 dates.recruit_end_at 지원)
   const deadline = item.dates?.recruit_end_at || item.dates?.applicationEndAt || item.deadline || '';
   
-  // 출처 (새 규격 지원)
   let sourceName = item.source || item.source_site || '기타';
   if (typeof item.source === 'object') {
     sourceName = item.source.sourceName || '기타';
   }
 
-  // 분야
   let categoryRaw = item.category || (item.topics && item.topics[0]) || '분야 미상';
   let category = categoryMap[categoryRaw] || contentTypeMap[categoryRaw] || categoryRaw;
 
-  // 태그 및 장소
   let locType = item.location?.operation_type || item.location?.type || '';
   let locName = item.location?.region || '';
   let locTag = locationTypeMap[locType] || locType;
@@ -108,7 +104,7 @@ const normalizeItem = (item, index) => {
     sourceName,
     category,
     tag,
-    imageUrl: item.thumbnail_url || item.imageUrl || `https://picsum.photos/seed/${String(id).length + index}/800/400`,
+    imageUrl: item.thumbnail_url || item.imageUrl || `https://picsum.photos/seed/${String(id).length + index}/800/800`,
     url: item.source_url || item.url || item.source?.listUrl || '#',
     targets: (item.targets && item.targets[0]) || item.target?.targetText || '제한없음',
     activityStart: item.dates?.activity_start_at || item.dates?.activityStartAt || '',
@@ -131,7 +127,6 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearchTerm = useDeferredValue(searchTerm);
   
-  // 🌟 선택된 게시물 (이 값이 있으면 상세 페이지로 화면 전환)
   const [selectedPost, setSelectedPost] = useState(null);
   
   const [authModal, setAuthModal] = useState(null); 
@@ -194,8 +189,7 @@ export default function App() {
 
   const handleCardClick = (post) => {
     setSelectedPost(post);
-    scrollToTop(); // 상세 페이지 진입 시 맨 위로 스크롤
-    
+    scrollToTop(); 
     setCategoryWeights((prev) => ({
       ...prev,
       [post.category]: (prev[post.category] || 0) + 1,
@@ -258,44 +252,44 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* 🚨 캐시 무시용 강력 스타일 주입 🚨 */}
+      {/* 🚨 링커리어 스타일 강력 CSS 적용 🚨 */}
       <style>{`
         .force-grid {
           display: grid !important;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
-          gap: 24px !important;
+          /* 🌟 최소 너비를 210px로 확 줄여서 한 화면에 4~5개가 들어가게 설정 */
+          grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)) !important;
+          gap: 40px 20px !important; /* 위아래 간격은 넓게, 양옆은 좁게 */
         }
         .force-card {
           display: flex !important;
           flex-direction: column !important;
-          background-color: #ffffff !important;
-          border: 1px solid #e2e8f0 !important;
-          border-radius: 12px !important;
-          overflow: hidden !important;
+          /* 🌟 흰색 배경과 테두리를 없애서 군더더기 없는 디자인 연출 */
+          background-color: transparent !important;
+          border: none !important;
           cursor: pointer !important;
-          transition: transform 0.2s, box-shadow 0.2s !important;
+          transition: transform 0.2s !important;
           height: 100% !important;
         }
         .force-card:hover {
-          transform: translateY(-5px) !important;
-          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
+          transform: translateY(-4px) !important;
         }
         .force-img-wrap {
           width: 100% !important;
-          height: 180px !important;
-          min-height: 180px !important;
-          max-height: 180px !important;
-          flex: 0 0 180px !important;
+          /* 🌟 사진을 무조건 1:1 완벽한 정사각형으로 고정 (비율 65% 체감) */
+          aspect-ratio: 1 / 1 !important;
+          height: auto !important;
           position: relative !important;
           background-color: #f1f5f9 !important;
+          border-radius: 12px !important; /* 이미지에만 둥근 테두리 적용 */
+          border: 1px solid #e2e8f0 !important;
+          overflow: hidden !important;
         }
         .force-body {
-          padding: 16px !important;
+          /* 🌟 세로 폭 압축의 핵심: 패딩을 획기적으로 줄임 */
+          padding: 12px 4px 0px 4px !important;
           display: flex !important;
           flex-direction: column !important;
           flex-grow: 1 !important;
-          min-height: 180px !important;
-          background-color: #ffffff !important;
         }
       `}</style>
 
@@ -328,10 +322,9 @@ export default function App() {
         </div>
       </header>
 
-      {/* 🌟 상세 페이지 화면 (selectedPost가 있을 때만 렌더링) */}
+      {/* 상세 페이지 화면 */}
       {selectedPost ? (
         <main style={{ maxWidth: '850px', margin: '0 auto', padding: '40px 20px' }}>
-          {/* 뒤로가기 버튼 */}
           <button 
             onClick={() => setSelectedPost(null)}
             style={{ background: 'none', border: 'none', fontSize: '1rem', fontWeight: 'bold', color: '#64748b', cursor: 'pointer', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}
@@ -339,10 +332,7 @@ export default function App() {
             ← 목록으로 돌아가기
           </button>
 
-          {/* 상세 내용 박스 */}
           <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '40px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
-            
-            {/* 태그 */}
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <span style={{ background: '#f1f5f9', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', color: '#475569', fontSize: '0.9rem' }}>
                 {selectedPost.sourceName}
@@ -352,19 +342,16 @@ export default function App() {
               </span>
             </div>
             
-            {/* 제목 */}
             <h1 style={{ fontSize: '2.2rem', fontWeight: '800', lineHeight: '1.3', marginBottom: '24px', color: '#0f172a' }}>
               {selectedPost.title}
             </h1>
             
-            {/* 포스터 이미지 */}
             <img 
               src={selectedPost.imageUrl} 
               alt="포스터" 
               style={{ width: '100%', maxHeight: '450px', objectFit: 'cover', borderRadius: '12px', marginBottom: '32px' }} 
             />
             
-            {/* 요약 정보 박스 (회색 배경) */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', background: '#f8fafc', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '40px', fontSize: '1rem' }}>
               <p><strong>🏢 주관기관:</strong> {selectedPost.orgName}</p>
               <p><strong>🎯 지원대상:</strong> {selectedPost.targets}</p>
@@ -374,12 +361,10 @@ export default function App() {
               {selectedPost.capacity && <p><strong>👤 모집규모:</strong> {selectedPost.capacity}</p>}
               {selectedPost.benefits && <p><strong>🎁 혜택/급여:</strong> {selectedPost.benefits}</p>}
               
-              {/* 활동기간이 있으면 표시 */}
               {selectedPost.activityStart && (
                 <p style={{ gridColumn: '1 / -1' }}><strong>📅 활동기간:</strong> {selectedPost.activityStart} ~ {selectedPost.activityEnd}</p>
               )}
               
-              {/* 문의처가 있으면 표시 */}
               {selectedPost.contact?.phone && (
                 <p style={{ gridColumn: '1 / -1' }}>
                   <strong>📞 문의처:</strong> {selectedPost.contact.name ? `${selectedPost.contact.name} (` : ''} 
@@ -390,21 +375,17 @@ export default function App() {
               )}
             </div>
 
-            {/* 본문 내용 */}
             <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '16px', borderBottom: '2px solid #e2e8f0', paddingBottom: '8px' }}>상세 안내</h3>
             <div style={{ lineHeight: '1.8', fontSize: '1.05rem', color: '#334155', marginBottom: '40px', whiteSpace: 'pre-line' }}>
               {selectedPost.description}
             </div>
 
-            {/* CTA 원문 이동 버튼 */}
             <div style={{ textAlign: 'center', marginTop: '40px', paddingTop: '32px', borderTop: '1px solid #e2e8f0' }}>
               <a 
                 href={selectedPost.url} 
                 target="_blank" 
                 rel="noreferrer" 
                 style={{ display: 'inline-block', background: '#3b82f6', color: 'white', padding: '16px 48px', borderRadius: '50px', fontSize: '1.2rem', fontWeight: '800', textDecoration: 'none', boxShadow: '0 4px 6px rgba(59, 130, 246, 0.3)', transition: 'transform 0.2s' }}
-                onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               >
                 원문 페이지로 이동하여 신청하기 🔗
               </a>
@@ -413,9 +394,8 @@ export default function App() {
         </main>
 
       ) : (
-        // 🌟 기본 목록 화면 (selectedPost가 null일 때)
+        // 기본 목록 화면
         <>
-          {/* 네비게이션 탭 */}
           <nav className="main-nav">
             <div className="nav-inner">
               {['전체', '배워봄', '강원대', '한림대', '나라장터', '채용정보'].map((tab) => (
@@ -431,7 +411,6 @@ export default function App() {
           </nav>
 
           <main className="content-area">
-            {/* 히어로 섹션 */}
             <div className="hero-section">
               <div className="hero-banner">
                 {activePick ? (
@@ -502,10 +481,15 @@ export default function App() {
             {/* 카드 리스트 영역 */}
             <div className="force-grid">
               {loading ? (
-                [1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                // 1:1 비율에 맞춘 스켈레톤 로딩
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                   <div key={n} className="force-card">
                     <div className="force-img-wrap" style={{background: '#e2e8f0'}}></div>
-                    <div className="force-body"></div>
+                    <div className="force-body">
+                      <div style={{ width: '40px', height: '16px', background: '#e2e8f0', marginBottom: '8px' }}></div>
+                      <div style={{ width: '100%', height: '20px', background: '#e2e8f0', marginBottom: '8px' }}></div>
+                      <div style={{ width: '70%', height: '20px', background: '#e2e8f0' }}></div>
+                    </div>
                   </div>
                 ))
               ) : sortedData.length === 0 ? (
@@ -532,6 +516,7 @@ export default function App() {
                       onClick={() => handleCardClick(item)}
                       style={{ filter: isExpired ? 'grayscale(100%)' : 'none', opacity: isExpired ? 0.7 : 1 }}
                     >
+                      {/* 1. 카드 이미지 (1:1 정사각형 고정 비율) */}
                       <div className="force-img-wrap">
                         <img 
                           src={item.imageUrl} 
@@ -539,50 +524,67 @@ export default function App() {
                           style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} 
                         />
                         {isExpired && (
-                          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'rgba(0,0,0,0.8)', color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold' }}>
+                          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'rgba(0,0,0,0.8)', color: 'white', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', fontSize: '0.9rem' }}>
                             마감됨
                           </div>
                         )}
                         <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
                           <button 
                             onClick={(e) => toggleBookmark(e, item.id)}
-                            style={{ background: 'rgba(0,0,0,0.5)', border: 'none', color: isBookmarked ? '#fbbf24' : '#fff', fontSize: '1.2rem', padding: '4px 8px', borderRadius: '6px', cursor: 'pointer' }}
+                            style={{ background: 'rgba(0,0,0,0.5)', border: 'none', color: isBookmarked ? '#fbbf24' : '#fff', fontSize: '1.1rem', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                           >
                             {isBookmarked ? '★' : '☆'}
                           </button>
                         </div>
                       </div>
                       
+                      {/* 2. 카드 텍스트 (군더더기 없이 초압축) */}
                       <div className="force-body">
-                        <div style={{ display: 'flex', gap: '6px', marginBottom: '10px', flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 'bold', padding: '4px 8px', borderRadius: '4px', background: '#f1f5f9', color: '#475569' }}>
-                            [{item.sourceName}]
+                        {/* 링커리어 스타일의 작은 출처 태그 & 추천 느낌 */}
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', marginBottom: '8px' }}>
+                          <span style={{ 
+                            flexShrink: 0, 
+                            color: '#ec4899', 
+                            border: '1px solid #fbcfe8', 
+                            padding: '1px 6px', 
+                            fontSize: '0.7rem', 
+                            fontWeight: 'bold', 
+                            borderRadius: '4px', 
+                            background: '#fdf2f8', 
+                            marginTop: '2px' 
+                          }}>
+                            {item.sourceName === '배워봄' ? '추천' : item.sourceName.substring(0,4)}
                           </span>
-                          {item.tag && (
-                            <span style={{ fontSize: '0.75rem', fontWeight: 'bold', padding: '4px 8px', borderRadius: '4px', background: '#f1f5f9', color: '#475569' }}>
-                              #{item.tag}
-                            </span>
-                          )}
+                          
+                          {/* 제목 (가장 크게, 최대 2줄까지만 표시 후 말줄임) */}
+                          <h3 style={{ 
+                            fontSize: '1.05rem', 
+                            fontWeight: '800', 
+                            lineHeight: '1.3', 
+                            color: '#0f172a', 
+                            margin: 0, 
+                            display: '-webkit-box', 
+                            WebkitLineClamp: 2, 
+                            WebkitBoxOrient: 'vertical', 
+                            overflow: 'hidden', 
+                            wordBreak: 'keep-all' 
+                          }}>
+                            {highlightText(item.title, debouncedSearchTerm)}
+                          </h3>
                         </div>
                         
-                        <h3 style={{ fontSize: '1.15rem', fontWeight: 'bold', lineHeight: '1.4', marginBottom: '8px', color: '#1e293b', wordBreak: 'break-word' }}>
-                          {highlightText(item.title, debouncedSearchTerm)}
-                        </h3>
-                        
-                        <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '16px' }}>
-                          분야: {highlightText(item.category, debouncedSearchTerm)}
+                        {/* 기관명 (한 줄 초과 시 말줄임) */}
+                        <div style={{ fontSize: '0.8rem', color: '#475569', marginBottom: '8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {highlightText(item.orgName, debouncedSearchTerm)}
                         </div>
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid #f1f5f9', fontSize: '0.85rem' }}>
-                          <div style={{ color: '#475569', fontWeight: 'bold', width: '65%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {item.orgName}
-                          </div>
-                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                            <span style={{ color: isExpired ? '#94a3b8' : '#ef4444', fontWeight: 'bold', textDecoration: isExpired ? 'line-through' : 'none' }}>
-                              {dynamicDDay}
-                            </span>
-                            <span style={{ color: '#94a3b8' }}>조회 {views}</span>
-                          </div>
+                        {/* 하단 D-Day 및 조회수 (여백 최소화) */}
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '0.75rem', marginTop: 'auto' }}>
+                          <span style={{ color: isExpired ? '#94a3b8' : '#ef4444', fontWeight: 'bold', textDecoration: isExpired ? 'line-through' : 'none' }}>
+                            {dynamicDDay}
+                          </span>
+                          <span style={{ color: '#94a3b8' }}>조회 {views}</span>
+                          {item.capacity && <span style={{ color: '#94a3b8' }}>· 모집 {item.capacity}</span>}
                         </div>
                       </div>
                     </div>
