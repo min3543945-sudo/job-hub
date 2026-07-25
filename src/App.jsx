@@ -25,6 +25,26 @@ const highlightText = (text, query) => {
   );
 };
 
+// 🌟 [핵심] 날짜와 시간을 예쁘게 바꿔주는 함수 (T, +09:00 같은 기호 제거)
+const formatDateString = (dateStr) => {
+  if (!dateStr) return '상시모집';
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return dateStr; 
+  
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  
+  // 시간이 00:00 이거나 23:59 인 경우는 날짜만 깔끔하게 보여줌
+  if ((hours === '00' && minutes === '00') || (hours === '23' && minutes === '59')) {
+    return `${year}. ${month}. ${day}`;
+  }
+  
+  return `${year}. ${month}. ${day} (${hours}:${minutes})`;
+};
+
 // 🌟 D-Day 자동 계산 함수
 const calculateDDay = (endDate) => {
   if (!endDate) return '상시모집';
@@ -135,15 +155,17 @@ export default function App() {
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // 선택된 네비게이션 탭 (기본값: 전체)
   const [selectedCategory, setSelectedCategory] = useState('전체');
-  
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearchTerm = useDeferredValue(searchTerm);
   const [selectedPost, setSelectedPost] = useState(null);
   
   const [authModal, setAuthModal] = useState(null); 
   const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
+  
+  // 🌟 [핵심] 모집 중인 공고만 볼지, 마감된 공고도 볼지 결정하는 상태 (기본값 true: 모집 중만 보기)
+  const [showActiveOnly, setShowActiveOnly] = useState(true); 
+
   const [currentBannerIdx, setCurrentBannerIdx] = useState(0); 
   const [showTopBtn, setShowTopBtn] = useState(false);
 
@@ -222,15 +244,30 @@ export default function App() {
   const filteredData = notices.filter((item) => {
     if (showBookmarksOnly && !bookmarks.includes(item.id)) return false;
     
-    // 선택된 탭이 '전체'이거나, 카테고리가 일치할 때 통과
+    // 카테고리 필터
     const matchesCategory = selectedCategory === '전체' || item.category.includes(selectedCategory);
     
+    // 검색어 필터
     const searchLower = debouncedSearchTerm ? debouncedSearchTerm.toLowerCase() : '';
     const matchesSearch =
       item.title.toLowerCase().includes(searchLower) ||
       item.category.toLowerCase().includes(searchLower) ||
       item.orgName.toLowerCase().includes(searchLower) ||
       item.topics.some(t => t.toLowerCase().includes(searchLower)); 
+
+    // 🌟 [핵심] 만약 '모집 중만 보기'가 켜져있고, 공고가 마감되었다면 숨김 처리
+    let isExpired = false;
+    if (item.deadline) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const end = new Date(item.deadline);
+      if (!isNaN(end.getTime())) {
+        end.setHours(0, 0, 0, 0);
+        if (end < today) isExpired = true;
+      }
+    }
+    
+    if (showActiveOnly && isExpired) return false;
       
     return matchesCategory && matchesSearch;
   });
@@ -268,9 +305,7 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* 🚨 애니메이션 및 링커리어 스타일 적용 🚨 */}
       <style>{`
-        /* 🌟 탭 이동 시 스르륵 나타나는 애니메이션 정의 */
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
@@ -378,10 +413,12 @@ export default function App() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', background: '#f8fafc', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '40px', fontSize: '1rem' }}>
               <p><strong>🏢 주관기관:</strong> {selectedPost.orgName}</p>
               {selectedPost.targets !== '제한없음' && <p><strong>🎯 지원대상:</strong> {selectedPost.targets}</p>}
-              <p><strong>⏳ 모집마감:</strong> <span style={{color: '#ef4444', fontWeight: 'bold'}}>{selectedPost.deadline || '상시모집'} ({calculateDDay(selectedPost.deadline)})</span></p>
+              
+              {/* 🌟 수정된 날짜 표시 포맷 적용 */}
+              <p><strong>⏳ 모집마감:</strong> <span style={{color: '#ef4444', fontWeight: 'bold'}}>{formatDateString(selectedPost.deadline)} ({calculateDDay(selectedPost.deadline)})</span></p>
               
               {selectedPost.activityStart && (
-                <p style={{ gridColumn: '1 / -1' }}><strong>📅 활동/근무 기간:</strong> {selectedPost.activityStart} ~ {selectedPost.activityEnd}</p>
+                <p style={{ gridColumn: '1 / -1' }}><strong>📅 활동/근무 기간:</strong> {formatDateString(selectedPost.activityStart)} ~ {formatDateString(selectedPost.activityEnd)}</p>
               )}
 
               {Object.entries(selectedPost.details).map(([key, value]) => {
@@ -430,7 +467,7 @@ export default function App() {
           </nav>
 
           <main className="content-area">
-            {/* 🌟 [핵심] '전체' 탭이면서 '북마크 보기' 상태가 아닐 때만 배너/로그인 화면 노출 */}
+            {/* '전체' 탭이면서 '북마크 보기' 상태가 아닐 때만 배너/로그인 화면 노출 */}
             {selectedCategory === '전체' && !showBookmarksOnly && (
               <div className="hero-section animate-fade-in">
                 <div className="hero-banner">
@@ -439,7 +476,7 @@ export default function App() {
                       <div className="banner-text">
                         <span className="banner-badge">🔥 실시간 인기/추천 공고</span>
                         <h2>{activePick.title}</h2>
-                        <p>{activePick.orgName} | 마감: {activePick.deadline || '상시모집'}</p>
+                        <p>{activePick.orgName} | 마감: {formatDateString(activePick.deadline)}</p>
                         <button className="btn-go">바로가기 &gt;</button>
                       </div>
                       <img 
@@ -487,24 +524,38 @@ export default function App() {
               </div>
             )}
 
-            {/* 🌟 리스트 헤더 (탭 변경 시 타이틀 맞춤 변경) */}
+            {/* 🌟 리스트 헤더 및 모집 중만 보기 토글 버튼 */}
             <div className="content-header animate-fade-in" key={`header-${selectedCategory}`}>
               <h2>
                 {showBookmarksOnly ? '⭐ 내가 찜한 공고 ' : 
                   selectedCategory === '전체' ? '📌 통합 공고 목록 ' : 
-                  `${categoryEmojiMap[selectedCategory] || '📌'} ${selectedCategory} 모아보기 `}
+                  `${categoryEmojiMap[selectedCategory] || '📌'} ${selectedCategory} 모아봄 `}
                 <span className="count-text">({!loading ? sortedData.length : 0}건)</span>
               </h2>
-              <select className="sort-dropdown" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                <option value="latest">최신순</option>
-                <option value="deadline">⏳ 마감 임박순</option>
-                <option value="recommend">✨ 맞춤 추천순</option>
-                <option value="popular">🔥 인기순</option>
-              </select>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                {/* 🌟 [핵심] 모집 중만 보기 체크박스 추가 */}
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', color: '#475569', cursor: 'pointer', fontWeight: '600' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={showActiveOnly} 
+                    onChange={(e) => setShowActiveOnly(e.target.checked)} 
+                    style={{ width: '16px', height: '16px', accentColor: '#3b82f6', cursor: 'pointer' }}
+                  />
+                   모집 중
+                </label>
+
+                <select className="sort-dropdown" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                  <option value="latest">최신순</option>
+                  <option value="deadline">⏳ 마감 임박순</option>
+                  <option value="recommend">✨ 맞춤 추천순</option>
+                  <option value="popular">🔥 인기순</option>
+                </select>
+              </div>
             </div>
 
-            {/* 🌟 카드 리스트 영역 (탭 변경 시 fade-in 애니메이션 재생을 위해 key 부여) */}
-            <div className="force-grid animate-fade-in" key={`grid-${selectedCategory}-${showBookmarksOnly}`}>
+            {/* 🌟 카드 리스트 영역 */}
+            <div className="force-grid animate-fade-in" key={`grid-${selectedCategory}-${showBookmarksOnly}-${showActiveOnly}`}>
               {loading ? (
                 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                   <div key={n} className="force-card">
@@ -519,8 +570,13 @@ export default function App() {
               ) : sortedData.length === 0 ? (
                 <div className="empty-state" style={{ gridColumn: '1 / -1' }}>
                   <div className="empty-icon">{showBookmarksOnly ? '⭐' : '📂'}</div>
-                  <h3>{showBookmarksOnly ? '아직 북마크한 공고가 없습니다.' : '해당 카테고리의 공고가 없습니다.'}</h3>
-                  <button className="btn-reset" onClick={() => { setSearchTerm(''); setSelectedCategory('전체'); setShowBookmarksOnly(false); }}>
+                  <h3>{showBookmarksOnly ? '아직 북마크한 공고가 없습니다.' : '조건에 맞는 공고가 없습니다.'}</h3>
+                  {showActiveOnly && (
+                    <button className="btn-reset" onClick={() => setShowActiveOnly(false)} style={{ background: '#475569', marginTop: '12px' }}>
+                      마감된 공고 포함해서 보기
+                    </button>
+                  )}
+                  <button className="btn-reset" onClick={() => { setSearchTerm(''); setSelectedCategory('전체'); setShowBookmarksOnly(false); setShowActiveOnly(true); }} style={{ marginLeft: '8px' }}>
                     전체 보기로 돌아가기
                   </button>
                 </div>
