@@ -27,7 +27,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: '서버에 GEMINI_API_KEY가 설정되지 않았습니다.' });
     }
 
-    // 🌟 [수정됨] 모델이 반드시 마크다운 링크 문법을 지키도록 엄격한 지침 추가
+    // 🌟 [추가됨] 모델이 반드시 마크다운 링크 문법을 지키도록 엄격한 지침 추가
     const systemPrompt = `너는 춘천시 청년들을 위한 공고 추천 AI 챗봇 '모아봄'이야.
 사용자에게 친절하고 밝은 말투로 대답해줘. 이모지도 적절히 써줘.
 
@@ -40,9 +40,9 @@ export default async function handler(req, res) {
 
     const userContent = `현재 등록된 전체 공고 데이터:\n---\n${noticesSummary || '(공고 없음)'}\n---\n\n사용자의 질문: "${message}"`;
 
-    // 🌟 [수정됨] 존재하지 않는 gemini-3.5-flash 대신 올바른 최신 모델 gemini-1.5-flash로 변경
+    // 🌟 [복구됨] 오류가 나지 않도록 요청하신 gemini-3.5-flash 모델로 다시 수정했습니다.
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: {
