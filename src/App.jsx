@@ -66,7 +66,7 @@ const categoryMap = {
   'PROGRAM': '교육·강좌',
   'ACTIVITY': '대외활동',
   'POLICY': '지원금·정책',
-  'EVENT': '행사·세미나',
+  'EVENT': '행사·공연',
   'VOLUNTEER': '자원봉사'
 };
 
@@ -78,20 +78,33 @@ const categoryEmojiMap = {
   '교육·강좌': '📚',
   '대외활동': '🤝',
   '지원금·정책': '💰',
+  '행사·공연': '🎪',
   '기타': '📌'
 };
 
+// 🌟 [추가됨] 새로운 데이터 필드명에 대응하는 라벨 추가
 const detailKeyMap = {
   capacity: '모집 인원',
+  recruitment_count: '모집 인원',
+  recruitment_count_text: '모집 인원',
   team_size: '팀원 수',
   employmentType: '고용 형태',
+  employment_type: '고용 형태',
   salaryText: '급여 / 지원금',
+  salary: '급여 / 지원금',
+  fee: '참가비 / 관람료',
   prize: '상금 내역',
   tuition: '교육비',
   certificate: '수료증 발급',
   working_hours: '근무 시간',
   event_hours: '행사 시간',
+  event_time: '행사 시간',
   applicationMethod: '지원 방법',
+  application_method: '지원 방법',
+  education_requirement: '학력 요건',
+  career_requirement: '경력 요건',
+  host: '주최',
+  organizer: '주관',
   contact_name: '담당자',
   contact_phone: '연락처',
   contact_email: '이메일 주소'
@@ -105,7 +118,8 @@ const normalizeItem = (item, index) => {
     orgName = item.organization;
   }
 
-  const deadline = item.dates?.recruit_end_at || item.dates?.applicationEndAt || '';
+  // 🌟 [추가됨] 모집 마감이 없으면 행사 종료일을 마감일로 사용
+  const deadline = item.dates?.recruit_end_at || item.dates?.applicationEndAt || item.dates?.activity_end_at || '';
   const activityStart = item.dates?.activity_start_at || item.dates?.activityStartAt || '';
   const activityEnd = item.dates?.activity_end_at || item.dates?.activityEndAt || '';
   const sourceName = item.source || item.source?.sourceName || '기타';
@@ -121,6 +135,14 @@ const normalizeItem = (item, index) => {
 
   const id = item.id || item.externalId || `item-${index}`;
 
+  // 🌟 [추가됨] contact 등 중첩된 객체를 평탄화하여 화면에 나오도록 처리
+  const details = { ...(item.details || {}) };
+  if (details.contact) {
+    if (details.contact.name) details.contact_name = details.contact.name;
+    if (details.contact.phone) details.contact_phone = details.contact.phone;
+    if (details.contact.email) details.contact_email = details.contact.email;
+  }
+
   return {
     id: String(id),
     title: item.title || '제목 없음',
@@ -135,7 +157,7 @@ const normalizeItem = (item, index) => {
     targets: item.targets?.length > 0 ? item.targets.join(', ') : '제한없음',
     activityStart,
     activityEnd,
-    details: item.details || {},
+    details,
     description: item.summary || item.description || '상세 내용이 없습니다.'
   };
 };
@@ -244,7 +266,6 @@ export default function App() {
     setChatMessages(prev => [...prev, { type: 'bot', text: '춘천시 공고 데이터를 분석하고 있습니다... 🔍' }]);
 
     try {
-      // 🌟 ID 없이 심플하게 요약 (제목 기반 매칭을 위해)
       const noticesSummary = notices.map(n =>
         `- [${n.category}] ${n.title} (기관: ${n.orgName}, 마감: ${n.deadline || '상시'})`
       ).join('\n');
@@ -286,7 +307,6 @@ export default function App() {
     }
   };
 
-  // 🌟 [핵심 변경] ID 대신 무조건 '제목'으로 매칭하여 가장 확실한 공고를 띄웁니다.
   const renderChatMessage = (text) => {
     if (!text) return null;
     
@@ -296,20 +316,18 @@ export default function App() {
     return parts.map((part, i) => {
       const match = part.match(/\[(.*?)\]\((.*?)\)/);
       if (match) {
-        const label = match[1]; // 생성된 마크다운 제목 
-        const target = match[2]; // 'open_post'
+        const label = match[1]; 
+        const target = match[2]; 
         
         if (target === 'open_post' || target.includes('post_id:')) {
           return (
             <button 
               key={i} 
               onClick={() => {
-                const cleanLabel = label.replace(/\s/g, ''); // 띄어쓰기 무시
+                const cleanLabel = label.replace(/\s/g, ''); 
                 
-                // 1. 정확한 제목 일치 확인
                 let post = notices.find(n => n.title.replace(/\s/g, '') === cleanLabel);
                 
-                // 2. 혹시나 정확히 일치하지 않으면 제목이 포함되어 있는지 확인
                 if (!post) {
                   post = notices.find(n => n.title.includes(label) || label.includes(n.title));
                 }
@@ -627,7 +645,7 @@ export default function App() {
         <>
           <nav className="main-nav">
             <div className="nav-inner">
-              {['전체', '인턴', '채용·일자리', '공모전', '해커톤', '교육·강좌', '대외활동', '지원금·정책'].map((tab) => (
+              {['전체', '인턴', '채용·일자리', '공모전', '해커톤', '교육·강좌', '대외활동', '지원금·정책', '행사·공연'].map((tab) => (
                 <button
                   key={tab}
                   className={`nav-item ${selectedCategory === tab ? 'active' : ''}`}

@@ -1,1314 +1,373 @@
 [
   {
-    "id": "525068",
-    "title": "2026년 제5·8회 춘천시 임기제공무원 채용 최종합격자 발표 및 임용후보자 등록안내 공고",
-    "summary": "2026 년 제 5·8 회 춘천시 임기제공무원 채용 최종 합격자 발표 및 임용후보자 등록 안내를 아래와 같이 공고합니다 . 2026. 7. 23. 춘천시인사위원회위원장",
-    "category": "JOB",
+    "id": "PROGRAM_001",
+    "title": "스마트폰으로 찍는 사진반",
+    "summary": "스마트폰 카메라의 다양한 기능을 활용하여 일상에서 인생샷을 남겨보는 실습 위주의 강좌입니다.",
+    "category": "PROGRAM",
     "organization": {
-      "name": null,
-      "department": "총무과"
+      "name": "춘천시 평생학습관",
+      "department": "평생교육팀"
     },
     "dates": {
-      "published_at": "2026-07-23T15:45:00+09:00",
-      "recruit_start_at": null,
-      "recruit_end_at": null,
-      "activity_start_at": null,
-      "activity_end_at": null
+      "recruit_start_at": "2026-07-20T00:00:00+09:00",
+      "recruit_end_at": "2026-07-31T23:59:59+09:00",
+      "activity_start_at": "2026-08-24T00:00:00+09:00",
+      "activity_end_at": "2026-12-07T23:59:59+09:00"
     },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
+    "targets": ["성인"],
+    "topics": ["스마트폰", "사진", "인생샷", "SKILL_EDUCATION"],
     "location": {
       "region": "춘천시",
-      "address": null,
       "operation_type": "OFFLINE"
     },
-    "status": "CLOSED",
-    "thumbnail_url": null,
-    "source": "춘천시 경제포털 공공일자리",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/public/detail/?nttId=525068",
+    "status": "OPEN",
+    "source": "춘천시 평생학습 통합플랫폼 배워봄",
+    "url": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
     "details": {
-      "capacity": null,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null,
-      "attachments": [
-        {
-          "name": "08-2. 2026년 제5·8회 춘천시 임기제공무원 최종합격자 및 임용후보자등록안내 공고.hwp",
-          "url": "https://www.chuncheon.go.kr/_cmm/fms/FileDown.do?atchFileId=FILE_000000000117007&fileSn=0&bbsId=BBSMSTR_000000000160&nttId=525068",
-          "type": "hwp"
-        },
-        {
-          "name": "10. 임용후보자등록원서(서식).hwp",
-          "url": "https://www.chuncheon.go.kr/_cmm/fms/FileDown.do?atchFileId=FILE_000000000117007&fileSn=1&bbsId=BBSMSTR_000000000160&nttId=525068",
-          "type": "hwp"
-        }
-      ]
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:22:43.294197+09:00"
+      "capacity": "30명",
+      "tuition": "무료 (재료비 별도)"
+    }
   },
   {
-    "id": "524794",
+    "id": "PROGRAM_002",
+    "title": "컴퓨터와 생성형 AI활용",
+    "summary": "컴퓨터 기초부터 챗GPT 등 최신 생성형 AI를 실생활과 업무에 활용하는 방법을 배웁니다.",
+    "category": "PROGRAM",
+    "organization": {
+      "name": "춘천시 평생학습관"
+    },
+    "dates": {
+      "recruit_start_at": "2026-07-20T00:00:00+09:00",
+      "recruit_end_at": "2026-07-31T23:59:59+09:00",
+      "activity_start_at": "2026-08-18T00:00:00+09:00",
+      "activity_end_at": "2026-12-03T23:59:59+09:00"
+    },
+    "targets": ["성인"],
+    "topics": ["컴퓨터", "AI", "챗GPT"],
+    "location": {
+      "region": "춘천시",
+      "operation_type": "OFFLINE"
+    },
+    "status": "OPEN",
+    "source": "춘천시 평생학습 통합플랫폼 배워봄",
+    "url": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
+    "details": {
+      "capacity": "25명"
+    }
+  },
+  {
+    "id": "PROGRAM_003",
+    "title": "AI 미디어 콘텐츠 활용",
+    "summary": "AI 툴을 활용하여 이미지, 영상 등 숏폼 미디어 콘텐츠를 제작하고 SNS에 활용하는 강좌입니다.",
+    "category": "PROGRAM",
+    "organization": {
+      "name": "춘천시 평생학습관"
+    },
+    "dates": {
+      "recruit_start_at": "2026-07-20T00:00:00+09:00",
+      "recruit_end_at": "2026-07-31T23:59:59+09:00",
+      "activity_start_at": "2026-08-19T00:00:00+09:00",
+      "activity_end_at": "2026-12-07T23:59:59+09:00"
+    },
+    "targets": ["성인"],
+    "topics": ["AI", "미디어", "콘텐츠"],
+    "location": {
+      "region": "춘천시",
+      "operation_type": "OFFLINE"
+    },
+    "status": "OPEN",
+    "source": "춘천시 평생학습 통합플랫폼 배워봄",
+    "url": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
+    "details": {
+      "capacity": "25명"
+    }
+  },
+  {
+    "id": "PROGRAM_004",
+    "title": "생활 속 다양한 AI·디지털활용",
+    "summary": "스마트 키오스크, 배달 앱, 모바일 뱅킹 등 실생활에 꼭 필요한 디지털 및 AI 기기 활용법을 배웁니다.",
+    "category": "PROGRAM",
+    "organization": {
+      "name": "춘천시 평생학습관"
+    },
+    "dates": {
+      "recruit_start_at": "2026-07-20T00:00:00+09:00",
+      "recruit_end_at": "2026-07-31T23:59:59+09:00",
+      "activity_start_at": "2026-08-21T00:00:00+09:00",
+      "activity_end_at": "2026-12-04T23:59:59+09:00"
+    },
+    "targets": ["성인", "시니어"],
+    "topics": ["디지털", "AI", "생활응용"],
+    "location": {
+      "region": "춘천시",
+      "operation_type": "OFFLINE"
+    },
+    "status": "OPEN",
+    "source": "춘천시 평생학습 통합플랫폼 배워봄",
+    "url": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
+    "details": {
+      "capacity": "25명"
+    }
+  },
+  {
+    "id": "JOB_524794",
     "title": "2026년 제8회 춘천시 임기제공무원 채용 재공고 (AI 빅데이터분석, 음향관리, 청사방호)",
-    "summary": "춘천시에서 함께 일할 창의적이고 유능한 임기제 공무원을 다음과 같이 채용하오니 많은 응시 바랍니다 . 〈 재공고사유 〉 ○ 응시인원미달 : 응시인원이 채용예정인원과 같거나 적음 * 해당 채용 분야의 기응시자는 재접수 불필요 2026 년 7 월 16 일 춘천시인사위원회위원장",
+    "summary": "춘천시에서 함께 일할 창의적이고 유능한 임기제 공무원을 채용합니다. (AI 빅데이터 분석 등)",
     "category": "JOB",
     "organization": {
-      "name": null,
+      "name": "춘천시",
       "department": "총무과"
     },
     "dates": {
       "published_at": "2026-07-16T17:30:00+09:00",
-      "recruit_start_at": null,
-      "recruit_end_at": null,
-      "activity_start_at": null,
-      "activity_end_at": null
+      "recruit_end_at": "2026-08-10T23:59:59+09:00"
     },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
+    "targets": ["제한없음"],
+    "topics": ["AI", "빅데이터", "음향", "시설보안"],
     "location": {
       "region": "춘천시",
-      "address": null,
       "operation_type": "OFFLINE"
     },
     "status": "UPCOMING",
-    "thumbnail_url": null,
     "source": "춘천시 경제포털 공공일자리",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/public/detail/?nttId=524794",
+    "url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/public/detail/?nttId=524794",
     "details": {
-      "capacity": null,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null,
-      "attachments": [
-        {
-          "name": "01-2. 2026년 제8회 춘천시 임기제공무원 채용 재공고(AI 빅데이터 분석, 음향관리, 청사방호).hwpx",
-          "url": "https://www.chuncheon.go.kr/_cmm/fms/FileDown.do?atchFileId=FILE_000000000116633&fileSn=0&bbsId=BBSMSTR_000000000160&nttId=524794",
-          "type": "hwpx"
-        }
-      ]
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:22:44.496342+09:00"
+      "employmentType": "임기제 공무원",
+      "applicationMethod": "방문 및 우편 접수"
+    }
   },
   {
-    "id": "524792",
-    "title": "2026년 제5·8회 춘천시 임기제공무원 채용 서류전형 합격자 및 면접시험 공고 (폐기물관리, 환경감시선운용, AI 정책기획)",
-    "summary": "2026 년 제 5·8 회 춘천시 임기제공무원 채용 서류전형 합격자 및 면접시험 계획을 다음과 같이 공고합니다 . 2026. 7. 16. 춘천시 인사위원회위원장",
-    "category": "JOB",
-    "organization": {
-      "name": null,
-      "department": "총무과"
-    },
-    "dates": {
-      "published_at": "2026-07-16T17:28:00+09:00",
-      "recruit_start_at": null,
-      "recruit_end_at": null,
-      "activity_start_at": null,
-      "activity_end_at": null
-    },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": null,
-      "operation_type": "OFFLINE"
-    },
-    "status": "CLOSED",
-    "thumbnail_url": null,
-    "source": "춘천시 경제포털 공공일자리",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/public/detail/?nttId=524792",
-    "details": {
-      "capacity": null,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null,
-      "attachments": [
-        {
-          "name": "03-2. 2026년 제5,8회 춘천시 임기제공무원 채용 서류전형 합격자 및 면접시험 공고.hwp",
-          "url": "https://www.chuncheon.go.kr/_cmm/fms/FileDown.do?atchFileId=FILE_000000000116630&fileSn=0&bbsId=BBSMSTR_000000000160&nttId=524792",
-          "type": "hwp"
-        }
-      ]
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:22:45.552727+09:00"
-  },
-  {
-    "id": "524482",
-    "title": "2026년 제7회 춘천시 한시임기제 공무원 채용 최종합격자 발표 및 임용후보자 등록안내 공고",
-    "summary": "2026 년 제 7 회 춘천시 한시임기제공무원 ( 대체인력뱅크 ) 채용 최종 합격자 발표 및 임용후보자 등록 안내를 아래와 같이 공고합니다 . 2026. 7. 9. 춘천시인사위원회위원장",
-    "category": "JOB",
-    "organization": {
-      "name": null,
-      "department": "총무과"
-    },
-    "dates": {
-      "published_at": "2026-07-09T11:30:00+09:00",
-      "recruit_start_at": null,
-      "recruit_end_at": null,
-      "activity_start_at": null,
-      "activity_end_at": null
-    },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": null,
-      "operation_type": "OFFLINE"
-    },
-    "status": "CLOSED",
-    "thumbnail_url": null,
-    "source": "춘천시 경제포털 공공일자리",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/public/detail/?nttId=524482",
-    "details": {
-      "capacity": null,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null,
-      "attachments": [
-        {
-          "name": "08-2. 2026년 제7회 춘천시 한시임기제공무원 최종합격자 및 임용후보자등록안내 공고.hwp",
-          "url": "https://www.chuncheon.go.kr/_cmm/fms/FileDown.do?atchFileId=FILE_000000000116032&fileSn=0&bbsId=BBSMSTR_000000000160&nttId=524482",
-          "type": "hwp"
-        },
-        {
-          "name": "10. 임용후보자등록원서(서식).hwp",
-          "url": "https://www.chuncheon.go.kr/_cmm/fms/FileDown.do?atchFileId=FILE_000000000116032&fileSn=1&bbsId=BBSMSTR_000000000160&nttId=524482",
-          "type": "hwp"
-        }
-      ]
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:22:46.570462+09:00"
-  },
-  {
-    "id": "524471",
+    "id": "JOB_524471",
     "title": "2026년 하반기 춘천시 공공일자리사업(희망, 행복, 지역공동체) 참여자 모집",
-    "summary": "2026년 하반기 춘천시 공공일자리사업(희망, 행복, 지역공동체) 참여자를 모집합니다. 1. 신청기간: 2026. 7. 13.(월) ~ 7. 23.(목) 2. 근무기간: 2026. 8. 24.(월) ~ 12. 4.(금) (15주) 3. 모집인원: 192명(희망 160, 행복 10, 지역공동체 22) 4. 사업내용: 환경정",
+    "summary": "2026년 하반기 춘천시 공공일자리사업(희망, 행복, 지역공동체) 참여자를 모집합니다.",
     "category": "JOB",
     "organization": {
-      "name": null,
+      "name": "춘천시",
       "department": "기업지원과"
     },
     "dates": {
-      "published_at": "2026-07-09T09:36:00+09:00",
-      "recruit_start_at": null,
-      "recruit_end_at": null,
-      "activity_start_at": null,
-      "activity_end_at": null
+      "recruit_start_at": "2026-07-13T00:00:00+09:00",
+      "recruit_end_at": "2026-07-23T23:59:59+09:00",
+      "activity_start_at": "2026-08-24T00:00:00+09:00",
+      "activity_end_at": "2026-12-04T23:59:59+09:00"
     },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
+    "targets": ["춘천시민"],
+    "topics": ["환경", "행정", "공공일자리"],
     "location": {
       "region": "춘천시",
-      "address": null,
       "operation_type": "OFFLINE"
     },
     "status": "CLOSED",
-    "thumbnail_url": null,
     "source": "춘천시 경제포털 공공일자리",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/public/detail/?nttId=524471",
+    "url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/public/detail/?nttId=524471",
     "details": {
-      "capacity": null,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null,
-      "attachments": [
-        {
-          "name": "2026년 하반기 춘천시 공공일자리 참여자 모집 공고문.hwpx",
-          "url": "https://www.chuncheon.go.kr/_cmm/fms/FileDown.do?atchFileId=FILE_000000000116010&fileSn=0&bbsId=BBSMSTR_000000000160&nttId=524471",
-          "type": "hwpx"
-        },
-        {
-          "name": "26년 하반기 공공일자리 사업내역(희망일자리).xlsx",
-          "url": "https://www.chuncheon.go.kr/_cmm/fms/FileDown.do?atchFileId=FILE_000000000116010&fileSn=1&bbsId=BBSMSTR_000000000160&nttId=524471",
-          "type": "xlsx"
-        },
-        {
-          "name": "26년 하반기 공공일자리 사업내역(행복일자리).xlsx",
-          "url": "https://www.chuncheon.go.kr/_cmm/fms/FileDown.do?atchFileId=FILE_000000000116010&fileSn=2&bbsId=BBSMSTR_000000000160&nttId=524471",
-          "type": "xlsx"
-        },
-        {
-          "name": "2026년 공공일자리 참여신청서(서식).hwpx",
-          "url": "https://www.chuncheon.go.kr/_cmm/fms/FileDown.do?atchFileId=FILE_000000000116010&fileSn=4&bbsId=BBSMSTR_000000000160&nttId=524471",
-          "type": "hwpx"
-        },
-        {
-          "name": "26년 하반기 공공일자리 사업내역(지역공동체일자리).xlsx",
-          "url": "https://www.chuncheon.go.kr/_cmm/fms/FileDown.do?atchFileId=FILE_000000000116010&fileSn=5&bbsId=BBSMSTR_000000000160&nttId=524471",
-          "type": "xlsx"
-        }
-      ]
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:22:47.563036+09:00"
+      "recruitment_count": "192명",
+      "application_method": "주민등록주소지 읍·면·동 행정복지센터 방문 신청"
+    }
   },
   {
-    "id": "524128",
-    "title": "2026년 제5회 춘천시 임기제공무원 채용 재공고(폐기물관리, 환경감시선 운용_5차)",
-    "summary": "춘천시에서 함께 일할 창의적이고 유능한 임기제 공무원을 다음과 같이 채용하오니 많은 응시 바랍니다 . 〈 재공고사유 〉 ○ 응시인원미달 : 서류합격 인원이 채용예정인원과 같거나 적음 * 해당 채용 분야의 기응시자는 재접수 불필요 2026 년 7 월 3 일 춘천시인사위원회위원장",
+    "id": "JOB_245",
+    "title": "춘천 브릿지라잇 영어학원 강사 채용",
+    "summary": "초중생 대상 영어교육 강사를 모집합니다. 영어로 수업 진행이 가능하신 분들의 많은 지원 바랍니다.",
     "category": "JOB",
     "organization": {
-      "name": null,
-      "department": "총무과"
+      "name": "주식회사 브릿지라잇"
     },
     "dates": {
-      "published_at": "2026-07-03T18:12:00+09:00",
-      "recruit_start_at": null,
-      "recruit_end_at": null,
-      "activity_start_at": null,
-      "activity_end_at": null
+      "published_at": "2026-07-21T00:00:00+09:00"
     },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
+    "targets": ["대학교 졸업(2,3년제 이상)"],
+    "topics": ["영어교육", "강사"],
     "location": {
       "region": "춘천시",
-      "address": null,
-      "operation_type": "OFFLINE"
-    },
-    "status": "CLOSED",
-    "thumbnail_url": null,
-    "source": "춘천시 경제포털 공공일자리",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/public/detail/?nttId=524128",
-    "details": {
-      "capacity": null,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null,
-      "attachments": [
-        {
-          "name": "01-2. 2026년 제5회 춘천시 임기제공무원 채용 재공고(폐기물관리, 환경감시선 운용_5차).hwp",
-          "url": "https://www.chuncheon.go.kr/_cmm/fms/FileDown.do?atchFileId=FILE_000000000115592&fileSn=0&bbsId=BBSMSTR_000000000160&nttId=524128",
-          "type": "hwp"
-        }
-      ]
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:22:48.577911+09:00"
-  },
-  {
-    "id": "524125",
-    "title": "2026년 제8회 춘천시 임기제공무원 채용 공고(AI분야, 음향관리, 청사방호)",
-    "summary": "춘천시에서 함께 일할 창의적이고 유능한 임기제 공무원을 다음과 같이 채용하오니 많은 응시 바랍니다 . 2026 년 7 월 3 일 춘천시인사위원회위원장",
-    "category": "JOB",
-    "organization": {
-      "name": null,
-      "department": "총무과"
-    },
-    "dates": {
-      "published_at": "2026-07-03T17:59:00+09:00",
-      "recruit_start_at": null,
-      "recruit_end_at": null,
-      "activity_start_at": null,
-      "activity_end_at": null
-    },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": null,
-      "operation_type": "OFFLINE"
-    },
-    "status": "CLOSED",
-    "thumbnail_url": null,
-    "source": "춘천시 경제포털 공공일자리",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/public/detail/?nttId=524125",
-    "details": {
-      "capacity": null,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null,
-      "attachments": [
-        {
-          "name": "01-2. 2026년 제8회 춘천시 임기제공무원 채용 공고(AI분야, 음향관리, 청사방호).hwpx",
-          "url": "https://www.chuncheon.go.kr/_cmm/fms/FileDown.do?atchFileId=FILE_000000000115591&fileSn=0&bbsId=BBSMSTR_000000000160&nttId=524125",
-          "type": "hwpx"
-        }
-      ]
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:22:49.665349+09:00"
-  },
-  {
-    "id": "524115",
-    "title": "2026년 제7회 춘천시 한시임기제공무원 채용 서류전형 합격자 및 면접시험 공고 (공통행정)",
-    "summary": "춘천시인사위원회 공고 제 2026-27(`26.6.19.) 호 에 따른 2026 년 제 7 회 춘천시 한시임기제공무원 ( 공통행정 ) 채용 서류전형 합격자 및 면접시험 계획을 다음과 같이 공고합니다 . 2026. 7. 3. 춘천시 인사위원회위원장",
-    "category": "JOB",
-    "organization": {
-      "name": null,
-      "department": "총무과"
-    },
-    "dates": {
-      "published_at": "2026-07-03T17:06:00+09:00",
-      "recruit_start_at": null,
-      "recruit_end_at": null,
-      "activity_start_at": null,
-      "activity_end_at": null
-    },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": null,
-      "operation_type": "OFFLINE"
-    },
-    "status": "CLOSED",
-    "thumbnail_url": null,
-    "source": "춘천시 경제포털 공공일자리",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/public/detail/?nttId=524115",
-    "details": {
-      "capacity": null,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null,
-      "attachments": [
-        {
-          "name": "03-2. 2026년 제7회 춘천시 한시임기제공무원 채용 서류전형 합격자 및 면접시험 공고.hwp",
-          "url": "https://www.chuncheon.go.kr/_cmm/fms/FileDown.do?atchFileId=FILE_000000000115565&fileSn=0&bbsId=BBSMSTR_000000000160&nttId=524115",
-          "type": "hwp"
-        }
-      ]
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:22:50.780414+09:00"
-  },
-  {
-    "id": "523660",
-    "title": "춘천시기초푸드뱅크 직원채용 공고",
-    "summary": "춘천시사회복지협의회 춘천시기초푸드뱅크 2026 년 직원 ( 정규직 ) 채용 공고 2026 년 춘천시사회복지협의회에서는 춘천시기초푸드뱅크에서 함께 일할 직원 ( 정규직 ) 채용을 공고하오니 역량 있는 인재들의 많은 관심과 참여를 바랍니다 . 2026 년 7 월 1 일 사회복지법인 춘천시사회복지협의회장 □ 채용분야 구분 업무",
-    "category": "JOB",
-    "organization": {
-      "name": null,
-      "department": "통합돌봄과"
-    },
-    "dates": {
-      "published_at": "2026-07-01T17:20:00+09:00",
-      "recruit_start_at": null,
-      "recruit_end_at": null,
-      "activity_start_at": null,
-      "activity_end_at": null
-    },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": null,
-      "operation_type": "OFFLINE"
-    },
-    "status": "CLOSED",
-    "thumbnail_url": null,
-    "source": "춘천시 경제포털 공공일자리",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/public/detail/?nttId=523660",
-    "details": {
-      "capacity": null,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": "ccsw5994@naver.com",
-      "attachments": [
-        {
-          "name": "[붙임1] 춘천시사회복지협의회(춘천시기초푸드뱅크) 직원 채용 공고문.hwp",
-          "url": "https://www.chuncheon.go.kr/_cmm/fms/FileDown.do?atchFileId=FILE_000000000114876&fileSn=0&bbsId=BBSMSTR_000000000160&nttId=523660",
-          "type": "hwp"
-        },
-        {
-          "name": "[붙임2]응시원서.hwp",
-          "url": "https://www.chuncheon.go.kr/_cmm/fms/FileDown.do?atchFileId=FILE_000000000114876&fileSn=1&bbsId=BBSMSTR_000000000160&nttId=523660",
-          "type": "hwp"
-        }
-      ]
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:22:51.874831+09:00"
-  },
-  {
-    "id": "523366",
-    "title": "기간제근로자 최종합격자 발표(2026-1256)",
-    "summary": "춘천시 기간제근로자 채용(2026-1256)의 최종합격자 명단을 다음과 같이 게시합니다. 근무 관련 문의는 해당 근무부서로 하시기 바랍니다.",
-    "category": "JOB",
-    "organization": {
-      "name": null,
-      "department": "총무과"
-    },
-    "dates": {
-      "published_at": "2026-06-29T17:24:00+09:00",
-      "recruit_start_at": null,
-      "recruit_end_at": null,
-      "activity_start_at": null,
-      "activity_end_at": null
-    },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": null,
-      "operation_type": "OFFLINE"
-    },
-    "status": "CLOSED",
-    "thumbnail_url": null,
-    "source": "춘천시 경제포털 공공일자리",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/public/detail/?nttId=523366",
-    "details": {
-      "capacity": null,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null,
-      "attachments": [
-        {
-          "name": "최종합격자 명단(2026-1256)_게시용.xlsx",
-          "url": "https://www.chuncheon.go.kr/_cmm/fms/FileDown.do?atchFileId=FILE_000000000114381&fileSn=0&bbsId=BBSMSTR_000000000160&nttId=523366",
-          "type": "xlsx"
-        }
-      ]
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:22:52.957795+09:00"
-  },
-  {
-    "id": "245",
-    "title": "춘천 영어학원 강사 채용",
-    "summary": "기업정보 회사명 주식회사 브릿지라잇 대표자 김보미 사업내용 초중생 영어교육 담당자정보 담당자명 이혁수 부장 연락처 010-5197-8462 팩스번호 이메일 hr@bridgelightels.com 회사주소 (24433) 강원특별자치도 춘천시 스포츠타운길 532 브릿지라잇 영어수학학원 담당자정보 채용제목 춘천 영어학원 강사 ",
-    "category": "JOB",
-    "organization": {
-      "name": "주식회사 브릿지라잇",
-      "department": null
-    },
-    "dates": {
-      "published_at": "2026-07-21T00:00:00+09:00",
-      "recruit_start_at": null,
-      "recruit_end_at": null,
-      "activity_start_at": null,
-      "activity_end_at": null
-    },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": "(24433) 강원특별자치도 춘천시 스포츠타운길 532 브릿지라잇 영어수학학원",
+      "address": "강원특별자치도 춘천시 스포츠타운길 532",
       "operation_type": "OFFLINE"
     },
     "status": "ALWAYS",
-    "thumbnail_url": null,
     "source": "춘천시 경제포털 채용정보",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/employ/detail/?employId=245",
+    "url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/employ/detail/?employId=245",
     "details": {
-      "capacity": "2명",
+      "recruitment_count": "2명",
       "employmentType": "정규직",
       "salaryText": "월급 160만원 ~ 300만원",
+      "working_hours": "14:00 ~ 19:20",
       "applicationMethod": "이메일",
       "contact_name": "이혁수 부장",
       "contact_phone": "010-5197-8462",
       "contact_email": "hr@bridgelightels.com"
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:22:53.841267+09:00"
+    }
   },
   {
-    "id": "243",
+    "id": "JOB_243",
     "title": "(국세청)국세외수입 체납관리단 기간제근로자 채용",
-    "summary": "기업정보 회사명 국세청 중부지방국세청 춘천세무서 대표자 강찬호 사업내용 국세 부과 및 징수 담당자정보 담당자명 연락처 002-6377-2517 팩스번호 이메일 회사주소 (24358) 강원특별자치도 춘천시 중앙로 115 춘천세무서 담당자정보 채용제목 (국세청)국세외수입 체납관리단 기간제근로자 채용 등록일 2026-07-16",
+    "summary": "춘천세무서에서 체납관리 업무를 담당할 기간제근로자를 채용합니다.",
     "category": "JOB",
     "organization": {
-      "name": "국세청 중부지방국세청 춘천세무서",
-      "department": null
+      "name": "춘천세무서"
     },
     "dates": {
-      "published_at": "2026-07-16T00:00:00+09:00",
       "recruit_start_at": "2026-07-21T00:00:00+09:00",
       "recruit_end_at": "2026-07-29T23:59:59+09:00",
-      "activity_start_at": null,
-      "activity_end_at": null
+      "activity_start_at": "2026-10-01T00:00:00+09:00",
+      "activity_end_at": "2026-12-23T23:59:59+09:00"
     },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
+    "targets": ["학력무관"],
+    "topics": ["세무", "행정보조"],
     "location": {
       "region": "춘천시",
-      "address": "(24358) 강원특별자치도 춘천시 중앙로 115 춘천세무서",
+      "address": "강원특별자치도 춘천시 중앙로 115",
       "operation_type": "OFFLINE"
     },
     "status": "OPEN",
-    "thumbnail_url": null,
     "source": "춘천시 경제포털 채용정보",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/employ/detail/?employId=243",
+    "url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/employ/detail/?employId=243",
     "details": {
-      "capacity": "20명",
+      "recruitment_count": "20명",
       "employmentType": "계약직",
-      "salaryText": "시급 12,250원 ~ 12,250원",
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": "002-6377-2517",
-      "contact_email": null
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:22:54.764192+09:00"
+      "salaryText": "시급 12,250원",
+      "working_hours": "09:00 ~ 18:00 (주 5일)",
+      "contact_phone": "002-6377-2517"
+    }
   },
   {
-    "id": "242",
-    "title": "횡성소재 김치공장 생산직 채용",
-    "summary": "기업정보 회사명 (주)제이에이치 파트너 대표자 이숙효 사업내용 김치류 제조업, 소사장제(생산도급) 담당자정보 담당자명 이숙효 연락처 010-5420-6009 팩스번호 이메일 talenthunt@naver.com 회사주소 (25241) 강원특별자치도 횡성군 횡성읍 청용길 15 종가 횡성공장 담당자정보 채용제목 횡성소재 김치",
+    "id": "JOB_523660",
+    "title": "춘천시기초푸드뱅크 정규직 직원채용 공고",
+    "summary": "푸드뱅크 회계 및 기부처 관리, 그냥드림사업 추진, 행정업무 등을 담당할 사회복지사를 모집합니다.",
     "category": "JOB",
     "organization": {
-      "name": "(주)제이에이치 파트너",
-      "department": null
+      "name": "춘천시사회복지협의회"
     },
     "dates": {
-      "published_at": "2026-07-15T00:00:00+09:00",
-      "recruit_start_at": null,
-      "recruit_end_at": null,
-      "activity_start_at": null,
-      "activity_end_at": null
+      "recruit_start_at": "2026-07-01T00:00:00+09:00",
+      "recruit_end_at": "2026-07-15T18:00:00+09:00",
+      "activity_start_at": "2026-09-01T00:00:00+09:00"
     },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
+    "targets": ["사회복지사 자격증 소지자", "1종 운전면허 소지자"],
+    "topics": ["사회복지", "행정", "회계"],
     "location": {
       "region": "춘천시",
-      "address": "(25241) 강원특별자치도 횡성군 횡성읍 청용길 15 종가 횡성공장",
       "operation_type": "OFFLINE"
     },
-    "status": "UNKNOWN",
-    "thumbnail_url": null,
-    "source": "춘천시 경제포털 채용정보",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/employ/detail/?employId=242",
+    "status": "CLOSED",
+    "source": "춘천시 경제포털 공공일자리",
+    "url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/public/detail/?nttId=523660",
     "details": {
-      "capacity": "30명",
-      "employmentType": "계약직",
-      "salaryText": "월급 216만원 ~ 만원",
-      "applicationMethod": "이메일",
-      "contact_name": "이숙효",
-      "contact_phone": "010-5420-6009",
-      "contact_email": "talenthunt@naver.com"
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:22:55.640712+09:00"
-  },
-  {
-    "id": "239",
-    "title": "［교육생 모집］한국힐링교육연구원에서 병원동행매니저 및 노인돌봄생활지원사 자격증, 시니어 강사 교육생 모집합니다.",
-    "summary": "기업정보 회사명 한국힐링교육연구원 대표자 사업내용 담당자정보 담당자명 연락처 033-253-1040 팩스번호 이메일 회사주소 () 담당자정보 채용제목 ［교육생 모집］한국힐링교육연구원에서 병원동행매니저 및 노인돌봄생활지원사 자격증, 시니어 강사 교육생 모집합니다. 등록일 2026-07-10 고용형태 프리랜서 모집인원 명 근",
-    "category": "JOB",
-    "organization": {
-      "name": "한국힐링교육연구원",
-      "department": null
-    },
-    "dates": {
-      "published_at": "2026-07-10T00:00:00+09:00",
-      "recruit_start_at": null,
-      "recruit_end_at": null,
-      "activity_start_at": null,
-      "activity_end_at": null
-    },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": "()",
-      "operation_type": "OFFLINE"
-    },
-    "status": "UNKNOWN",
-    "thumbnail_url": null,
-    "source": "춘천시 경제포털 채용정보",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/employ/detail/?employId=239",
-    "details": {
-      "capacity": "명",
-      "employmentType": "프리랜서",
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": "033-253-1040",
-      "contact_email": null
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:22:56.545210+09:00"
-  },
-  {
-    "id": "235",
-    "title": "양구군 공공하수처리시설 운영관리 채용공고(환경,기계,전기분야)",
-    "summary": "기업정보 회사명 주식회사 에코이에스 대표자 민명준 사업내용 환경오염방지시설공사 담당자정보 담당자명 이병준 연락처 031-515-9825 팩스번호 031-515-9888 이메일 boxer8569@ecoes.co.kr 회사주소 (24032) 강원특별자치도 철원군 갈말읍 풍전길 44 담당자정보 채용제목 양구군 공공하수처리시설 ",
-    "category": "JOB",
-    "organization": {
-      "name": "주식회사 에코이에스",
-      "department": null
-    },
-    "dates": {
-      "published_at": "2026-07-09T00:00:00+09:00",
-      "recruit_start_at": null,
-      "recruit_end_at": null,
-      "activity_start_at": null,
-      "activity_end_at": null
-    },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": "(24032) 강원특별자치도 철원군 갈말읍 풍전길 44",
-      "operation_type": "OFFLINE"
-    },
-    "status": "UNKNOWN",
-    "thumbnail_url": null,
-    "source": "춘천시 경제포털 채용정보",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/employ/detail/?employId=235",
-    "details": {
-      "capacity": "2명",
+      "recruitment_count": "1명",
       "employmentType": "정규직",
-      "salaryText": "월급 265만원 ~ 280만원",
-      "applicationMethod": "이메일, 팩스, 우편",
-      "contact_name": "이병준",
-      "contact_phone": "031-515-9825",
-      "contact_email": "boxer8569@ecoes.co.kr"
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:22:57.426113+09:00"
+      "applicationMethod": "이메일 (ccsw5994@naver.com)",
+      "contact_email": "ccsw5994@naver.com"
+    }
   },
   {
-    "id": "232",
-    "title": "강원특별자치도교육청특수교육원 춘천본원",
-    "summary": "기업정보 회사명 강원특별자치도교육청특수교육원춘천본원 대표자 000 사업내용 교육 담당자정보 담당자명 행정과 연락처 033-258-5485 팩스번호 이메일 회사주소 (24223) 강원특별자치도 춘천시 영서로 2854 담당자정보 채용제목 강원특별자치도교육청특수교육원 춘천본원 등록일 2026-05-12 고용형태 정규직 모집인원",
-    "category": "JOB",
+    "id": "EVENT_018",
+    "title": "2026 볼라레 (Volare sul teatro)",
+    "summary": "각 장르 정상의 아티스트들이 축제극장 몸짓에 펼쳐내는 예술세계와 함께 관객들도 극장 위로 날아오르는 순간을 경험해 보시기 바랍니다.",
+    "category": "EVENT",
     "organization": {
-      "name": "강원특별자치도교육청특수교육원춘천본원",
-      "department": null
+      "name": "춘천문화재단"
     },
     "dates": {
-      "published_at": "2026-05-12T00:00:00+09:00",
-      "recruit_start_at": null,
-      "recruit_end_at": null,
-      "activity_start_at": null,
-      "activity_end_at": null
+      "activity_start_at": "2026-09-29T17:00:00+09:00",
+      "activity_end_at": "2026-12-29T20:30:00+09:00"
     },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
+    "targets": ["초등학생 이상"],
+    "topics": ["축제", "예술", "공연"],
     "location": {
       "region": "춘천시",
-      "address": "(24223) 강원특별자치도 춘천시 영서로 2854",
+      "address": "축제극장몸짓 (춘천로 112)",
       "operation_type": "OFFLINE"
     },
-    "status": "UNKNOWN",
-    "thumbnail_url": null,
-    "source": "춘천시 경제포털 채용정보",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/employ/detail/?employId=232",
+    "status": "UPCOMING",
+    "source": "춘천문화재단",
+    "url": "http://www.cccf.or.kr",
     "details": {
-      "capacity": "1명",
-      "employmentType": "정규직",
-      "salaryText": "월급 1,608,370만원 ~ 1,608,370만원",
-      "applicationMethod": "방문접수, 이메일, 팩스",
-      "contact_name": "행정과",
-      "contact_phone": "033-258-5485",
-      "contact_email": "wk815@korea.kr"
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:22:58.358947+09:00"
+      "fee": "패키지 80,000원",
+      "event_time": "17:00 ~ 20:30",
+      "contact_phone": "033-259-5822"
+    }
   },
   {
-    "id": "229",
-    "title": "홍천군체육회 체육지도자 (육아휴직대체-탁구) 채용 공고",
-    "summary": "기업정보 회사명 홍천군체육회 대표자 신은섭 사업내용 종합체육서비스 시설 담당자정보 담당자명 김대영 팀장 연락처 033-432-9676 팩스번호 033-434-9675 이메일 kimdy6514@naver.com 회사주소 (25126) 강원특별자치도 홍천군 홍천읍 태학여내길 22 (홍천종합체육관내) 담당자정보 채용제목 홍천군",
-    "category": "JOB",
+    "id": "EVENT_031",
+    "title": "2026 춘천공연예술제",
+    "summary": "무용, 음악, 연극 등 장르에 관계없이 예술적 지향을 가진 진정성 있는 공연 예술 작품을 선정하여 개최되는 예술제입니다.",
+    "category": "EVENT",
     "organization": {
-      "name": "홍천군체육회",
-      "department": null
+      "name": "사단법인 텐스푼"
     },
     "dates": {
-      "published_at": "2026-03-11T00:00:00+09:00",
-      "recruit_start_at": "2026-03-10T00:00:00+09:00",
-      "recruit_end_at": "2026-03-20T23:59:59+09:00",
-      "activity_start_at": null,
-      "activity_end_at": null
+      "activity_start_at": "2026-07-13T19:00:00+09:00",
+      "activity_end_at": "2026-08-21T20:30:00+09:00"
     },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
+    "targets": ["만 12세 이상"],
+    "topics": ["공연", "예술", "무용"],
     "location": {
       "region": "춘천시",
-      "address": "(25126) 강원특별자치도 홍천군 홍천읍 태학여내길 22 (홍천종합체육관내)",
+      "address": "축제극장몸짓, 춘천인형극장 등",
       "operation_type": "OFFLINE"
     },
-    "status": "CLOSED",
-    "thumbnail_url": null,
-    "source": "춘천시 경제포털 채용정보",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/employ/detail/?employId=229",
+    "status": "UPCOMING",
+    "source": "춘천문화재단",
+    "url": "http://www.cccf.or.kr",
     "details": {
-      "capacity": "1명",
-      "employmentType": "계약직",
-      "salaryText": "월급 220만원 ~ 220만원",
-      "applicationMethod": "방문접수, 이메일, 팩스, 우편",
-      "contact_name": "김대영 팀장",
-      "contact_phone": "033-432-9676",
-      "contact_email": "kimdy6514@naver.com"
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:22:59.301685+09:00"
+      "fee": "일반 30,000원",
+      "event_time": "19:00 ~ 20:30",
+      "contact_phone": "010-2267-0648"
+    }
   },
   {
-    "id": "226",
-    "title": "2026년 환천산간양묘장 일용직 근로자(일반인부) 추가모집 공고",
-    "summary": "기업정보 회사명 춘천국유림관리소 대표자 노용석 사업내용 춘천국유림관리소 화천산간양묘장 운영 등 담당자정보 담당자명 장현택 연락처 033-240-9951 팩스번호 이메일 회사주소 (24204) 강원특별자치도 춘천시 신북읍 맥국길 5 춘천국유림관리소 담당자정보 채용제목 2026년 환천산간양묘장 일용직 근로자(일반인부) 추가모",
-    "category": "JOB",
+    "id": "EVENT_036",
+    "title": "뮤지컬 ＜시카고＞ 오리지널 내한공연",
+    "summary": "대한민국 뮤지컬의 정상을 지켜온 시카고, 새로운 배우들의 대거 합류로 더 큰 도약을 시작합니다!",
+    "category": "EVENT",
     "organization": {
-      "name": "춘천국유림관리소",
-      "department": null
+      "name": "춘천문화재단"
     },
     "dates": {
-      "published_at": "2026-02-25T00:00:00+09:00",
-      "recruit_start_at": "2026-03-05T00:00:00+09:00",
-      "recruit_end_at": "2026-03-09T23:59:59+09:00",
-      "activity_start_at": null,
-      "activity_end_at": null
+      "activity_start_at": "2026-07-31T14:00:00+09:00",
+      "activity_end_at": "2026-08-01T16:30:00+09:00"
     },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
+    "targets": ["14세 이상"],
+    "topics": ["뮤지컬", "공연"],
     "location": {
       "region": "춘천시",
-      "address": "(24204) 강원특별자치도 춘천시 신북읍 맥국길 5 춘천국유림관리소",
+      "address": "춘천문화예술회관",
       "operation_type": "OFFLINE"
     },
-    "status": "CLOSED",
-    "thumbnail_url": null,
-    "source": "춘천시 경제포털 채용정보",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/employ/detail/?employId=226",
+    "status": "UPCOMING",
+    "source": "춘천문화재단",
+    "url": "http://www.cccf.or.kr",
     "details": {
-      "capacity": "4명",
-      "employmentType": "계약직",
-      "salaryText": "일급 87,300원 ~ 97,900원",
-      "applicationMethod": "방문접수, 팩스",
-      "contact_name": "장현택",
-      "contact_phone": "033-240-9951",
-      "contact_email": null
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:23:00.399759+09:00"
+      "fee": "VIP석 14만, R석 10만, S석 7만, A석 5만",
+      "event_time": "14:00 ~ 16:30",
+      "contact_phone": "033-259-5823"
+    }
   },
   {
-    "id": "223",
-    "title": "2026년 지역사회건강조사 조사원 모집공고",
-    "summary": "기업정보 회사명 춘천시보건소 대표자 춘천시보건소장 사업내용 춘천시보건소 담당자정보 담당자명 춘천시 보건소 지역사회건강조사 담당 연락처 033-250-4566 팩스번호 이메일 회사주소 (24358) 강원특별자치도 춘천시 중앙로 131 춘천시 보건소 담당자정보 채용제목 2026년 지역사회건강조사 조사원 모집공고 등록일 202",
-    "category": "JOB",
+    "id": "EVENT_005",
+    "title": "2026 춘천마임축제 물화일체",
+    "summary": "사단법인 춘천마임축제는 몸이 가진 원초적 에너지와 예술적 상상력으로 축제 세상을 창조하는 마임 예술축제집단입니다.",
+    "category": "EVENT",
     "organization": {
-      "name": "춘천시보건소",
-      "department": null
+      "name": "춘천마임축제"
     },
     "dates": {
-      "published_at": "2026-02-04T00:00:00+09:00",
-      "recruit_start_at": "2026-02-01T00:00:00+09:00",
-      "recruit_end_at": "2026-02-25T23:59:59+09:00",
-      "activity_start_at": null,
-      "activity_end_at": null
+      "activity_start_at": "2026-11-10T19:00:00+09:00",
+      "activity_end_at": "2026-11-11T22:00:00+09:00"
     },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
+    "targets": ["전체관람가"],
+    "topics": ["축제", "예술", "마임"],
     "location": {
       "region": "춘천시",
-      "address": "(24358) 강원특별자치도 춘천시 중앙로 131 춘천시 보건소",
+      "address": "약사천 수변공원",
       "operation_type": "OFFLINE"
     },
-    "status": "CLOSED",
-    "thumbnail_url": null,
-    "source": "춘천시 경제포털 채용정보",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/employ/detail/?employId=223",
+    "status": "UPCOMING",
+    "source": "춘천문화재단",
+    "url": "http://www.cccf.or.kr",
     "details": {
-      "capacity": "4명",
-      "employmentType": "아르바이트",
-      "salaryText": "회사 내규에 따름",
-      "applicationMethod": "방문접수, 이메일, 팩스",
-      "contact_name": "춘천시 보건소 지역사회건강조사 담당",
-      "contact_phone": "033-250-4566",
-      "contact_email": null
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:23:01.287914+09:00"
-  },
-  {
-    "id": "220",
-    "title": "2026.3.1.자 교육공무직(학교폭력 전담 변호사) 기간제 채용",
-    "summary": "기업정보 회사명 춘천교육지원청 학생지원센터 대표자 장진호 사업내용 교육 담당자정보 담당자명 김보경 연락처 033-259-1593 팩스번호 033-259-1670 이메일 redfall@korea.kr 회사주소 (24333) 강원특별자치도 춘천시 둥지길 56 춘천교육지원청 학생지원센터 담당자정보 채용제목 2026.3.1.자 ",
-    "category": "JOB",
-    "organization": {
-      "name": "춘천교육지원청 학생지원센터",
-      "department": null
-    },
-    "dates": {
-      "published_at": "2026-01-14T00:00:00+09:00",
-      "recruit_start_at": "2026-01-14T00:00:00+09:00",
-      "recruit_end_at": "2026-01-21T23:59:59+09:00",
-      "activity_start_at": null,
-      "activity_end_at": null
-    },
-    "targets": [],
-    "topics": [
-      "PRACTICE_STARTUP"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": "(24333) 강원특별자치도 춘천시 둥지길 56 춘천교육지원청 학생지원센터",
-      "operation_type": "OFFLINE"
-    },
-    "status": "CLOSED",
-    "thumbnail_url": null,
-    "source": "춘천시 경제포털 채용정보",
-    "source_url": "https://www.chuncheon.go.kr/economy/business-support/job/job-plus-center/employ/detail/?employId=220",
-    "details": {
-      "capacity": "1명",
-      "employmentType": "계약직",
-      "salaryText": "월급 6,169,750만원 ~ 6,169,750만원",
-      "applicationMethod": "방문접수, 이메일",
-      "contact_name": "김보경",
-      "contact_phone": "033-259-1593",
-      "contact_email": "redfall@korea.kr"
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-24T10:23:02.143925+09:00"
-  },
-  {
-    "id": "unknown_id",
-    "title": "스마트폰으로 찍는 사진반",
-    "summary": "요약 없음",
-    "category": "PROGRAM",
-    "organization": {
-      "name": "춘천시 평생학습관",
-      "department": null
-    },
-    "dates": {
-      "published_at": null,
-      "recruit_start_at": "2026-07-20",
-      "recruit_end_at": "2026-07-31",
-      "activity_start_at": "2026-08-24",
-      "activity_end_at": "2026-12-07"
-    },
-    "targets": [
-      "성인"
-    ],
-    "topics": [
-      "SKILL_EDUCATION"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": null,
-      "operation_type": "OFFLINE"
-    },
-    "status": "OPEN",
-    "thumbnail_url": null,
-    "source": "춘천시 평생학습 통합플랫폼 배워봄",
-    "source_url": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
-    "details": {
-      "capacity": 30,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-23T14:00:16+00:00"
-  },
-  {
-    "id": "unknown_id",
-    "title": "컴퓨터와 생성형 AI활용",
-    "summary": "요약 없음",
-    "category": "PROGRAM",
-    "organization": {
-      "name": "춘천시 평생학습관",
-      "department": null
-    },
-    "dates": {
-      "published_at": null,
-      "recruit_start_at": "2026-07-20",
-      "recruit_end_at": "2026-07-31",
-      "activity_start_at": "2026-08-18",
-      "activity_end_at": "2026-12-03"
-    },
-    "targets": [
-      "성인"
-    ],
-    "topics": [
-      "SKILL_EDUCATION"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": null,
-      "operation_type": "OFFLINE"
-    },
-    "status": "OPEN",
-    "thumbnail_url": null,
-    "source": "춘천시 평생학습 통합플랫폼 배워봄",
-    "source_url": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
-    "details": {
-      "capacity": 25,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-23T14:00:16+00:00"
-  },
-  {
-    "id": "unknown_id",
-    "title": "AI 미디어 콘텐츠 활용",
-    "summary": "요약 없음",
-    "category": "PROGRAM",
-    "organization": {
-      "name": "춘천시 평생학습관",
-      "department": null
-    },
-    "dates": {
-      "published_at": null,
-      "recruit_start_at": "2026-07-20",
-      "recruit_end_at": "2026-07-31",
-      "activity_start_at": "2026-08-19",
-      "activity_end_at": "2026-12-07"
-    },
-    "targets": [
-      "성인"
-    ],
-    "topics": [
-      "SKILL_EDUCATION"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": null,
-      "operation_type": "OFFLINE"
-    },
-    "status": "OPEN",
-    "thumbnail_url": null,
-    "source": "춘천시 평생학습 통합플랫폼 배워봄",
-    "source_url": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
-    "details": {
-      "capacity": 25,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-23T14:00:16+00:00"
-  },
-  {
-    "id": "unknown_id",
-    "title": "생활 속 다양한 AI·디지털활용",
-    "summary": "요약 없음",
-    "category": "PROGRAM",
-    "organization": {
-      "name": "춘천시 평생학습관",
-      "department": null
-    },
-    "dates": {
-      "published_at": null,
-      "recruit_start_at": "2026-07-20",
-      "recruit_end_at": "2026-07-31",
-      "activity_start_at": "2026-08-21",
-      "activity_end_at": "2026-12-04"
-    },
-    "targets": [
-      "성인"
-    ],
-    "topics": [
-      "SKILL_EDUCATION"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": null,
-      "operation_type": "OFFLINE"
-    },
-    "status": "OPEN",
-    "thumbnail_url": null,
-    "source": "춘천시 평생학습 통합플랫폼 배워봄",
-    "source_url": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
-    "details": {
-      "capacity": 25,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-23T14:00:16+00:00"
-  },
-  {
-    "id": "unknown_id",
-    "title": "컴퓨터기초 및 스마트폰활용",
-    "summary": "요약 없음",
-    "category": "PROGRAM",
-    "organization": {
-      "name": "춘천시 평생학습관",
-      "department": null
-    },
-    "dates": {
-      "published_at": null,
-      "recruit_start_at": "2026-07-20",
-      "recruit_end_at": "2026-07-31",
-      "activity_start_at": "2026-08-19",
-      "activity_end_at": "2026-12-07"
-    },
-    "targets": [
-      "성인"
-    ],
-    "topics": [
-      "SKILL_EDUCATION"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": null,
-      "operation_type": "OFFLINE"
-    },
-    "status": "OPEN",
-    "thumbnail_url": null,
-    "source": "춘천시 평생학습 통합플랫폼 배워봄",
-    "source_url": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
-    "details": {
-      "capacity": 25,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-23T14:00:16+00:00"
-  },
-  {
-    "id": "unknown_id",
-    "title": "스마트폰100%활용",
-    "summary": "요약 없음",
-    "category": "PROGRAM",
-    "organization": {
-      "name": "춘천시 평생학습관",
-      "department": null
-    },
-    "dates": {
-      "published_at": null,
-      "recruit_start_at": "2026-07-20",
-      "recruit_end_at": "2026-07-31",
-      "activity_start_at": "2026-08-21",
-      "activity_end_at": "2026-12-04"
-    },
-    "targets": [
-      "성인"
-    ],
-    "topics": [
-      "SKILL_EDUCATION"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": null,
-      "operation_type": "OFFLINE"
-    },
-    "status": "OPEN",
-    "thumbnail_url": null,
-    "source": "춘천시 평생학습 통합플랫폼 배워봄",
-    "source_url": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
-    "details": {
-      "capacity": 25,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-23T14:00:16+00:00"
-  },
-  {
-    "id": "unknown_id",
-    "title": "영상 제작 첫걸음",
-    "summary": "요약 없음",
-    "category": "PROGRAM",
-    "organization": {
-      "name": "춘천시 평생학습관",
-      "department": null
-    },
-    "dates": {
-      "published_at": null,
-      "recruit_start_at": "2026-07-20",
-      "recruit_end_at": "2026-07-31",
-      "activity_start_at": "2026-08-18",
-      "activity_end_at": "2026-12-03"
-    },
-    "targets": [
-      "성인"
-    ],
-    "topics": [
-      "SKILL_EDUCATION"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": null,
-      "operation_type": "OFFLINE"
-    },
-    "status": "OPEN",
-    "thumbnail_url": null,
-    "source": "춘천시 평생학습 통합플랫폼 배워봄",
-    "source_url": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
-    "details": {
-      "capacity": 25,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-23T14:00:16+00:00"
-  },
-  {
-    "id": "unknown_id",
-    "title": "여행영어",
-    "summary": "요약 없음",
-    "category": "PROGRAM",
-    "organization": {
-      "name": "춘천시 평생학습관",
-      "department": null
-    },
-    "dates": {
-      "published_at": null,
-      "recruit_start_at": "2026-07-20",
-      "recruit_end_at": "2026-07-31",
-      "activity_start_at": "2026-08-19",
-      "activity_end_at": "2026-12-04"
-    },
-    "targets": [
-      "성인"
-    ],
-    "topics": [
-      "SKILL_EDUCATION"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": null,
-      "operation_type": "OFFLINE"
-    },
-    "status": "OPEN",
-    "thumbnail_url": null,
-    "source": "춘천시 평생학습 통합플랫폼 배워봄",
-    "source_url": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
-    "details": {
-      "capacity": 30,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-23T14:00:16+00:00"
-  },
-  {
-    "id": "unknown_id",
-    "title": "기초 중국어&회화",
-    "summary": "요약 없음",
-    "category": "PROGRAM",
-    "organization": {
-      "name": "춘천시 평생학습관",
-      "department": null
-    },
-    "dates": {
-      "published_at": null,
-      "recruit_start_at": "2026-07-20",
-      "recruit_end_at": "2026-07-31",
-      "activity_start_at": "2026-08-20",
-      "activity_end_at": "2026-12-07"
-    },
-    "targets": [
-      "성인"
-    ],
-    "topics": [
-      "SKILL_EDUCATION"
-    ],
-    "location": {
-      "region": "춘천시",
-      "address": null,
-      "operation_type": "OFFLINE"
-    },
-    "status": "OPEN",
-    "thumbnail_url": null,
-    "source": "춘천시 평생학습 통합플랫폼 배워봄",
-    "source_url": "https://bwb.chuncheon.go.kr/enrollment/category/?city%5B%5D=32010&status%5B%5D=receive",
-    "details": {
-      "capacity": 20,
-      "employmentType": null,
-      "salaryText": null,
-      "applicationMethod": null,
-      "contact_name": null,
-      "contact_phone": null,
-      "contact_email": null
-    },
-    "raw_fields": {},
-    "collected_at": "2026-07-23T14:00:16+00:00"
+      "fee": "무료",
+      "event_time": "19:00 ~ 22:00",
+      "contact_phone": "033-242-0585"
+    }
   }
 ]
