@@ -203,7 +203,6 @@ export default function App() {
     localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
   }, [bookmarks]);
 
-  // 🌟 실제 API 호출
   useEffect(() => {
     const API_URL = 'https://moabom-backend.onrender.com/api/opportunities'; 
 
@@ -213,8 +212,6 @@ export default function App() {
         return res.json();
       })
       .then((data) => {
-        console.log("들어온 데이터 원본 확인 👉", data);
-
         const listData = Array.isArray(data) ? data : data.content || data.items || data.data || [];
         const normalizedData = listData.map((item, index) => normalizeItem(item, index));
         setNotices(normalizedData);
@@ -421,6 +418,12 @@ export default function App() {
     setCurrentBannerIdx((prev) => (prev === 0 ? topPicks.length - 1 : prev - 1));
   };
 
+  const handleAuthSubmit = (e) => {
+    e.preventDefault();
+    setIsLoggedIn(true);
+    setAuthModal(null);
+  };
+
   return (
     <div className="app-container">
       <style>{`
@@ -471,7 +474,7 @@ export default function App() {
           border: none !important;
           cursor: pointer !important;
           transition: transform 0.2s !important;
-          height: 100% !important;
+          height: 100% !important; /* 카드가 꽉 차게 늘어남 */
         }
         .force-card:hover { transform: translateY(-4px) !important; }
         .force-img-wrap {
@@ -488,7 +491,7 @@ export default function App() {
           padding: 12px 4px 0px 4px !important;
           display: flex !important;
           flex-direction: column !important;
-          flex-grow: 1 !important;
+          flex-grow: 1 !important; /* 남은 공간을 채워서 하단을 바닥으로 밀어냄 */
         }
         
         .social-btn {
@@ -498,6 +501,21 @@ export default function App() {
         .kakao-btn { background-color: #FEE500; color: #000000; }
         .google-btn { background-color: #ffffff; color: #333333; border: 1px solid #d1d5db; }
         
+        .auth-input {
+          width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; outline: none; box-sizing: border-box;
+        }
+        .auth-input:focus { border-color: #3b82f6; }
+        .auth-submit-btn {
+          width: 100%; padding: 12px; background-color: #3b82f6; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-bottom: 20px; transition: background-color 0.2s;
+        }
+        .auth-submit-btn:hover { background-color: #2563eb; }
+        .auth-divider {
+          display: flex; align-items: center; color: #94a3b8; font-size: 0.85rem; margin-bottom: 20px;
+        }
+        .auth-divider::before, .auth-divider::after {
+          content: ''; flex: 1; border-bottom: 1px solid #e2e8f0; margin: 0 10px;
+        }
+
         .noti-dropdown {
           position: absolute; top: 50px; right: 0; width: 320px; background: white;
           border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;
@@ -590,9 +608,7 @@ export default function App() {
             grid-template-columns: repeat(2, 1fr) !important;
             gap: 24px 12px !important;
           }
-          .force-card {
-            min-height: auto !important;
-          }
+          /* 🌟 모바일에서 카드가 깨지지 않도록 최소/최대 설정 제거하고 그리드에 맡김 */
           
           .chatbot-window {
             width: calc(100% - 40px);
@@ -899,7 +915,7 @@ export default function App() {
                       key={item.id} 
                       className="force-card"
                       onClick={() => handleCardClick(item)}
-                      style={{ filter: isExpired ? 'grayscale(100%)' : 'none', opacity: isExpired ? 0.7 : 1, minHeight: '360px' }}
+                      style={{ filter: isExpired ? 'grayscale(100%)' : 'none', opacity: isExpired ? 0.7 : 1 }}
                     >
                       <div className="force-img-wrap">
                         <img 
@@ -933,7 +949,8 @@ export default function App() {
                             {dynamicDDay}
                           </span>
                         </div>
-                        <h3 style={{ fontSize: '1.05rem', fontWeight: '800', margin: '0 0 8px 0', color: '#1e293b', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.4' }}>
+                        {/* 🌟 2줄 높이(2.8em)로 고정하여 카드 높이를 동일하게 맞춤 */}
+                        <h3 style={{ fontSize: '1.05rem', fontWeight: '800', margin: '0 0 8px 0', color: '#1e293b', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.4', height: '2.8em' }}>
                           {highlightText(item.title, debouncedSearchTerm)}
                         </h3>
                         <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -993,9 +1010,22 @@ export default function App() {
             <h2 style={{ marginBottom: '8px', textAlign: 'center', color: '#0f172a' }}>
               {authModal === 'login' ? '환영합니다! 👋' : '모아봄 시작하기 🚀'}
             </h2>
-            <p style={{ textAlign: 'center', color: '#64748b', marginBottom: '32px', fontSize: '0.9rem' }}>
+            <p style={{ textAlign: 'center', color: '#64748b', marginBottom: '24px', fontSize: '0.9rem' }}>
               {authModal === 'login' ? '로그인하고 맞춤 공고를 추천받으세요.' : '간편하게 가입하고 춘천시 공고를 한눈에!'}
             </p>
+
+            <form onSubmit={handleAuthSubmit}>
+              <input type="email" placeholder="이메일 아이디" className="auth-input" required />
+              <input type="password" placeholder="비밀번호" className="auth-input" required />
+              {authModal === 'signup' && (
+                 <input type="password" placeholder="비밀번호 확인" className="auth-input" required />
+              )}
+              <button type="submit" className="auth-submit-btn">
+                {authModal === 'login' ? '이메일로 로그인' : '이메일로 가입하기'}
+              </button>
+            </form>
+
+            <div className="auth-divider">또는 SNS로 시작하기</div>
             
             <button className="social-btn kakao-btn">카카오로 {authModal === 'login' ? '로그인' : '3초만에 시작하기'}</button>
             <button className="social-btn google-btn">Google로 {authModal === 'login' ? '로그인' : '시작하기'}</button>
