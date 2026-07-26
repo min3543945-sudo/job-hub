@@ -203,9 +203,8 @@ export default function App() {
     localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
   }, [bookmarks]);
 
-  // 🌟 더미 데이터(notices.json) 대신 실제 API 서버 호출!
+  // 🌟 API 연동 및 데이터 확인용 코드
   useEffect(() => {
-    
     const API_URL = 'https://moabom-backend.onrender.com/api/opportunities'; 
 
     fetch(API_URL)
@@ -214,7 +213,9 @@ export default function App() {
         return res.json();
       })
       .then((data) => {
-        // 💡 만약 데이터가 객체 안에 감싸져서 온다면 (예: data.content) 아래 배열 변수를 그에 맞게 수정하세요.
+        // 🚨 여기에 서버가 준 진짜 데이터를 확인하는 로그를 띄웁니다!
+        console.log("들어온 데이터 원본 확인 👉", data);
+
         const listData = Array.isArray(data) ? data : data.content || data.items || data.data || [];
         
         const normalizedData = listData.map((item, index) => normalizeItem(item, index));
@@ -222,9 +223,8 @@ export default function App() {
         setLoading(false);
       })
       .catch((err) => {
-        console.error('서버에서 데이터 가져오기 실패:', err);
+        console.error('서버에서 데이터 가져오기 실패 🚨:', err);
         setLoading(false);
-        // 에러 시 임시로 빈 배열 세팅
         setNotices([]); 
       });
   }, []);
