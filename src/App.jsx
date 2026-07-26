@@ -163,7 +163,6 @@ export default function App() {
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // 🌟 [추가] 페이징(더 보기) 관리를 위한 상태
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -208,13 +207,11 @@ export default function App() {
     localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
   }, [bookmarks]);
 
-  // 🌟 [핵심 변경] 페이징 처리 및 더 보기 로직 적용
   useEffect(() => {
     const fetchNotices = async () => {
       if (page > 1) setIsLoadingMore(true);
       else setLoading(true);
 
-      // 백엔드 파라미터에 맞게 page와 size를 명시하여 16개씩 끊어서 호출
       const API_URL = `https://moabom-backend.onrender.com/api/opportunities?page=${page}&size=16`; 
 
       try {
@@ -224,7 +221,6 @@ export default function App() {
 
         const listData = Array.isArray(data) ? data : data.content || data.items || data.data || [];
         
-        // 받아온 데이터가 요청한 16개보다 적으면, 더 이상 남은 데이터가 없는 것으로 판단
         if (listData.length < 16) {
           setHasMore(false);
         }
@@ -234,7 +230,6 @@ export default function App() {
         if (page === 1) {
           setNotices(normalizedData);
         } else {
-          // 기존 데이터 뒤에 새로 가져온 데이터를 이어붙임
           setNotices(prev => [...prev, ...normalizedData]);
         }
       } catch (err) {
@@ -247,7 +242,7 @@ export default function App() {
     };
 
     fetchNotices();
-  }, [page]); // page 번호가 바뀔 때마다 실행됨
+  }, [page]); 
 
   useEffect(() => {
     const handleScroll = () => {
@@ -458,6 +453,10 @@ export default function App() {
         }
         .animate-fade-in { animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
 
+        .content-area {
+          padding-bottom: 100px; /* 🌟 하단 챗봇 버튼과 겹치지 않게 여유 공간 확보 */
+        }
+
         .content-header {
           display: flex;
           justify-content: space-between;
@@ -517,6 +516,37 @@ export default function App() {
           display: flex !important;
           flex-direction: column !important;
           flex-grow: 1 !important; 
+        }
+
+        /* 🌟 제목, 기관명, 메타 정보 CSS 클래스 분리 및 고정 높이 처리 */
+        .card-title {
+          font-size: 1.05rem;
+          font-weight: 800;
+          margin: 0 0 8px 0;
+          color: #1e293b;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          line-height: 1.4;
+          height: 2.8em; /* 🌟 2줄 높이 완벽 고정 */
+        }
+        .card-org {
+          font-size: 0.85rem;
+          color: #64748b;
+          margin: 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .card-meta {
+          margin-top: auto;
+          padding-top: 12px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 0.8rem;
+          color: #94a3b8;
         }
         
         .social-btn {
@@ -632,6 +662,21 @@ export default function App() {
           .force-grid {
             grid-template-columns: repeat(2, 1fr) !important;
             gap: 24px 12px !important;
+          }
+          .force-card {
+            min-height: auto !important;
+          }
+
+          /* 🌟 폰트 크기 모바일에 맞춰서 살짝 줄임 */
+          .card-title {
+            font-size: 0.95rem;
+            height: 2.8em; 
+          }
+          .card-org {
+            font-size: 0.8rem;
+          }
+          .card-meta {
+            font-size: 0.75rem;
           }
           
           .chatbot-window {
@@ -973,14 +1018,15 @@ export default function App() {
                             {dynamicDDay}
                           </span>
                         </div>
-                        <h3 style={{ fontSize: '1.05rem', fontWeight: '800', margin: '0 0 8px 0', color: '#1e293b', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.4', height: '2.8em' }}>
+                        {/* 🌟 분리된 CSS 클래스 적용 */}
+                        <h3 className="card-title">
                           {highlightText(item.title, debouncedSearchTerm)}
                         </h3>
-                        <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <p className="card-org">
                           {highlightText(item.orgName, debouncedSearchTerm)}
                         </p>
                         
-                        <div style={{ marginTop: 'auto', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', color: '#94a3b8' }}>
+                        <div className="card-meta">
                           <span>조회 {views}</span>
                           <span>마감: {formatDateString(item.deadline)}</span>
                         </div>
