@@ -203,21 +203,30 @@ export default function App() {
     localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
   }, [bookmarks]);
 
+  // 🌟 더미 데이터(notices.json) 대신 실제 API 서버 호출!
   useEffect(() => {
-    const timer = setTimeout(() => {
-      fetch('/notices.json')
-        .then((res) => res.json())
-        .then((data) => {
-          const normalizedData = data.map((item, index) => normalizeItem(item, index));
-          setNotices(normalizedData);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.error('데이터 가져오기 실패:', err);
-          setLoading(false);
-        });
-    }, 1000);
-    return () => clearTimeout(timer);
+    
+    const API_URL = 'https://moabom-backend.onrender.com/api/opportunities'; 
+
+    fetch(API_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error(`서버 응답 오류: ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        // 💡 만약 데이터가 객체 안에 감싸져서 온다면 (예: data.content) 아래 배열 변수를 그에 맞게 수정하세요.
+        const listData = Array.isArray(data) ? data : data.content || data.items || data.data || [];
+        
+        const normalizedData = listData.map((item, index) => normalizeItem(item, index));
+        setNotices(normalizedData);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('서버에서 데이터 가져오기 실패:', err);
+        setLoading(false);
+        // 에러 시 임시로 빈 배열 세팅
+        setNotices([]); 
+      });
   }, []);
 
   useEffect(() => {
@@ -423,7 +432,35 @@ export default function App() {
         }
         .animate-fade-in { animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
 
-        /* 🌟 기본 PC 화면: 정확히 5개 열로 고정 */
+        .content-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap; 
+          gap: 16px;
+          margin-bottom: 24px;
+        }
+        .content-header h2 {
+          margin: 0;
+          word-break: keep-all; 
+        }
+        .header-controls {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          flex-wrap: wrap;
+        }
+        .filter-label {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 0.9rem;
+          color: #475569;
+          cursor: pointer;
+          font-weight: 600;
+          white-space: nowrap; 
+        }
+
         .force-grid {
           display: grid !important;
           grid-template-columns: repeat(5, 1fr) !important;
@@ -509,7 +546,6 @@ export default function App() {
           background: #3b82f6; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold;
         }
 
-        /* 🌟 위로 가기 버튼 (CSS 클래스로 변경) */
         .btn-scroll-top {
           position: fixed;
           bottom: 40px;
@@ -532,18 +568,26 @@ export default function App() {
           transform: translateY(-4px);
         }
         .btn-scroll-top.chat-open {
-          right: 120px; /* PC에서 챗봇 열리면 옆으로 이동 */
+          right: 120px; 
         }
 
-        /* 🌟 태블릿 환경: 3개씩 배치 */
         @media (max-width: 1024px) {
           .force-grid {
             grid-template-columns: repeat(3, 1fr) !important;
           }
         }
 
-        /* 🌟 스마트폰 모바일 환경: 2열 바둑판 및 버튼 위치 조정 */
         @media (max-width: 768px) {
+          .content-header {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 12px;
+          }
+          .header-controls {
+            width: 100%;
+            justify-content: space-between; 
+          }
+
           .force-grid {
             grid-template-columns: repeat(2, 1fr) !important;
             gap: 24px 12px !important;
@@ -552,32 +596,25 @@ export default function App() {
             min-height: auto !important;
           }
           
-          /* 챗봇 윈도우 조절 */
           .chatbot-window {
             width: calc(100% - 40px);
             height: 65vh;
             bottom: 90px;
             right: 20px;
           }
-
-          /* 챗봇 플로팅 버튼 조절 */
           .chatbot-fab {
             width: 56px; height: 56px;
             bottom: 24px; right: 24px;
             font-size: 1.5rem;
           }
-
-          /* 🌟 위로 가기 버튼 조절 (챗봇 버튼 왼쪽으로 배치) */
           .btn-scroll-top {
             bottom: 28px; 
-            right: 96px; /* 챗봇버튼 우측여백 24 + 너비 56 + 추가여백 16 */
+            right: 96px; 
             width: 48px; height: 48px;
           }
-          /* 🌟 모바일에서 챗봇이 열려있을 땐 위로 가기 버튼 숨김 */
           .btn-scroll-top.chat-open {
             display: none; 
           }
-
           .noti-dropdown {
             width: 280px;
             right: -10px;
@@ -802,11 +839,11 @@ export default function App() {
                 {showBookmarksOnly ? '⭐ 내가 찜한 공고 ' : 
                   selectedCategory === '전체' ? '📌 통합 공고 목록 ' : 
                   `${categoryEmojiMap[selectedCategory] || '📌'} ${selectedCategory} 모아봄 `}
-                <span className="count-text">({!loading ? sortedData.length : 0}건)</span>
+                <span className="count-text" style={{ whiteSpace: 'nowrap' }}>({!loading ? sortedData.length : 0}건)</span>
               </h2>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', color: '#475569', cursor: 'pointer', fontWeight: '600' }}>
+              <div className="header-controls">
+                <label className="filter-label">
                   <input 
                     type="checkbox" 
                     checked={showActiveOnly} 
@@ -975,7 +1012,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 🌟 위로 가기 버튼 (CSS 클래스로 변경 적용됨) */}
+      {/* 🌟 위로 가기 버튼 */}
       {showTopBtn && (
         <button 
           className={`btn-scroll-top ${showChat ? 'chat-open' : ''}`}
