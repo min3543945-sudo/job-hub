@@ -163,6 +163,11 @@ export default function App() {
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   
+  // 🌟 [추가] 페이징(더 보기) 관리를 위한 상태
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearchTerm = useDeferredValue(searchTerm);
@@ -203,26 +208,46 @@ export default function App() {
     localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
   }, [bookmarks]);
 
+  // 🌟 [핵심 변경] 페이징 처리 및 더 보기 로직 적용
   useEffect(() => {
-    const API_URL = 'https://moabom-backend.onrender.com/api/opportunities'; 
+    const fetchNotices = async () => {
+      if (page > 1) setIsLoadingMore(true);
+      else setLoading(true);
 
-    fetch(API_URL)
-      .then((res) => {
+      // 백엔드 파라미터에 맞게 page와 size를 명시하여 16개씩 끊어서 호출
+      const API_URL = `https://moabom-backend.onrender.com/api/opportunities?page=${page}&size=16`; 
+
+      try {
+        const res = await fetch(API_URL);
         if (!res.ok) throw new Error(`서버 응답 오류: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
+        const data = await res.json();
+
         const listData = Array.isArray(data) ? data : data.content || data.items || data.data || [];
-        const normalizedData = listData.map((item, index) => normalizeItem(item, index));
-        setNotices(normalizedData);
-        setLoading(false);
-      })
-      .catch((err) => {
+        
+        // 받아온 데이터가 요청한 16개보다 적으면, 더 이상 남은 데이터가 없는 것으로 판단
+        if (listData.length < 16) {
+          setHasMore(false);
+        }
+
+        const normalizedData = listData.map((item, index) => normalizeItem(item, index + (page - 1) * 16));
+        
+        if (page === 1) {
+          setNotices(normalizedData);
+        } else {
+          // 기존 데이터 뒤에 새로 가져온 데이터를 이어붙임
+          setNotices(prev => [...prev, ...normalizedData]);
+        }
+      } catch (err) {
         console.error('서버에서 데이터 가져오기 실패 🚨:', err);
+        if (page === 1) setNotices([]); 
+      } finally {
         setLoading(false);
-        setNotices([]); 
-      });
-  }, []);
+        setIsLoadingMore(false);
+      }
+    };
+
+    fetchNotices();
+  }, [page]); // page 번호가 바뀔 때마다 실행됨
 
   useEffect(() => {
     const handleScroll = () => {
@@ -474,7 +499,7 @@ export default function App() {
           border: none !important;
           cursor: pointer !important;
           transition: transform 0.2s !important;
-          height: 100% !important; /* 카드가 꽉 차게 늘어남 */
+          height: 100% !important; 
         }
         .force-card:hover { transform: translateY(-4px) !important; }
         .force-img-wrap {
@@ -491,7 +516,7 @@ export default function App() {
           padding: 12px 4px 0px 4px !important;
           display: flex !important;
           flex-direction: column !important;
-          flex-grow: 1 !important; /* 남은 공간을 채워서 하단을 바닥으로 밀어냄 */
+          flex-grow: 1 !important; 
         }
         
         .social-btn {
@@ -608,7 +633,6 @@ export default function App() {
             grid-template-columns: repeat(2, 1fr) !important;
             gap: 24px 12px !important;
           }
-          /* 🌟 모바일에서 카드가 깨지지 않도록 최소/최대 설정 제거하고 그리드에 맡김 */
           
           .chatbot-window {
             width: calc(100% - 40px);
@@ -949,7 +973,6 @@ export default function App() {
                             {dynamicDDay}
                           </span>
                         </div>
-                        {/* 🌟 2줄 높이(2.8em)로 고정하여 카드 높이를 동일하게 맞춤 */}
                         <h3 style={{ fontSize: '1.05rem', fontWeight: '800', margin: '0 0 8px 0', color: '#1e293b', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.4', height: '2.8em' }}>
                           {highlightText(item.title, debouncedSearchTerm)}
                         </h3>
@@ -967,6 +990,19 @@ export default function App() {
                 })
               )}
             </div>
+            
+            {/* 🌟 더 보기 버튼 */}
+            {!loading && hasMore && sortedData.length > 0 && selectedCategory === '전체' && !showBookmarksOnly && (
+              <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                <button 
+                  onClick={() => setPage(prev => prev + 1)}
+                  disabled={isLoadingMore}
+                  style={{ padding: '12px 32px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '50px', fontWeight: 'bold', color: '#475569', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', transition: 'all 0.2s' }}
+                >
+                  {isLoadingMore ? '불러오는 중...' : '더 보기 ↓'}
+                </button>
+              </div>
+            )}
           </main>
         </>
       )}
