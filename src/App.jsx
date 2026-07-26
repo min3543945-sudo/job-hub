@@ -203,7 +203,7 @@ export default function App() {
     localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
   }, [bookmarks]);
 
-  // 🌟 API 연동 및 데이터 확인용 코드
+  // 🌟 실제 API 호출
   useEffect(() => {
     const API_URL = 'https://moabom-backend.onrender.com/api/opportunities'; 
 
@@ -213,11 +213,9 @@ export default function App() {
         return res.json();
       })
       .then((data) => {
-        // 🚨 여기에 서버가 준 진짜 데이터를 확인하는 로그를 띄웁니다!
         console.log("들어온 데이터 원본 확인 👉", data);
 
         const listData = Array.isArray(data) ? data : data.content || data.items || data.data || [];
-        
         const normalizedData = listData.map((item, index) => normalizeItem(item, index));
         setNotices(normalizedData);
         setLoading(false);
