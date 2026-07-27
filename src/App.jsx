@@ -552,6 +552,13 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {/* 
+        ========================================================================
+        내부 스타일 시트 (CSS 충돌 부분 수정)
+        - Auth 모달 중앙 정렬 유지 
+        - 달력, 맵 전용 CSS 병합 복구
+        ======================================================================== 
+      */}
       <style>{`
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(20px); }
@@ -977,10 +984,28 @@ export default function App() {
           right: 120px; 
         }
 
+        /* 🗓️ 달력 뷰 전용 CSS (복구됨) */
+        .calendar-wrapper { background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .calendar-header-nav { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 24px; }
+        .calendar-header-nav button { background: #f1f5f9; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; color: #475569; }
+        .calendar-header-nav h3 { margin: 0; font-size: 1.4rem; color: #1e293b; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #e2e8f0; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+        .cal-head { background: #f8fafc; padding: 12px 0; text-align: center; font-weight: bold; color: #64748b; font-size: 0.9rem; }
+        .cal-cell { background: #fff; min-height: 120px; padding: 8px; display: flex; flex-direction: column; transition: background 0.2s; }
+        .cal-cell:hover { background: #f8fafc; }
+        .cal-cell.empty { background: #f8fafc; }
+        .cal-date { font-weight: bold; color: #334155; margin-bottom: 8px; font-size: 0.9rem; }
+        .cal-cell.today .cal-date { background: #3b82f6; color: white; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .cal-events { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .cal-event-badge { background: #eff6ff; color: #2563eb; font-size: 0.75rem; padding: 4px 6px; border-radius: 4px; border: 1px solid #bfdbfe; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; transition: transform 0.1s; }
+        .cal-event-badge:hover { transform: scale(1.02); background: #dbeafe; }
+        .cal-event-more { font-size: 0.7rem; color: #94a3b8; text-align: center; margin-top: 2px; }
+
         @media (max-width: 1024px) {
           .force-grid {
             grid-template-columns: repeat(3, 1fr) !important;
           }
+          .calendar-grid { grid-template-columns: repeat(7, minmax(40px, 1fr)); }
         }
 
         @media (max-width: 768px) {
@@ -1045,6 +1070,8 @@ export default function App() {
             flex-shrink: 0;
             white-space: nowrap;
           }
+          .cal-cell { min-height: 80px; padding: 4px; } 
+          .cal-event-badge { font-size: 0.65rem; padding: 2px 4px; }
         }
       `}</style>
 
@@ -1230,7 +1257,7 @@ export default function App() {
                 {/* 🌟 로그인 완료 시: 영수증 + 추천 공고 나란히 배치 (Dashboard UI) */}
                 {isLoggedIn && (
                   <div className="dashboard-hero">
-                    {/* 영수증 영역 (콤팩트한 위젯 스타일로 변경) */}
+                    {/* 영수증 영역 */}
                     <div className="receipt-wrapper">
                       <div className="receipt-card">
                         <div className="receipt-title">🧾 미수령 혜택 영수증</div>
@@ -1254,7 +1281,7 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* 추천 공고 영역 (남은 공간 넉넉하게 활용) */}
+                    {/* 추천 공고 영역 */}
                     {recommendedPicks.length > 0 && (
                       <div className="recommendation-wrapper">
                         <h3>✨ {userName}님을 위한 맞춤 추천 공고</h3>
@@ -1358,11 +1385,51 @@ export default function App() {
               </div>
             </div>
 
-            {/* 🌟 달력 뷰 시뮬레이션 화면 */}
+            {/* 🌟 달력 뷰 시뮬레이션 화면 (구조 복원) */}
             {viewMode === 'calendar' ? (
-              <div className="animate-fade-in" style={{ padding: '60px 20px', textAlign: 'center', background: '#f8fafc', borderRadius: '16px', border: '1px dashed #cbd5e1' }}>
-                <h3 style={{ color: '#475569' }}>🗓️ 캘린더 뷰 준비 중입니다</h3>
-                <p style={{ color: '#94a3b8' }}>마감일 기반의 캘린더 UI가 이곳에 렌더링될 예정입니다.</p>
+              <div className="calendar-wrapper animate-fade-in">
+                <div className="calendar-header-nav">
+                  <button>&lt;</button>
+                  <h3>2026년 7월</h3>
+                  <button>&gt;</button>
+                </div>
+                <div className="calendar-grid">
+                  <div className="cal-head">일</div><div className="cal-head">월</div><div className="cal-head">화</div>
+                  <div className="cal-head">수</div><div className="cal-head">목</div><div className="cal-head">금</div><div className="cal-head">토</div>
+                  
+                  {/* 빈 칸 */}
+                  <div className="cal-cell empty"></div><div className="cal-cell empty"></div><div className="cal-cell empty"></div>
+                  
+                  {/* 날짜 셀 예시 */}
+                  <div className="cal-cell">
+                    <span className="cal-date">1</span>
+                  </div>
+                  <div className="cal-cell">
+                    <span className="cal-date">2</span>
+                  </div>
+                  <div className="cal-cell">
+                    <span className="cal-date">3</span>
+                  </div>
+                  <div className="cal-cell">
+                    <span className="cal-date">4</span>
+                    <div className="cal-events">
+                      <div className="cal-event-badge">강원 해커톤 대회 마감</div>
+                    </div>
+                  </div>
+                  <div className="cal-cell today">
+                    <span className="cal-date">5</span>
+                    <div className="cal-events">
+                      <div className="cal-event-badge" style={{background: '#fef2f2', color: '#ef4444', borderColor: '#fecaca'}}>청년 구직지원금 마감</div>
+                    </div>
+                  </div>
+                  
+                  {/* 남은 날짜 더미 렌더링 (간단 시연용) */}
+                  {Array.from({length: 26}).map((_, i) => (
+                    <div key={i} className="cal-cell">
+                      <span className="cal-date">{i + 6}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : (
               // 🌟 기존 그리드 뷰
@@ -1503,7 +1570,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 🌟 인증 모달 (로그인/회원가입) */}
+      {/* 🌟 인증 모달 (로그인/회원가입 레이아웃 복원) */}
       {authModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, animation: 'fadeInUp 0.2s' }}>
           <div style={{ background: 'white', padding: '40px', borderRadius: '16px', width: '90%', maxWidth: '400px', position: 'relative', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
