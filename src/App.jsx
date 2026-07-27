@@ -183,6 +183,9 @@ export default function App() {
   const [showActiveOnly, setShowActiveOnly] = useState(true); 
   const [viewMode, setViewMode] = useState('list'); 
 
+  // ✨ 달력 기준 날짜 상태 추가
+  const [currentCalDate, setCurrentCalDate] = useState(new Date());
+
   const [currentBannerIdx, setCurrentBannerIdx] = useState(0); 
   const [showTopBtn, setShowTopBtn] = useState(false);
 
@@ -197,7 +200,6 @@ export default function App() {
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  // 🌟 네비게이션 탭 배열 추가 (모든 카테고리가 보이도록)
   const NAV_TABS = ['전체', '인턴', '채용·일자리', '사업·창업', '공모전', '해커톤', '교육·강좌', '대외활동', '지원금·정책', '행사·공연', '자원봉사'];
 
   const [bookmarks, setBookmarks] = useState(() => {
@@ -676,7 +678,6 @@ export default function App() {
         <>
           <nav className="main-nav">
             <div className="nav-inner">
-              {/* 🌟 사업·창업 및 자원봉사 탭이 추가된 메뉴 렌더링 */}
               {NAV_TABS.map((tab) => (
                 <button
                   key={tab}
@@ -779,10 +780,8 @@ export default function App() {
               <div className="header-controls">
                 <div className="view-toggle">
                   <button className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')}>목록형</button>
-                  <button className={viewMode === 'calendar' ? 'active' : ''} onClick={() => {
-                    setViewMode('calendar');
-                    alert('달력 뷰는 백엔드 일정 API 연결 후 제공될 예정입니다! 🗓️\n(현재는 시연용 UI 프레임만 존재합니다.)');
-                  }}>달력형</button>
+                  {/* ✨ 경고창을 지우고 바로 상태를 변경하도록 수정 */}
+                  <button className={viewMode === 'calendar' ? 'active' : ''} onClick={() => setViewMode('calendar')}>달력형</button>
                 </div>
 
                 <label className="filter-label">
@@ -804,39 +803,54 @@ export default function App() {
             </div>
 
             {viewMode === 'calendar' ? (
+              // ✨ 달력 렌더링 영역 업데이트 (데이터 연동)
               <div className="calendar-wrapper animate-fade-in">
                 <div className="calendar-header-nav">
-                  <button>&lt;</button>
-                  <h3>2026년 7월</h3>
-                  <button>&gt;</button>
+                  <button onClick={() => setCurrentCalDate(new Date(currentCalDate.getFullYear(), currentCalDate.getMonth() - 1, 1))}>&lt;</button>
+                  <h3>{currentCalDate.getFullYear()}년 {currentCalDate.getMonth() + 1}월</h3>
+                  <button onClick={() => setCurrentCalDate(new Date(currentCalDate.getFullYear(), currentCalDate.getMonth() + 1, 1))}>&gt;</button>
                 </div>
+                
                 <div className="calendar-grid">
-                  <div className="cal-head">일</div><div className="cal-head">월</div><div className="cal-head">화</div>
-                  <div className="cal-head">수</div><div className="cal-head">목</div><div className="cal-head">금</div><div className="cal-head">토</div>
-                  
-                  <div className="cal-cell empty"></div><div className="cal-cell empty"></div><div className="cal-cell empty"></div>
-                  
-                  <div className="cal-cell"><span className="cal-date">1</span></div>
-                  <div className="cal-cell"><span className="cal-date">2</span></div>
-                  <div className="cal-cell"><span className="cal-date">3</span></div>
-                  <div className="cal-cell">
-                    <span className="cal-date">4</span>
-                    <div className="cal-events">
-                      <div className="cal-event-badge">강원 해커톤 대회 마감</div>
-                    </div>
-                  </div>
-                  <div className="cal-cell today">
-                    <span className="cal-date">5</span>
-                    <div className="cal-events">
-                      <div className="cal-event-badge urgent">청년 구직지원금 마감</div>
-                    </div>
-                  </div>
-                  
-                  {Array.from({length: 26}).map((_, i) => (
-                    <div key={i} className="cal-cell">
-                      <span className="cal-date">{i + 6}</span>
-                    </div>
+                  {['일', '월', '화', '수', '목', '금', '토'].map(day => (
+                    <div key={day} className="cal-head">{day}</div>
                   ))}
+                  
+                  {Array.from({ length: new Date(currentCalDate.getFullYear(), currentCalDate.getMonth(), 1).getDay() }).map((_, i) => (
+                    <div key={`empty-${i}`} className="cal-cell empty"></div>
+                  ))}
+                  
+                  {Array.from({ length: new Date(currentCalDate.getFullYear(), currentCalDate.getMonth() + 1, 0).getDate() }).map((_, i) => {
+                    const day = i + 1;
+                    const cellDate = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth(), day);
+                    const isToday = new Date().toDateString() === cellDate.toDateString();
+                    
+                    const dayEvents = sortedData.filter(item => {
+                      if (!item.deadline) return false;
+                      const d = new Date(item.deadline);
+                      return d.getFullYear() === cellDate.getFullYear() && 
+                             d.getMonth() === cellDate.getMonth() && 
+                             d.getDate() === cellDate.getDate();
+                    });
+
+                    return (
+                      <div key={day} className={`cal-cell ${isToday ? 'today' : ''}`}>
+                        <span className="cal-date">{day}</span>
+                        <div className="cal-events">
+                          {dayEvents.map(event => (
+                            <div 
+                              key={event.id} 
+                              className="cal-event-badge" 
+                              onClick={() => handleCardClick(event)}
+                              title={event.title}
+                            >
+                              {event.title}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ) : (
