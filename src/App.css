@@ -93,14 +93,70 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .receipt-total span:last-child { font-size: 1.25rem; font-weight: 900; white-space: nowrap; }
 .receipt-footer-text { text-align: center; font-size: 0.8rem; color: #94a3b8; margin-top: 20px; word-break: keep-all; }
 
-.login-box { width: 320px; background: #f1f5f9; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; border: 1px solid var(--border-color); }
-.login-box-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-.profile-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #a78bfa, #818cf8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; }
-.login-box-header p { font-size: 0.9rem; font-weight: 700; color: var(--text-dark); line-height: 1.4; }
-.login-subtext { font-size: 0.8rem; color: var(--text-gray); margin-bottom: 20px; text-align: center; }
-.btn-login-main { width: 100%; background: var(--primary-color); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-bottom: 16px; transition: background 0.2s; }
-.btn-login-main:hover { background: var(--primary-hover); }
+.login-box { 
+  width: 320px; 
+  background: #f1f5f9; 
+  border-radius: 16px; 
+  padding: 24px; 
+  display: flex; 
+  flex-direction: column; 
+  border: 1px solid var(--border-color); 
+  justify-content: center; /* 전체 세로 중앙 정렬 */
+}
 
+.login-box-header { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+  margin-bottom: 8px; 
+}
+
+.profile-icon { 
+  width: 48px; 
+  height: 48px; 
+  background: linear-gradient(135deg, #a78bfa, #818cf8); 
+  border-radius: 50%; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-size: 1.5rem; 
+  color: white; 
+  flex-shrink: 0; /* 아이콘 찌그러짐 방지 */
+}
+
+.login-box-header p { 
+  font-size: 0.9rem; 
+  font-weight: 700; 
+  color: var(--text-dark); 
+  line-height: 1.4; 
+  margin: 0;
+}
+
+.login-subtext { 
+  font-size: 0.8rem; 
+  color: var(--text-gray); 
+  margin-bottom: 20px; 
+  text-align: left; 
+  padding-left: 60px; /* 48px(아이콘) + 12px(간격) = 메인 텍스트와 완벽한 줄맞춤 */
+}
+
+.btn-login-main { 
+  width: 100%; 
+  background: var(--primary-color); 
+  color: white; 
+  border: none; 
+  padding: 14px; 
+  border-radius: 8px; 
+  font-size: 1rem; 
+  font-weight: 700; 
+  cursor: pointer; 
+  margin-bottom: 16px; 
+  transition: background 0.2s; 
+}
+
+.btn-login-main:hover { 
+  background: var(--primary-hover); 
+}
 /* -------------------------------------
    맞춤 추천 공고 영역
 ------------------------------------- */
