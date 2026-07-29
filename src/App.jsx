@@ -150,7 +150,7 @@ const normalizeItem = (item, index) => {
 };
 
 // ==========================================
-// 2. VWorld 지도 컴포넌트 및 로더 
+// 2. VWorld 지도 컴포넌트 
 // ==========================================
 const SDK_SCRIPT_ID = "vworld-2d-sdk";
 const CHUNCHEON_CENTER = { longitude: 127.7298, latitude: 37.8813 };
@@ -486,7 +486,7 @@ function VWorldMap({ places = [], onCardClick }) {
 }
 
 // ==========================================
-// 3. 카테고리 트리 (2단계 메뉴용)
+// 3. 카테고리 트리 및 유의어 사전 (정밀 검색 적용)
 // ==========================================
 const CATEGORY_TREE = {
   '전체': [],
@@ -503,6 +503,29 @@ const CATEGORY_TREE = {
 };
 const NAV_TABS = Object.keys(CATEGORY_TREE);
 
+// ✨ [수정] 2단계 하위 메뉴 분류를 위해 '신입', '채용' 등이 너무 넓게 안 걸리도록 정교하게 조정
+const SUBCATEGORY_SYNONYMS = {
+  '기획': ['기획', '아이디어', '제안', '비즈니스'],
+  '광고': ['광고', '마케팅', '홍보', 'sns', '콘텐츠', '서포터즈', '브랜딩', '크리에이터'],
+  '마케팅': ['광고', '마케팅', '홍보', 'sns', '콘텐츠', '서포터즈', '브랜딩', '크리에이터'],
+  '디자인': ['디자인', '미술', 'ui', 'ux', '일러스트', '포토샵', '그래픽', '캐릭터', '웹디자인'],
+  '미술': ['디자인', '미술', 'ui', 'ux', '일러스트', '포토샵', '그래픽', '캐릭터', '웹디자인'],
+  'it': ['it', '소프트웨어', '프로그래밍', '개발', '코딩', '웹', '앱', 'ai', '데이터', '인공지능', '백엔드', '프론트엔드', '보안', '클라우드', '파이썬', '자바'],
+  '소프트웨어': ['it', '소프트웨어', '프로그래밍', '개발', '코딩', '웹', '앱', 'ai', '데이터', '인공지능', '백엔드', '프론트엔드', '보안', '클라우드', '파이썬', '자바'],
+  '프로그래밍': ['it', '소프트웨어', '프로그래밍', '개발', '코딩', '웹', '앱', 'ai', '데이터', '인공지능', '백엔드', '프론트엔드', '보안', '클라우드', '파이썬', '자바'],
+  '웹': ['웹', '앱', '프론트엔드', '백엔드', '풀스택'],
+  '앱': ['웹', '앱', '프론트엔드', '백엔드', '안드로이드', 'ios'],
+  'ai': ['ai', '인공지능', '데이터', '머신러닝', '딥러닝', '빅데이터'],
+  '데이터': ['ai', '인공지능', '데이터', '머신러닝', '딥러닝', '빅데이터'],
+  '지원금': ['지원금', '자금', '보조금', '바우처', '장려금', '창업지원', '사업화', '지원사업'],
+  '멘토링': ['멘토링', '컨설팅', '교육', '특강', '전문가', '피드백'],
+  '공간지원': ['공간', '입주', '오피스', '사무실', '창업센터', '보육'],
+  '네트워킹': ['네트워킹', '교류', '밋업', '커뮤니티', '포럼'],
+  '신입': ['신입', '정규직', '신입사원'], // '채용' 제거
+  '경력': ['경력', '경력직', '경력사원'],
+  '인턴': ['인턴', '체험형', '채용연계형']
+};
+
 // ==========================================
 // 4. 메인 App 컴포넌트
 // ==========================================
@@ -510,9 +533,15 @@ export default function App() {
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   
+  // API 관련 상태 (1번 호출당 125개씩 가져옴)
+  const [page, setPage] = useState(1); 
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [selectedSubCategory, setSelectedSubCategory] = useState('전체');
   
+  // 화면 페이지네이션 상태
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 25;
   const PAGES_PER_BLOCK = 5;
@@ -571,27 +600,40 @@ export default function App() {
     }
   }, []);
 
-  // ✨ [수정] 서버 트래픽 방어: 처음에 딱 125개만 가져오기
+  // ✨ [핵심 수정] 페이지별 125개씩 불러와서 확실하게 '누적(이어붙이기)' 시킴
   useEffect(() => {
     const fetchNotices = async () => {
-      setLoading(true);
-      // 서버 부하 최소화를 위해 125개로 제한 (한 페이지 25개 * 5페이지)
-      const API_URL = `${BASE_URL}/api/opportunities?page=1&size=125`; 
+      if (page > 1) setIsLoadingMore(true);
+      else setLoading(true);
+
+      const API_URL = `${BASE_URL}/api/opportunities?page=${page}&size=125`; 
+      
       try {
         const res = await fetch(API_URL);
         if (!res.ok) throw new Error(`서버 응답 오류: ${res.status}`);
         const data = await res.json();
         const listData = Array.isArray(data) ? data : data.content || data.items || data.data || [];
-        const normalizedData = listData.map((item, index) => normalizeItem(item, index));
-        setNotices(normalizedData);
+        
+        if (listData.length < 125) setHasMore(false);
+        
+        const normalizedData = listData.map((item, index) => normalizeItem(item, index + (page - 1) * 125));
+        
+        if (page === 1) {
+          setNotices(normalizedData);
+        } else {
+          // 기존 데이터 뒤에 새로 가져온 125개 이어붙이기 -> 총 250개 -> 다음번엔 375개
+          setNotices(prev => [...prev, ...normalizedData]);
+          setCurrentPage((page - 1) * PAGES_PER_BLOCK + 1); // 6페이지, 11페이지 등으로 정확히 이동
+        }
       } catch (err) {
-        setNotices([]); 
+        if (page === 1) setNotices([]); 
       } finally {
         setLoading(false);
+        setIsLoadingMore(false);
       }
     };
     fetchNotices();
-  }, []); 
+  }, [page]); 
 
   useEffect(() => {
     if (viewMode === 'list' && !selectedPost) {
@@ -796,23 +838,40 @@ export default function App() {
     });
   };
 
+  // ✨ [수정] 메인/서브 카테고리 필터링 개선 (신입 탭 눌렀을 때 제목, 태그, 본문에서만 정밀 검사)
   const filteredData = notices.filter((item) => {
     if (showBookmarksOnly && !bookmarks.includes(item.id)) return false;
     
+    // 1. 메인 카테고리 필터
     const matchesCategory = selectedCategory === '전체' || item.category.includes(selectedCategory);
     
+    // 2. 2단계 서브 카테고리 필터
     let matchesSubCategory = true;
     if (selectedSubCategory !== '전체') {
-      const lowerSub = selectedSubCategory.toLowerCase();
-      matchesSubCategory = 
-        item.title.toLowerCase().includes(lowerSub) || 
-        item.topics.some(t => t.toLowerCase().includes(lowerSub)) || 
-        item.description.toLowerCase().includes(lowerSub);
+      const subKeywords = selectedSubCategory.split('/').map(k => k.trim().toLowerCase());
+      let expandedKeywords = [...subKeywords];
+      
+      subKeywords.forEach(keyword => {
+        if (SUBCATEGORY_SYNONYMS[keyword]) {
+          expandedKeywords = [...expandedKeywords, ...SUBCATEGORY_SYNONYMS[keyword]];
+        }
+      });
+
+      expandedKeywords = [...new Set(expandedKeywords)];
+
+      // '신입', '인턴' 등이 카테고리 명('채용·일자리') 때문에 억지로 걸리는 것 방지: 제목/태그/본문에서만 검사
+      matchesSubCategory = expandedKeywords.some(keyword => 
+        item.title.toLowerCase().includes(keyword) || 
+        item.topics.some(t => t.toLowerCase().includes(keyword)) || 
+        item.description.toLowerCase().includes(keyword)
+      );
     }
 
+    // 3. 검색어 필터
     const searchLower = debouncedSearchTerm ? debouncedSearchTerm.toLowerCase() : '';
     const matchesSearch = item.title.toLowerCase().includes(searchLower) || item.category.toLowerCase().includes(searchLower) || item.orgName.toLowerCase().includes(searchLower) || item.topics.some(t => t.toLowerCase().includes(searchLower)); 
     
+    // 4. 마감 여부 필터
     let isExpired = false;
     if (item.deadline) {
       const today = new Date();
@@ -1133,11 +1192,18 @@ export default function App() {
               <VWorldMap places={sortedData.filter(item => item.latitude !== null && item.longitude !== null)} onCardClick={handleCardClick} />
             ) : (
               <div className="force-grid animate-fade-in" key={`grid-${selectedCategory}-${selectedSubCategory}-${showBookmarksOnly}-${showActiveOnly}`}>
-                {loading ? (
+                {(loading || isLoadingMore) ? (
                   Array.from({ length: ITEMS_PER_PAGE }).map((_, n) => (
-                    <div key={n} className="force-card">
-                      <div className="force-img-wrap"></div>
-                      <div className="force-body"><div className="skeleton-badge"></div><div className="skeleton-title"></div><div className="skeleton-desc"></div></div>
+                    <div key={n} className="force-card skeleton-card">
+                      <div className="force-img-wrap skeleton-img"></div>
+                      <div className="force-body">
+                        <div className="skeleton-badge"></div>
+                        <div className="skeleton-title"></div>
+                        <div className="skeleton-title" style={{ width: '70%' }}></div>
+                        <div style={{ marginTop: 'auto' }}>
+                          <div className="skeleton-desc"></div>
+                        </div>
+                      </div>
                     </div>
                   ))
                 ) : currentDisplayData.length === 0 ? (
@@ -1174,11 +1240,15 @@ export default function App() {
               </div>
             )}
             
-            {!loading && viewMode === 'list' && totalPages > 0 && (
+            {/* ✨ 125개 단위 페이지네이션 및 다음 화살표 부드럽게 작동 */}
+            {viewMode === 'list' && (totalPages > 0) && !loading && !isLoadingMore && (
               <div className="pagination-container animate-fade-in">
                 <button 
                   className="page-nav-btn" 
-                  onClick={() => setCurrentPage(prev => Math.max(1, Math.floor((prev - 1) / PAGES_PER_BLOCK) * PAGES_PER_BLOCK))}
+                  onClick={() => {
+                    const currentBlock = Math.ceil(currentPage / PAGES_PER_BLOCK);
+                    setCurrentPage((currentBlock - 2) * PAGES_PER_BLOCK + 1);
+                  }}
                   disabled={currentPage <= PAGES_PER_BLOCK}
                 >
                   &lt;
@@ -1189,7 +1259,7 @@ export default function App() {
                   const startPage = (currentBlock - 1) * PAGES_PER_BLOCK + 1;
                   const endPage = Math.min(startPage + PAGES_PER_BLOCK - 1, totalPages);
                   
-                  return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(pageNum => (
+                  return Array.from({ length: Math.max(0, endPage - startPage + 1) }, (_, i) => startPage + i).map(pageNum => (
                     <button 
                       key={pageNum} 
                       className={`page-num-btn ${pageNum === currentPage ? 'active' : ''}`}
@@ -1204,9 +1274,16 @@ export default function App() {
                   className="page-nav-btn" 
                   onClick={() => {
                     const currentBlock = Math.ceil(currentPage / PAGES_PER_BLOCK);
-                    setCurrentPage(Math.min(totalPages, currentBlock * PAGES_PER_BLOCK + 1));
+                    const maxLoadedBlock = Math.ceil(totalPages / PAGES_PER_BLOCK);
+                    
+                    // 더 로드할 수 있으면 page=2(125개 추가) 호출 -> 로딩 뜬 후 6,7,8,9,10페이지 생성
+                    if (currentBlock >= maxLoadedBlock && hasMore) {
+                      setPage(prev => prev + 1);
+                    } else if (currentBlock < maxLoadedBlock) {
+                      setCurrentPage(currentBlock * PAGES_PER_BLOCK + 1);
+                    }
                   }}
-                  disabled={Math.ceil(currentPage / PAGES_PER_BLOCK) === Math.ceil(totalPages / PAGES_PER_BLOCK)}
+                  disabled={((Math.ceil(currentPage / PAGES_PER_BLOCK) >= Math.ceil(totalPages / PAGES_PER_BLOCK)) && !hasMore)}
                 >
                   &gt;
                 </button>
