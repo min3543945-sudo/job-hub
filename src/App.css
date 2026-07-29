@@ -393,3 +393,105 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .map-floating-btn:hover {
   transform: scale(1.1);
 }
+/* ✨ 메인 화면 로그인/회원가입 버튼 분리 스타일 */
+.login-btn-group {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.login-btn-group .btn-login-main {
+  flex: 1;
+  margin-bottom: 0; /* 기존 마진 제거 */
+}
+
+.btn-signup-sub {
+  flex: 1;
+  background-color: #f1f5f9;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-signup-sub:hover {
+  background-color: #eff6ff;
+}
+
+/* ✨ 모달 내 하단 텍스트 전환 버튼 스타일 */
+.auth-toggle-wrap {
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.auth-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0 4px;
+  font-size: 0.9rem;
+}
+
+.auth-toggle-btn:hover {
+  color: var(--primary-hover);
+}
+/* ✨ 메인 화면 로그인/회원가입 버튼 분리 스타일 */
+.login-btn-group {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.login-btn-group .btn-login-main {
+  flex: 1;
+  margin-bottom: 0; 
+}
+
+.btn-signup-sub {
+  flex: 1;
+  background-color: #f1f5f9;
+  color: var(--primary-color, #3b82f6);
+  border: 1px solid var(--primary-color, #3b82f6);
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-signup-sub:hover {
+  background-color: #eff6ff;
+}
+
+/* ✨ 모달 내 하단 텍스트 전환 버튼 스타일 */
+.auth-toggle-wrap {
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.auth-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--primary-color, #3b82f6);
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0 4px;
+  font-size: 0.9rem;
+}
+
+.auth-toggle-btn:hover {
+  color: var(--primary-hover, #2563eb);
+}

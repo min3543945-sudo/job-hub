@@ -124,7 +124,7 @@ const normalizeItem = (item, index) => {
     else { 
       lat = null; 
       lng = null; 
-    }
+    } 
   }
 
   return {
@@ -150,7 +150,7 @@ const normalizeItem = (item, index) => {
 };
 
 // ==========================================
-// 2. VWorld 지도 컴포넌트 및 로더 (생략 없이 원본 유지)
+// 2. VWorld 지도 컴포넌트 및 로더 
 // ==========================================
 const SDK_SCRIPT_ID = "vworld-2d-sdk";
 const CHUNCHEON_CENTER = { longitude: 127.7298, latitude: 37.8813 };
@@ -485,19 +485,38 @@ function VWorldMap({ places = [], onCardClick }) {
   );
 }
 
+// ==========================================
+// 3. 카테고리 트리 (2단계 메뉴용)
+// ==========================================
+const CATEGORY_TREE = {
+  '전체': [],
+  '공모전': ['전체', '기획/아이디어', '광고/마케팅', '디자인/미술', 'IT/소프트웨어', '기타'],
+  '채용·일자리': ['전체', '신입', '경력', '인턴', '알바', '프리랜서'],
+  '교육·강좌': ['전체', '프로그래밍', '마케팅', '디자인', '어학', '자격증'],
+  '대외활동': ['전체', '서포터즈', '기자단', '봉사단', '해외탐방'],
+  '해커톤': ['전체', '웹/앱', 'AI/데이터', '블록체인', '게임'],
+  '사업·창업': ['전체', '지원금', '멘토링', '공간지원', '네트워킹'],
+  '지원금·정책': ['전체', '주거', '금융', '취업', '생활'],
+  '행사·공연': ['전체', '축제', '전시', '강연', '공연'],
+  '자원봉사': ['전체', '교육봉사', '재능기부', '환경보호', '행사보조'],
+  '인턴': []
+};
+const NAV_TABS = Object.keys(CATEGORY_TREE);
 
 // ==========================================
-// 3. 메인 App 컴포넌트
+// 4. 메인 App 컴포넌트
 // ==========================================
 export default function App() {
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-
   const [selectedCategory, setSelectedCategory] = useState('전체');
+  const [selectedSubCategory, setSelectedSubCategory] = useState('전체');
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 25;
+  const PAGES_PER_BLOCK = 5;
+
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearchTerm = useDeferredValue(searchTerm);
   const [selectedPost, setSelectedPost] = useState(null);
@@ -523,7 +542,6 @@ export default function App() {
   const [isChatLoading, setIsChatLoading] = useState(false);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
-  const NAV_TABS = ['전체', '인턴', '채용·일자리', '사업·창업', '공모전', '해커톤', '교육·강좌', '대외활동', '지원금·정책', '행사·공연', '자원봉사'];
 
   const [bookmarks, setBookmarks] = useState(() => {
     try { const saved = localStorage.getItem('bookmarks'); return saved ? JSON.parse(saved) : []; } catch (error) { return []; }
@@ -535,19 +553,15 @@ export default function App() {
   const [currentMemo, setCurrentMemo] = useState('');
 
   const [sortBy, setSortBy] = useState('latest');
-  
-  // 유지: 비로그인 상태 대비 로컬 소팅용
   const [categoryWeights, setCategoryWeights] = useState({});
   const [viewCounts, setViewCounts] = useState({});
 
-  // ✨ 백엔드 API 연동 추가 부분: 백엔드에서 받아온 추천 목록 저장용 State
   const [serverRecommendedPicks, setServerRecommendedPicks] = useState([]);
   const BASE_URL = 'https://moabom-backend.onrender.com';
 
   useEffect(() => { localStorage.setItem('bookmarks', JSON.stringify(bookmarks)); }, [bookmarks]);
   useEffect(() => { localStorage.setItem('memos', JSON.stringify(memos)); }, [memos]);
 
-  // ✨ 백엔드 API 연동 추가 부분: 세션(토큰) 유지 로직
   useEffect(() => {
     const token = localStorage.getItem('token');
     const savedName = localStorage.getItem('userName');
@@ -557,51 +571,49 @@ export default function App() {
     }
   }, []);
 
-  // 전체 공고 불러오기
+  // ✨ [수정] 서버 트래픽 방어: 처음에 딱 125개만 가져오기
   useEffect(() => {
     const fetchNotices = async () => {
-      if (page > 1) setIsLoadingMore(true);
-      else setLoading(true);
-      const API_URL = `${BASE_URL}/api/opportunities?page=${page}&size=16`; 
+      setLoading(true);
+      // 서버 부하 최소화를 위해 125개로 제한 (한 페이지 25개 * 5페이지)
+      const API_URL = `${BASE_URL}/api/opportunities?page=1&size=125`; 
       try {
         const res = await fetch(API_URL);
         if (!res.ok) throw new Error(`서버 응답 오류: ${res.status}`);
         const data = await res.json();
         const listData = Array.isArray(data) ? data : data.content || data.items || data.data || [];
-        if (listData.length < 16) setHasMore(false);
-        const normalizedData = listData.map((item, index) => normalizeItem(item, index + (page - 1) * 16));
-        
-        if (page === 1) setNotices(normalizedData);
-        else setNotices(prev => [...prev, ...normalizedData]);
+        const normalizedData = listData.map((item, index) => normalizeItem(item, index));
+        setNotices(normalizedData);
       } catch (err) {
-        if (page === 1) setNotices([]); 
+        setNotices([]); 
       } finally {
         setLoading(false);
-        setIsLoadingMore(false);
       }
     };
     fetchNotices();
-  }, [page]); 
+  }, []); 
 
-  // ✨ 백엔드 API 연동 추가 부분: 로그인 시 추천 목록 가져오기 (/api/recommendations)
+  useEffect(() => {
+    if (viewMode === 'list' && !selectedPost) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [currentPage]);
+
   useEffect(() => {
     const fetchRecommendations = async () => {
       if (isLoggedIn) {
         try {
           const res = await fetch(`${BASE_URL}/api/recommendations`, {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
           });
           if (res.ok) {
             const data = await res.json();
-            // 백엔드에서 반환된 공고 형태에 따라 처리 (id 목록인지 객체 목록인지에 따라 다를 수 있으나, 공고 데이터라고 가정)
             const listData = Array.isArray(data) ? data : data.content || data.items || data.data || [];
             const normalizedRecs = listData.map((item, index) => normalizeItem(item, index));
             setServerRecommendedPicks(normalizedRecs);
           }
         } catch (error) {
-          console.error('추천 데이터를 불러오는데 실패했습니다.', error);
+          console.error('추천 데이터 로드 실패', error);
         }
       } else {
         setServerRecommendedPicks([]);
@@ -621,17 +633,21 @@ export default function App() {
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  // ✨ 백엔드 API 연동 추가 부분: 카드 클릭 시 이벤트 전송 (/api/user-events)
+  const handleCategoryClick = (tab) => {
+    setSelectedCategory(tab);
+    setSelectedSubCategory('전체');
+    setCurrentPage(1); 
+    setShowBookmarksOnly(false);
+  };
+
   const handleCardClick = async (post) => {
     setSelectedPost(post);
     setCurrentMemo(memos[post.id] || ''); 
     scrollToTop(); 
     
-    // 로컬 상태 카운트 (정렬이나 fallback 용)
     setCategoryWeights((prev) => ({ ...prev, [post.category]: (prev[post.category] || 0) + 1 }));
     setViewCounts((prev) => ({ ...prev, [post.id]: (prev[post.id] || 0) + 1 }));
 
-    // 백엔드로 클릭 액션 전송
     if (isLoggedIn) {
       try {
         await fetch(`${BASE_URL}/api/user-events`, {
@@ -640,11 +656,7 @@ export default function App() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           },
-          body: JSON.stringify({
-            action: 'click',
-            postId: post.id,
-            category: post.category
-          })
+          body: JSON.stringify({ action: 'click', postId: post.id, category: post.category })
         });
       } catch (error) {
         console.error('클릭 이벤트 전송 실패:', error);
@@ -658,7 +670,6 @@ export default function App() {
     alert('메모가 안전하게 저장되었습니다! 📝');
   };
 
-  // ✨ 백엔드 API 연동 추가 부분: 북마크 클릭 시 이벤트 전송 (/api/user-events)
   const toggleBookmark = async (e, item) => {
     e.stopPropagation();
     const isAdding = !bookmarks.includes(item.id);
@@ -673,11 +684,7 @@ export default function App() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           },
-          body: JSON.stringify({
-            action: isAdding ? 'bookmark' : 'unbookmark',
-            postId: item.id,
-            category: item.category
-          })
+          body: JSON.stringify({ action: isAdding ? 'bookmark' : 'unbookmark', postId: item.id, category: item.category })
         });
       } catch (error) {
         console.error('북마크 이벤트 전송 실패:', error);
@@ -791,9 +798,21 @@ export default function App() {
 
   const filteredData = notices.filter((item) => {
     if (showBookmarksOnly && !bookmarks.includes(item.id)) return false;
+    
     const matchesCategory = selectedCategory === '전체' || item.category.includes(selectedCategory);
+    
+    let matchesSubCategory = true;
+    if (selectedSubCategory !== '전체') {
+      const lowerSub = selectedSubCategory.toLowerCase();
+      matchesSubCategory = 
+        item.title.toLowerCase().includes(lowerSub) || 
+        item.topics.some(t => t.toLowerCase().includes(lowerSub)) || 
+        item.description.toLowerCase().includes(lowerSub);
+    }
+
     const searchLower = debouncedSearchTerm ? debouncedSearchTerm.toLowerCase() : '';
     const matchesSearch = item.title.toLowerCase().includes(searchLower) || item.category.toLowerCase().includes(searchLower) || item.orgName.toLowerCase().includes(searchLower) || item.topics.some(t => t.toLowerCase().includes(searchLower)); 
+    
     let isExpired = false;
     if (item.deadline) {
       const today = new Date();
@@ -805,7 +824,8 @@ export default function App() {
       }
     }
     if (showActiveOnly && isExpired) return false;
-    return matchesCategory && matchesSearch;
+    
+    return matchesCategory && matchesSubCategory && matchesSearch;
   });
 
   const sortedData = [...filteredData].sort((a, b) => {
@@ -819,9 +839,10 @@ export default function App() {
     return a.id > b.id ? -1 : 1; 
   });
 
+  const totalPages = Math.ceil(sortedData.length / ITEMS_PER_PAGE);
+  const currentDisplayData = sortedData.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
   const topPicks = notices.length > 0 ? [...notices].sort((a, b) => (viewCounts[b.id] || 0) - (viewCounts[a.id] || 0)).slice(0, 4) : [];
-  
-  // ✨ 백엔드 추천 리스트가 있으면 우선 사용, 없으면 기존 로컬 로직 fallback
   const displayRecommendedPicks = serverRecommendedPicks.length > 0 
     ? serverRecommendedPicks 
     : (notices.length > 0 ? [...notices].sort((a, b) => (categoryWeights[b.category] || 0) - (categoryWeights[a.category] || 0)).slice(0, 5) : []);
@@ -831,11 +852,9 @@ export default function App() {
   const nextBanner = (e) => { e.stopPropagation(); setCurrentBannerIdx((prev) => (prev + 1) % topPicks.length); };
   const prevBanner = (e) => { e.stopPropagation(); setCurrentBannerIdx((prev) => (prev === 0 ? topPicks.length - 1 : prev - 1)); };
   
-  // ✨ 백엔드 API 연동 추가 부분: 로그인/회원가입 실제 연동
   const handleAuthSubmit = async (e) => { 
     e.preventDefault(); 
     
-    // form 내의 input 값을 가져옴
     const email = e.target[0].value;
     const password = e.target[1].value;
     const isLogin = authModal === 'login';
@@ -855,10 +874,8 @@ export default function App() {
 
       const data = await response.json();
       
-      // 토큰 및 사용자 정보 저장 (데이터 구조에 따라 속성명 조정 필요)
       if (data.token) localStorage.setItem('token', data.token);
       
-      // 회원가입/로그인 시 반환되는 사용자 이름 (없으면 '모아봄회원' 처리)
       const newUserName = data.name || data.user?.name || email.split('@')[0];
       localStorage.setItem('userName', newUserName);
       
@@ -873,7 +890,6 @@ export default function App() {
     }
   };
 
-  // ✨ 로그아웃 처리 함수 추가
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUserName('춘천 청년');
@@ -892,7 +908,7 @@ export default function App() {
     <div className="app-container">
       <header className="top-header">
         <div className="header-inner">
-          <div className="logo-area" onClick={() => { setSelectedPost(null); setSearchTerm(''); setSelectedCategory('전체'); setShowBookmarksOnly(false); }}>
+          <div className="logo-area" onClick={() => { setSelectedPost(null); setSearchTerm(''); handleCategoryClick('전체'); }}>
             <span className="logo-icon">🎓</span>
             <h1 className="logo-text">모아봄</h1>
           </div>
@@ -974,10 +990,27 @@ export default function App() {
           <nav className="main-nav">
             <div className="nav-inner">
               {NAV_TABS.map((tab) => (
-                <button key={tab} className={`nav-item ${selectedCategory === tab ? 'active' : ''}`} onClick={() => { setSelectedCategory(tab); setShowBookmarksOnly(false); }}>{tab}</button>
+                <button key={tab} className={`nav-item ${selectedCategory === tab ? 'active' : ''}`} onClick={() => handleCategoryClick(tab)}>{tab}</button>
               ))}
             </div>
           </nav>
+          
+          {CATEGORY_TREE[selectedCategory] && CATEGORY_TREE[selectedCategory].length > 0 && (
+            <div className="sub-nav animate-fade-in">
+              <div className="sub-nav-inner">
+                {CATEGORY_TREE[selectedCategory].map((subTab) => (
+                  <button 
+                    key={subTab} 
+                    className={`sub-nav-item ${selectedSubCategory === subTab ? 'active' : ''}`} 
+                    onClick={() => { setSelectedSubCategory(subTab); setCurrentPage(1); }}
+                  >
+                    {subTab}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <main className="content-area">
             {selectedCategory === '전체' && !showBookmarksOnly && (
               <div className="animate-fade-in">
@@ -1016,9 +1049,15 @@ export default function App() {
                     </div>
                   ) : (
                     <div className="login-box">
-                      <div className="login-box-header"><div className="profile-icon">👤</div><p>로그인하시면 상세한<br/>맞춤 정보를 확인할 수 있습니다.</p></div>
+                      <div className="login-box-header">
+                        <div className="profile-icon">👤</div>
+                        <p>로그인하시면 상세한<br/>맞춤 정보를 확인할 수 있습니다.</p>
+                      </div>
                       <p className="login-subtext">회원가입 시 다양한 서비스를 제공합니다.</p>
-                      <button className="btn-login-main" onClick={() => setAuthModal('login')}>로그인 / 회원가입</button>
+                      <div className="login-btn-group">
+                        <button className="btn-login-main" onClick={() => setAuthModal('login')}>로그인</button>
+                        <button className="btn-signup-sub" onClick={() => setAuthModal('signup')}>회원가입</button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1039,9 +1078,9 @@ export default function App() {
               </div>
             )}
 
-            <div className="content-header animate-fade-in" key={`header-${selectedCategory}`}>
+            <div className="content-header animate-fade-in" key={`header-${selectedCategory}-${selectedSubCategory}`}>
               <h2>
-                {showBookmarksOnly ? '⭐ 내가 찜한 공고 ' : selectedCategory === '전체' ? '📌 통합 공고 목록 ' : `${categoryEmojiMap[selectedCategory] || '📌'} ${selectedCategory} 모아봄 `}
+                {showBookmarksOnly ? '⭐ 내가 찜한 공고 ' : selectedCategory === '전체' ? '📌 통합 공고 목록 ' : `${categoryEmojiMap[selectedCategory] || '📌'} ${selectedCategory}${selectedSubCategory !== '전체' ? ` > ${selectedSubCategory}` : ''} `}
                 <span className="count-text">({!loading ? sortedData.length : 0}건)</span>
               </h2>
               <div className="header-controls">
@@ -1051,10 +1090,10 @@ export default function App() {
                   <button className={viewMode === 'map' ? 'active' : ''} onClick={() => setViewMode('map')}>지도형</button>
                 </div>
                 <label className="filter-label">
-                  <input type="checkbox" className="filter-checkbox" checked={showActiveOnly} onChange={(e) => setShowActiveOnly(e.target.checked)} />
+                  <input type="checkbox" className="filter-checkbox" checked={showActiveOnly} onChange={(e) => { setShowActiveOnly(e.target.checked); setCurrentPage(1); }} />
                   ✅ 모집 중만 보기
                 </label>
-                <select className="sort-dropdown" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                <select className="sort-dropdown" value={sortBy} onChange={(e) => { setSortBy(e.target.value); setCurrentPage(1); }}>
                   <option value="latest">최신순</option><option value="deadline">⏳ 마감 임박순</option><option value="popular">🔥 인기순</option>
                 </select>
               </div>
@@ -1093,23 +1132,23 @@ export default function App() {
             ) : viewMode === 'map' ? (
               <VWorldMap places={sortedData.filter(item => item.latitude !== null && item.longitude !== null)} onCardClick={handleCardClick} />
             ) : (
-              <div className="force-grid animate-fade-in" key={`grid-${selectedCategory}-${showBookmarksOnly}-${showActiveOnly}`}>
+              <div className="force-grid animate-fade-in" key={`grid-${selectedCategory}-${selectedSubCategory}-${showBookmarksOnly}-${showActiveOnly}`}>
                 {loading ? (
-                  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                  Array.from({ length: ITEMS_PER_PAGE }).map((_, n) => (
                     <div key={n} className="force-card">
                       <div className="force-img-wrap"></div>
                       <div className="force-body"><div className="skeleton-badge"></div><div className="skeleton-title"></div><div className="skeleton-desc"></div></div>
                     </div>
                   ))
-                ) : sortedData.length === 0 ? (
+                ) : currentDisplayData.length === 0 ? (
                   <div className="empty-state">
                     <div className="empty-icon">{showBookmarksOnly ? '⭐' : '📂'}</div>
                     <h3>{showBookmarksOnly ? '아직 북마크한 공고가 없습니다.' : '조건에 맞는 공고가 없습니다.'}</h3>
                     {showActiveOnly && <button className="btn-reset secondary" onClick={() => setShowActiveOnly(false)}>마감된 공고 포함해서 보기</button>}
-                    <button className="btn-reset" onClick={() => { setSearchTerm(''); setSelectedCategory('전체'); setShowBookmarksOnly(false); setShowActiveOnly(true); }}>전체 보기로 돌아가기</button>
+                    <button className="btn-reset" onClick={() => { setSearchTerm(''); handleCategoryClick('전체'); }}>전체 보기로 돌아가기</button>
                   </div>
                 ) : (
-                  sortedData.map((item) => {
+                  currentDisplayData.map((item) => {
                     const views = viewCounts[item.id] || 0;
                     const isBookmarked = bookmarks.includes(item.id);
                     const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -1135,9 +1174,42 @@ export default function App() {
               </div>
             )}
             
-            {!loading && hasMore && sortedData.length > 0 && selectedCategory === '전체' && !showBookmarksOnly && viewMode === 'list' && (
-              <div className="btn-more-container">
-                <button className="btn-more" onClick={() => setPage(prev => prev + 1)} disabled={isLoadingMore}>{isLoadingMore ? '불러오는 중...' : '더 보기 ↓'}</button>
+            {!loading && viewMode === 'list' && totalPages > 0 && (
+              <div className="pagination-container animate-fade-in">
+                <button 
+                  className="page-nav-btn" 
+                  onClick={() => setCurrentPage(prev => Math.max(1, Math.floor((prev - 1) / PAGES_PER_BLOCK) * PAGES_PER_BLOCK))}
+                  disabled={currentPage <= PAGES_PER_BLOCK}
+                >
+                  &lt;
+                </button>
+                
+                {(() => {
+                  const currentBlock = Math.ceil(currentPage / PAGES_PER_BLOCK);
+                  const startPage = (currentBlock - 1) * PAGES_PER_BLOCK + 1;
+                  const endPage = Math.min(startPage + PAGES_PER_BLOCK - 1, totalPages);
+                  
+                  return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(pageNum => (
+                    <button 
+                      key={pageNum} 
+                      className={`page-num-btn ${pageNum === currentPage ? 'active' : ''}`}
+                      onClick={() => setCurrentPage(pageNum)}
+                    >
+                      {pageNum}
+                    </button>
+                  ));
+                })()}
+
+                <button 
+                  className="page-nav-btn" 
+                  onClick={() => {
+                    const currentBlock = Math.ceil(currentPage / PAGES_PER_BLOCK);
+                    setCurrentPage(Math.min(totalPages, currentBlock * PAGES_PER_BLOCK + 1));
+                  }}
+                  disabled={Math.ceil(currentPage / PAGES_PER_BLOCK) === Math.ceil(totalPages / PAGES_PER_BLOCK)}
+                >
+                  &gt;
+                </button>
               </div>
             )}
           </main>
@@ -1156,21 +1228,30 @@ export default function App() {
         </div>
       )}
 
-     {authModal && (
+      {authModal && (
         <div className="modal-overlay animate-fade-in">
           <div className="modal-content">
             <button className="modal-close" onClick={() => setAuthModal(null)}>✕</button>
             <h2 className="modal-title">{authModal === 'login' ? '환영합니다! 👋' : '모아봄 시작하기 🚀'}</h2>
             <p className="modal-desc">{authModal === 'login' ? '로그인하고 맞춤 공고를 추천받으세요.' : '간편하게 가입하고 춘천시 공고를 한눈에!'}</p>
+            
             <form onSubmit={handleAuthSubmit}>
               <input type="email" placeholder="이메일 아이디" className="auth-input" required />
               <input type="password" placeholder="비밀번호" className="auth-input" required />
               {authModal === 'signup' && <input type="password" placeholder="비밀번호 확인" className="auth-input" required />}
-              <button type="submit" className="auth-submit-btn">{authModal === 'login' ? '이메일로 로그인' : '이메일로 가입하기'}</button>
+              <button type="submit" className="auth-submit-btn">
+                {authModal === 'login' ? '이메일로 로그인' : '이메일로 가입하기'}
+              </button>
             </form>
             
-            {/* 구분선과 SNS 로그인 버튼 제거됨 */}
-            
+            <div className="auth-toggle-wrap">
+              {authModal === 'login' ? (
+                <p>아직 계정이 없으신가요? <button type="button" className="auth-toggle-btn" onClick={() => setAuthModal('signup')}>회원가입</button></p>
+              ) : (
+                <p>이미 계정이 있으신가요? <button type="button" className="auth-toggle-btn" onClick={() => setAuthModal('login')}>로그인</button></p>
+              )}
+            </div>
+
             <button className="test-login-btn" onClick={() => { setIsLoggedIn(true); setAuthModal(null); }}>(테스트) 비회원으로 둘러보기</button>
           </div>
         </div>
