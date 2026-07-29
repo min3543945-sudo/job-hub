@@ -112,7 +112,6 @@ const normalizeItem = (item, index) => {
     if (details.contact.email) details.contact_email = details.contact.email;
   }
 
-  // ✨ 지도 좌표 필터링 로직: 실제 좌표가 있거나 핵심 대학교/기관인 경우만 좌표 부여
   let lat = parseFloat(item.latitude || item.location?.latitude);
   let lng = parseFloat(item.longitude || item.location?.longitude);
 
@@ -125,7 +124,7 @@ const normalizeItem = (item, index) => {
     else { 
       lat = null; 
       lng = null; 
-    } // 실제 좌표도 없고 주요 기관도 아니면 지도에서 뺍니다.
+    }
   }
 
   return {
@@ -151,7 +150,7 @@ const normalizeItem = (item, index) => {
 };
 
 // ==========================================
-// 2. VWorld 지도 컴포넌트 및 로더 (내장)
+// 2. VWorld 지도 컴포넌트 및 로더 (생략 없이 원본 유지)
 // ==========================================
 const SDK_SCRIPT_ID = "vworld-2d-sdk";
 const CHUNCHEON_CENTER = { longitude: 127.7298, latitude: 37.8813 };
@@ -368,7 +367,6 @@ function VWorldMap({ places = [], onCardClick }) {
           popupOverlay.setPosition(toWebMercator(place));
         };
 
-        // ✨ 기관명과 카테고리를 분석해서 아이콘 분기 처리
         const getMarkerStyle = (place) => {
           const cat = place.category || '';
           const org = place.orgName || '';
@@ -409,7 +407,6 @@ function VWorldMap({ places = [], onCardClick }) {
         markerLayer.getSource().addFeatures(features);
         markerFeaturesRef.current = features;
 
-        // ✨ 클릭 시 스무스 애니메이션 이동
         mapClickHandler = (event) => {
           const feature = map.forEachFeatureAtPixel(
             event.pixel,
@@ -470,7 +467,6 @@ function VWorldMap({ places = [], onCardClick }) {
       <div className="map-frame">
         <div id={containerId} ref={containerRef} className="vworld-map" aria-label="춘천시 중심 VWorld 지도" />
         
-        {/* ✨ 내 위치 플로팅 버튼 */}
         <button className="map-floating-btn" title="내 위치로 이동" onClick={() => alert('GPS 기반 내 위치 이동 기능입니다. (시연용)')}>
           🧭
         </button>
@@ -539,17 +535,34 @@ export default function App() {
   const [currentMemo, setCurrentMemo] = useState('');
 
   const [sortBy, setSortBy] = useState('latest');
+  
+  // 유지: 비로그인 상태 대비 로컬 소팅용
   const [categoryWeights, setCategoryWeights] = useState({});
   const [viewCounts, setViewCounts] = useState({});
+
+  // ✨ 백엔드 API 연동 추가 부분: 백엔드에서 받아온 추천 목록 저장용 State
+  const [serverRecommendedPicks, setServerRecommendedPicks] = useState([]);
+  const BASE_URL = 'https://moabom-backend.onrender.com';
 
   useEffect(() => { localStorage.setItem('bookmarks', JSON.stringify(bookmarks)); }, [bookmarks]);
   useEffect(() => { localStorage.setItem('memos', JSON.stringify(memos)); }, [memos]);
 
+  // ✨ 백엔드 API 연동 추가 부분: 세션(토큰) 유지 로직
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const savedName = localStorage.getItem('userName');
+    if (token) {
+      setIsLoggedIn(true);
+      if (savedName) setUserName(savedName);
+    }
+  }, []);
+
+  // 전체 공고 불러오기
   useEffect(() => {
     const fetchNotices = async () => {
       if (page > 1) setIsLoadingMore(true);
       else setLoading(true);
-      const API_URL = `https://moabom-backend.onrender.com/api/opportunities?page=${page}&size=16`; 
+      const API_URL = `${BASE_URL}/api/opportunities?page=${page}&size=16`; 
       try {
         const res = await fetch(API_URL);
         if (!res.ok) throw new Error(`서버 응답 오류: ${res.status}`);
@@ -570,6 +583,33 @@ export default function App() {
     fetchNotices();
   }, [page]); 
 
+  // ✨ 백엔드 API 연동 추가 부분: 로그인 시 추천 목록 가져오기 (/api/recommendations)
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      if (isLoggedIn) {
+        try {
+          const res = await fetch(`${BASE_URL}/api/recommendations`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            // 백엔드에서 반환된 공고 형태에 따라 처리 (id 목록인지 객체 목록인지에 따라 다를 수 있으나, 공고 데이터라고 가정)
+            const listData = Array.isArray(data) ? data : data.content || data.items || data.data || [];
+            const normalizedRecs = listData.map((item, index) => normalizeItem(item, index));
+            setServerRecommendedPicks(normalizedRecs);
+          }
+        } catch (error) {
+          console.error('추천 데이터를 불러오는데 실패했습니다.', error);
+        }
+      } else {
+        setServerRecommendedPicks([]);
+      }
+    };
+    fetchRecommendations();
+  }, [isLoggedIn]);
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 300) setShowTopBtn(true);
@@ -581,12 +621,35 @@ export default function App() {
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  const handleCardClick = (post) => {
+  // ✨ 백엔드 API 연동 추가 부분: 카드 클릭 시 이벤트 전송 (/api/user-events)
+  const handleCardClick = async (post) => {
     setSelectedPost(post);
     setCurrentMemo(memos[post.id] || ''); 
     scrollToTop(); 
+    
+    // 로컬 상태 카운트 (정렬이나 fallback 용)
     setCategoryWeights((prev) => ({ ...prev, [post.category]: (prev[post.category] || 0) + 1 }));
     setViewCounts((prev) => ({ ...prev, [post.id]: (prev[post.id] || 0) + 1 }));
+
+    // 백엔드로 클릭 액션 전송
+    if (isLoggedIn) {
+      try {
+        await fetch(`${BASE_URL}/api/user-events`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            action: 'click',
+            postId: post.id,
+            category: post.category
+          })
+        });
+      } catch (error) {
+        console.error('클릭 이벤트 전송 실패:', error);
+      }
+    }
   };
 
   const handleSaveMemo = () => {
@@ -595,9 +658,31 @@ export default function App() {
     alert('메모가 안전하게 저장되었습니다! 📝');
   };
 
-  const toggleBookmark = (e, id) => {
+  // ✨ 백엔드 API 연동 추가 부분: 북마크 클릭 시 이벤트 전송 (/api/user-events)
+  const toggleBookmark = async (e, item) => {
     e.stopPropagation();
-    setBookmarks((prev) => prev.includes(id) ? prev.filter((bId) => bId !== id) : [...prev, id]);
+    const isAdding = !bookmarks.includes(item.id);
+    
+    setBookmarks((prev) => isAdding ? [...prev, item.id] : prev.filter((bId) => bId !== item.id));
+
+    if (isLoggedIn) {
+      try {
+        await fetch(`${BASE_URL}/api/user-events`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            action: isAdding ? 'bookmark' : 'unbookmark',
+            postId: item.id,
+            category: item.category
+          })
+        });
+      } catch (error) {
+        console.error('북마크 이벤트 전송 실패:', error);
+      }
+    }
   };
 
   const handleExtractAITips = async () => {
@@ -735,12 +820,68 @@ export default function App() {
   });
 
   const topPicks = notices.length > 0 ? [...notices].sort((a, b) => (viewCounts[b.id] || 0) - (viewCounts[a.id] || 0)).slice(0, 4) : [];
-  const recommendedPicks = notices.length > 0 ? [...notices].sort((a, b) => (categoryWeights[b.category] || 0) - (categoryWeights[a.category] || 0)).slice(0, 5) : [];
+  
+  // ✨ 백엔드 추천 리스트가 있으면 우선 사용, 없으면 기존 로컬 로직 fallback
+  const displayRecommendedPicks = serverRecommendedPicks.length > 0 
+    ? serverRecommendedPicks 
+    : (notices.length > 0 ? [...notices].sort((a, b) => (categoryWeights[b.category] || 0) - (categoryWeights[a.category] || 0)).slice(0, 5) : []);
+
   const activePick = topPicks[currentBannerIdx];
 
   const nextBanner = (e) => { e.stopPropagation(); setCurrentBannerIdx((prev) => (prev + 1) % topPicks.length); };
   const prevBanner = (e) => { e.stopPropagation(); setCurrentBannerIdx((prev) => (prev === 0 ? topPicks.length - 1 : prev - 1)); };
-  const handleAuthSubmit = (e) => { e.preventDefault(); setIsLoggedIn(true); setUserName('김모아'); setAuthModal(null); };
+  
+  // ✨ 백엔드 API 연동 추가 부분: 로그인/회원가입 실제 연동
+  const handleAuthSubmit = async (e) => { 
+    e.preventDefault(); 
+    
+    // form 내의 input 값을 가져옴
+    const email = e.target[0].value;
+    const password = e.target[1].value;
+    const isLogin = authModal === 'login';
+    const apiUrl = isLogin ? '/api/auth/login' : '/api/auth/signup';
+
+    try {
+      const response = await fetch(`${BASE_URL}${apiUrl}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || '인증에 실패했습니다.');
+      }
+
+      const data = await response.json();
+      
+      // 토큰 및 사용자 정보 저장 (데이터 구조에 따라 속성명 조정 필요)
+      if (data.token) localStorage.setItem('token', data.token);
+      
+      // 회원가입/로그인 시 반환되는 사용자 이름 (없으면 '모아봄회원' 처리)
+      const newUserName = data.name || data.user?.name || email.split('@')[0];
+      localStorage.setItem('userName', newUserName);
+      
+      setIsLoggedIn(true); 
+      setUserName(newUserName); 
+      setAuthModal(null); 
+      
+      alert(`${isLogin ? '로그인' : '회원가입'} 완료되었습니다!`);
+    } catch (error) {
+      alert(`오류: ${error.message}`);
+      console.error(error);
+    }
+  };
+
+  // ✨ 로그아웃 처리 함수 추가
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUserName('춘천 청년');
+    localStorage.removeItem('token');
+    localStorage.removeItem('userName');
+    setServerRecommendedPicks([]);
+    alert('로그아웃 되었습니다.');
+  };
 
   useEffect(() => {
     const chatContainer = document.querySelector('.chatbot-messages');
@@ -775,7 +916,7 @@ export default function App() {
               {isLoggedIn ? (
                 <div className="user-info">
                   <span className="user-name">{userName}님</span>
-                  <button className="btn-text" onClick={() => { setIsLoggedIn(false); alert('로그아웃 되었습니다.'); }}>로그아웃</button>
+                  <button className="btn-text" onClick={handleLogout}>로그아웃</button>
                 </div>
               ) : (
                 <>
@@ -881,12 +1022,12 @@ export default function App() {
                     </div>
                   )}
                 </div>
-                {isLoggedIn && recommendedPicks.length > 0 && (
+                {isLoggedIn && displayRecommendedPicks.length > 0 && (
                   <div className="recommendation-wrapper animate-fade-in">
                     <h3>✨ {userName}님을 위한 맞춤 추천 공고</h3>
                     <p className="rec-desc">최근 조회하신 관심사(클릭 패턴)를 분석하여 추천해 드립니다.</p>
                     <div className="horizontal-scroll">
-                      {recommendedPicks.map((item) => (
+                      {displayRecommendedPicks.map((item) => (
                         <div key={`rec-${item.id}`} className="recommend-card" onClick={() => handleCardClick(item)}>
                           <div className="rec-card-header"><span className="rec-badge">{item.category}</span><div className="rec-dday">{calculateDDay(item.deadline)}</div></div>
                           <h4 className="rec-title">{item.title}</h4>
@@ -950,7 +1091,6 @@ export default function App() {
                 </div>
               </div>
             ) : viewMode === 'map' ? (
-              // ✨ 지도 뷰에는 좌표가 있는 (null이 아닌) 데이터만 넘겨줍니다!
               <VWorldMap places={sortedData.filter(item => item.latitude !== null && item.longitude !== null)} onCardClick={handleCardClick} />
             ) : (
               <div className="force-grid animate-fade-in" key={`grid-${selectedCategory}-${showBookmarksOnly}-${showActiveOnly}`}>
@@ -980,7 +1120,7 @@ export default function App() {
                         <div className="force-img-wrap">
                           <img src={item.imageUrl} alt={item.title} />
                           {isExpired && <div className="expired-overlay">마감됨</div>}
-                          <button className="bookmark-btn" onClick={(e) => toggleBookmark(e, item.id)}>{isBookmarked ? '⭐' : '☆'}</button>
+                          <button className="bookmark-btn" onClick={(e) => toggleBookmark(e, item)}>{isBookmarked ? '⭐' : '☆'}</button>
                         </div>
                         <div className="force-body">
                           <div className="card-header-row"><span className="card-badge">{item.category}</span><span className={`card-dday ${isExpired ? 'expired' : 'active'}`}>{dynamicDDay}</span></div>
