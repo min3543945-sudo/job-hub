@@ -1156,7 +1156,7 @@ export default function App() {
         </div>
       )}
 
-      {authModal && (
+     {authModal && (
         <div className="modal-overlay animate-fade-in">
           <div className="modal-content">
             <button className="modal-close" onClick={() => setAuthModal(null)}>✕</button>
@@ -1168,9 +1168,9 @@ export default function App() {
               {authModal === 'signup' && <input type="password" placeholder="비밀번호 확인" className="auth-input" required />}
               <button type="submit" className="auth-submit-btn">{authModal === 'login' ? '이메일로 로그인' : '이메일로 가입하기'}</button>
             </form>
-            <div className="auth-divider">또는 SNS로 시작하기</div>
-            <button className="social-btn kakao-btn">카카오로 {authModal === 'login' ? '로그인' : '3초만에 시작하기'}</button>
-            <button className="social-btn google-btn">Google로 {authModal === 'login' ? '로그인' : '시작하기'}</button>
+            
+            {/* 구분선과 SNS 로그인 버튼 제거됨 */}
+            
             <button className="test-login-btn" onClick={() => { setIsLoggedIn(true); setAuthModal(null); }}>(테스트) 비회원으로 둘러보기</button>
           </div>
         </div>
