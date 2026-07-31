@@ -191,7 +191,6 @@ const VOCATIONAL_JOB_MAPPING = {
   '바이오·자연과학': ['바이오 제조·생산', '품질검사(QC) 보조', '스마트팜 시설 관리', '환경·안전 관리']
 };
 
-// 🌟 전공 계열별 5단계 맞춤 로드맵 구성 (디자인/경영/바이오 선택 시 동적 변경)
 const ROADMAP_STEPS_BY_MAJOR = {
   'IT·소프트웨어': [
     { step: '1단계', title: 'IT 직무 탐색 & 상담', desc: 'SW 직무 비교 특강 및 현직자 컨설팅', benefit: '💡 진로 설명회 무료' },
@@ -223,7 +222,6 @@ const ROADMAP_STEPS_BY_MAJOR = {
   ]
 };
 
-// 🌟 4대 계열별 커리어로드 큐레이션 공고 데이터 (전체 아이템에 우리 로고 imageUrl: '/moabom.png' 100% 명시!)
 const CAREER_OPPORTUNITIES = [
   // [1] IT·소프트웨어
   { id: 'cr-101', majorCategory: 'IT·소프트웨어', step: 1, isTop: true, category: '🧭 진로·특강', title: '춘천 IT·SW 현직자 직무 콘서트 & 진로 설명회', orgName: '춘천시 청년청', deadline: '2026-08-20', matchRate: 98, statusText: '✔ AI 맞춤 98%', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💡 프론트엔드 vs 백엔드 직무 비교 및 현직 시니어 특강' },
@@ -264,10 +262,8 @@ const CAREER_OPPORTUNITIES = [
   { id: 'cr-706', majorCategory: '공통', step: 7, isTop: false, category: '🏡 전세 대출', title: '춘천 청년 전세보증금 대출 이자 지원 사업', orgName: '강원도 주택도시기금', deadline: '상시모집', matchRate: 85, statusText: '✔ 적합도 85%', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '🏠 전세 및 보증금 대출 연 3.0% 이자 시청 직권 무상 대납' }
 ];
 
-// 🌟 선택된 전공 계열(majorCategory)에 맞춘 완벽 필터링 로직
 const getNoticesForCareerStep = (notices, stepNum, userProfile = null) => {
   const majorCategory = userProfile?.majorCategory || 'IT·소프트웨어';
-  const jobKeyword = userProfile?.job ? userProfile.job.toLowerCase() : '';
 
   let curatedList = CAREER_OPPORTUNITIES.filter(o => {
     const matchesMajor = o.majorCategory === majorCategory || o.step === 7 || o.majorCategory === '공통';
@@ -397,8 +393,11 @@ export default function App() {
   const [serverRecommendedPicks, setServerRecommendedPicks] = useState([]);
 
   // =========================================================
-  // 🌟 신규 5개 API 연동 상태
+  // 🌟 AI 3줄 요약 인플레이스(In-place) 팁 저장 상태
   // =========================================================
+  const [extractedTips, setExtractedTips] = useState({});
+  const [isExtractingTip, setIsExtractingTip] = useState(false);
+
   const [careerJobs, setCareerJobs] = useState([]);
   const [jobPostings, setJobPostings] = useState([]);
   const [housingCompareData, setHousingCompareData] = useState(null);
@@ -450,9 +449,6 @@ export default function App() {
   useEffect(() => { localStorage.setItem('bookmarks', JSON.stringify(bookmarks)); }, [bookmarks]);
   useEffect(() => { localStorage.setItem('memos', JSON.stringify(memos)); }, [memos]);
 
-  // =========================================================
-  // 🌟 공고 목록 + 5개 API(추천, 커리어직무, 채용공고, 주거비교, 부동산실거래) 병렬 연동
-  // =========================================================
   useEffect(() => {
     const fetchAllBackendData = async () => {
       if (page > 1) setIsLoadingMore(true);
@@ -568,9 +564,6 @@ export default function App() {
   const nextBanner = (e) => { e.stopPropagation(); setCurrentBannerIdx((prev) => (prev + 1) % 4); };
   const prevBanner = (e) => { e.stopPropagation(); setCurrentBannerIdx((prev) => (prev === 0 ? 3 : prev - 1)); };
 
-  // =========================================================
-  // 🌟 ⭐북마크 + 🔥조회수 + /api/recommendations 가중치를 모두 합산한 지능형 추천 알고리즘
-  // =========================================================
   const displayRecommendedPicks = useMemo(() => {
     const allCandidates = [...notices, ...CAREER_OPPORTUNITIES, ...serverRecommendedPicks];
     if (allCandidates.length === 0) return [];
@@ -767,8 +760,44 @@ export default function App() {
   };
 
   // =========================================================
-  // 🌟 AI 스마트 로드맵 자동 진단 로직 (1~3단계 즉시 분기)
+  // 🌟 AI 면접/자소서 합격 팁 3줄 요약 인플레이스 추출 함수
   // =========================================================
+  const handleExtractTip = async (post) => {
+    if (!post) return;
+    const postIdStr = String(post.id);
+    setIsExtractingTip(true);
+
+    try {
+      const prompt = `[핵심 요약 요청]\n공고 제목: "${post.title}"\n공고 내용: "${post.description || post.desc || ''}"\n\n이 공고에 지원할 때 꼭 알아야 할 '핵심 면접 질문 1가지'와 '자소서 작성 포인트 2가지'를 합쳐서 딱 3줄 개조식(- 기호 사용)으로 명확하고 간결하게 작성해줘. 인사말 없이 3줄 요약만 출력해.`;
+
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: prompt,
+          noticesSummary: `${post.category} - ${post.title} (${post.orgName})`
+        })
+      });
+
+      if (!response.ok) throw new Error('AI 추출 실패');
+      const data = await response.json();
+      const reply = data.reply || '팁을 추출하지 못했습니다.';
+
+      setExtractedTips(prev => ({
+        ...prev,
+        [postIdStr]: reply
+      }));
+    } catch (err) {
+      console.error('팁 추출 에러:', err);
+      setExtractedTips(prev => ({
+        ...prev,
+        [postIdStr]: `- 💡 공고 직무 연관성과 실제 문제 해결 프로젝트 경험을 핵심 강점으로 어필하세요.\n- 💡 주관기관(${post.orgName})의 사업 목표와 춘천 지역사회 기여 의지를 자소서에 명시하세요.\n- 💡 예상 질문: "본 직무를 선택한 동기와 본인이 가진 가장 큰 직무 경쟁력은 무엇인가요?"`
+      }));
+    } finally {
+      setIsExtractingTip(false);
+    }
+  };
+
   const handleFinishOnboarding = () => {
     const isUnderSophomore = userProfile.eduType === '대학 재학' && ['1학년', '2학년'].includes(userProfile.grade);
     const hasNoExp = userProfile.projectCount === '0~1개 (없음/1개)' && userProfile.teamExperience === '없음';
@@ -776,16 +805,15 @@ export default function App() {
     let step = 1;
     if (isUnderSophomore) {
       if (hasNoExp) {
-        step = 1; // 2학년 이하 AND 경험 없음 -> 1단계
+        step = 1;
       } else {
-        step = 2; // 2학년 이하 AND 경험 있음 -> 2단계
+        step = 2;
       }
     } else {
-      // 3학년 이상 OR 취준생/고졸 등
       if (hasNoExp) {
-        step = 2; // 3학년 이상 AND 경험 없음 -> 2단계
+        step = 2;
       } else {
-        step = 3; // 3학년 이상 AND 경험 있음 -> 3단계
+        step = 3;
       }
     }
 
@@ -793,12 +821,10 @@ export default function App() {
     setDiagnosedStepNum(step);
     setDiagnosedTitle(steps[step - 1]?.title || '역량 학습');
 
-    // 🌟 step1_roadmap 선택 창을 거치지 않고 바로 실전 기회(step2_now)로 직행!
     setCareerScreen('step2_now');
     scrollToTop();
   };
 
-  // 🌟 상단에 표시되는 미니 로드맵 바 (Stepper)
   const renderMiniRoadmap = () => {
     const steps = ROADMAP_STEPS_BY_MAJOR[userProfile.majorCategory] || ROADMAP_STEPS_BY_MAJOR['IT·소프트웨어'];
     return (
@@ -986,7 +1012,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* 상세 모달 페이지 */}
+      {/* 상세 모달 페이지 (인플레이스 3줄 요약 카드 & 텍스트 클립보드 복사 적용!) */}
       {selectedPost ? (
         <main className="detail-main animate-fade-in">
           <button className="back-btn" onClick={() => setSelectedPost(null)}>← 이전 목록으로 돌아가기</button>
@@ -1014,12 +1040,82 @@ export default function App() {
             </div>
             <h3 className="detail-subtitle">상세 안내</h3>
             <div className="detail-desc">{selectedPost.description || selectedPost.desc || '상세 내용이 등록된 춘천 관내 추천 공고입니다.'}</div>
-            <button className="btn-ai-extract" onClick={() => {
-              setShowChat(true);
-              setChatInput(`[${selectedPost.title}] 공고에 지원하려고 해. 예상 면접 질문 3가지와 자소서 작성 팁을 알려줘!`);
-            }}>
-              ✨ 이 공고 맞춤 AI 면접/자소서 팁 추출하기
-            </button>
+
+            {/* 🌟 챗봇 모달 이동 없이 자리에서 즉시 3줄 요약 출력 & 텍스트 클립보드 복사 */}
+            {isExtractingTip ? (
+              <div style={{
+                width: '100%',
+                padding: '20px',
+                marginBottom: '24px',
+                borderRadius: '12px',
+                background: '#f8fafc',
+                border: '1.5px dashed #3b82f6',
+                textAlign: 'center',
+                color: '#2563eb',
+                fontWeight: '800',
+                fontSize: '1rem'
+              }}>
+                ✨ AI가 공고 내용을 분석하여 핵심 합격 팁 3줄을 추출하고 있습니다...
+              </div>
+            ) : extractedTips[String(selectedPost.id)] ? (
+              <div style={{
+                background: '#eff6ff',
+                border: '1.5px solid #3b82f6',
+                borderRadius: '14px',
+                padding: '22px',
+                marginBottom: '24px',
+                textAlign: 'left',
+                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.08)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+                  <span style={{ fontWeight: '900', color: '#1e3a8a', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    🤖 AI 맞춤 합격 팁 3줄 요약
+                  </span>
+                  <button
+                    onClick={() => {
+                      const tipText = extractedTips[String(selectedPost.id)];
+                      navigator.clipboard.writeText(tipText)
+                        .then(() => {
+                          alert('AI 합격 팁이 클립보드에 복사되었습니다! 원하는 곳에 붙여넣어 보세요. 📋');
+                        })
+                        .catch(() => {
+                          alert('클립보드 복사에 실패했습니다. 텍스트를 직접 드래그하여 복사해 주세요.');
+                        });
+                    }}
+                    style={{
+                      background: '#3b82f6',
+                      color: '#fff',
+                      border: 'none',
+                      padding: '6px 12px',
+                      borderRadius: '6px',
+                      fontWeight: '700',
+                      fontSize: '0.85rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    📋 팁 텍스트 복사하기
+                  </button>
+                </div>
+                <div style={{
+                  fontSize: '0.95rem',
+                  lineHeight: '1.7',
+                  color: '#1e293b',
+                  whiteSpace: 'pre-line',
+                  background: '#ffffff',
+                  padding: '16px',
+                  borderRadius: '10px',
+                  border: '1px solid #bfdbfe',
+                  fontWeight: '600'
+                }}>
+                  {extractedTips[String(selectedPost.id)]}
+                </div>
+              </div>
+            ) : (
+              <button className="btn-ai-extract" onClick={() => handleExtractTip(selectedPost)}>
+                ✨ 이 공고 맞춤 AI 면접/자소서 팁 3줄 요약 추출하기
+              </button>
+            )}
+
             <div className="detail-link-wrap">
               <a href={selectedPost.url} target="_blank" rel="noreferrer" className="detail-link-btn">원문 페이지로 이동하여 확인하기 🔗</a>
             </div>
@@ -1027,7 +1123,7 @@ export default function App() {
             {/* 비밀 메모장 */}
             <div className="memo-pad animate-fade-in">
               <h3 className="memo-title">📝 {userName}님의 비밀 메모장</h3>
-              <textarea placeholder="이 공고에 대한 나만의 일정이나 메모를 자유롭게 남겨보세요!" value={currentMemo} onChange={(e) => setCurrentMemo(e.target.value)} />
+              <textarea placeholder="이 공고에 대한 나만의 일정이나 메모, 혹은 위에서 복사한 AI 합격 팁을 자유롭게 남겨보세요!" value={currentMemo} onChange={(e) => setCurrentMemo(e.target.value)} />
               <div className="memo-btn-wrap"><button onClick={handleSaveMemo}>메모 저장하기</button></div>
             </div>
           </div>
@@ -1371,12 +1467,86 @@ export default function App() {
             </div>
           )}
 
-          {/* 🌟 STEP 2 화면: 실전 역량 빌드업 (AI 자동 진단 1~3단계 로드맵 바 즉시 노출) */}
+          {/* 🌟 STEP 1 / 4 : AI 맞춤 커리어 로드맵 (전공별 5단계 빌드업 동적 표시) */}
+          {careerScreen === 'step1_roadmap' && (
+            <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 20px', width: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <span style={{ background: '#dbeafe', color: '#1e40af', padding: '6px 14px', borderRadius: '20px', fontWeight: '800' }}>
+                  STEP 1 / 4 : AI 맞춤 커리어 로드맵
+                </span>
+                <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '700' }}>
+                  {userProfile.eduType === '대학 재학' ? `${userProfile.grade} · ` : ''}{userProfile.job} ({userProfile.majorCategory}) 트랙
+                </span>
+              </div>
+
+              <h2 style={{ fontSize: '2rem', fontWeight: '900', marginBottom: '8px', color: '#0f172a' }}>
+                현재 단계에서 집중해야 할 5단계 빌드업 로드맵입니다
+              </h2>
+              <p style={{ color: '#64748b', marginBottom: '32px' }}>
+                💡 참여를 희망하는 단계를 1개 이상 선택(클릭)하면 <b>다음 단계(실전 빌드업 기회) 이동 버튼이 활성화</b>됩니다.
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px', marginBottom: '40px' }}>
+                {(ROADMAP_STEPS_BY_MAJOR[userProfile.majorCategory] || ROADMAP_STEPS_BY_MAJOR['IT·소프트웨어']).map((item, idx) => {
+                  const isSelected = selectedRoadmapIdx === idx;
+                  return (
+                    <div
+                      key={idx}
+                      onClick={() => { setSelectedRoadmapIdx(idx); setIsRoadmapSelected(true); }}
+                      style={{
+                        background: isSelected ? '#eff6ff' : '#fff',
+                        border: isSelected ? '2px solid #2563eb' : '1px solid #e2e8f0',
+                        borderRadius: '16px',
+                        padding: '20px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        boxShadow: isSelected ? '0 10px 20px rgba(37,99,235,0.1)' : 'none',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <div>
+                        <span style={{ fontSize: '0.8rem', fontWeight: '800', color: isSelected ? '#2563eb' : '#64748b' }}>{item.step}</span>
+                        <h4 style={{ fontSize: '1.1rem', fontWeight: '800', margin: '8px 0', color: '#0f172a' }}>{item.title}</h4>
+                        <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: '1.4', marginBottom: '16px' }}>{item.desc}</p>
+                      </div>
+                      <div style={{ fontSize: '0.8rem', fontWeight: '800', color: '#16a34a', background: '#f1f5f9', padding: '6px 10px', borderRadius: '6px' }}>
+                        {item.benefit}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div style={{ textAlign: 'right', borderTop: '1px solid #e2e8f0', paddingTop: '24px' }}>
+                <button
+                  disabled={!isRoadmapSelected}
+                  onClick={() => setCareerScreen('step2_now')}
+                  style={{
+                    padding: '16px 36px',
+                    borderRadius: '12px',
+                    border: 'none',
+                    background: isRoadmapSelected ? '#2563eb' : '#cbd5e1',
+                    color: '#fff',
+                    fontSize: '1.1rem',
+                    fontWeight: '900',
+                    cursor: isRoadmapSelected ? 'pointer' : 'not-allowed',
+                    boxShadow: isRoadmapSelected ? '0 10px 20px rgba(37,99,235,0.3)' : 'none'
+                  }}
+                >
+                  {isRoadmapSelected ? '선택 완료 — STEP 2. 역량 빌드업 기회 보기 ➔' : '↑ 단계를 선택하면 버튼이 열립니다'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 🌟 STEP 2 화면: 실전 역량 빌드업 */}
           {careerScreen === 'step2_now' && (
             <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 20px', width: '100%' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <span style={{ background: '#dbeafe', color: '#1e40af', padding: '6px 14px', borderRadius: '20px', fontWeight: '800' }}>
-                  AI 맞춤 진단 — {diagnosedStepNum}단계 : {diagnosedTitle} 집중
+                  사용자 추천 단계: {diagnosedStepNum}단계 ({diagnosedTitle})
                 </span>
                 <button
                   onClick={() => setCareerScreen('onboarding')}
@@ -1386,7 +1556,6 @@ export default function App() {
                 </button>
               </div>
 
-              {/* 🌟 기존 중간 창(step1_roadmap)을 대신하는 상단 미니 로드맵 바 */}
               {renderMiniRoadmap()}
 
               <h2 style={{ fontSize: '2rem', fontWeight: '900', marginBottom: '6px', color: '#0f172a' }}>
@@ -1494,7 +1663,7 @@ export default function App() {
             <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 20px', width: '100%' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <span style={{ background: '#ede9fe', color: '#6d28d9', padding: '6px 14px', borderRadius: '20px', fontWeight: '800' }}>
-                  AI 맞춤 진단 — 기업 연결 · 취업 · 창업 매칭
+                  사용자 추천 단계: 기업 연결 · 취업 · 창업 매칭
                 </span>
                 <button
                   onClick={() => setCareerScreen('step2_now')}
@@ -1504,7 +1673,6 @@ export default function App() {
                 </button>
               </div>
 
-              {/* 🌟 상단 미니 로드맵 바 */}
               {renderMiniRoadmap()}
 
               <h2 style={{ fontSize: '2rem', fontWeight: '900', marginBottom: '6px', color: '#0f172a' }}>
@@ -1612,7 +1780,7 @@ export default function App() {
             <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 20px', width: '100%' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <span style={{ background: '#0284c7', color: '#fff', padding: '6px 14px', borderRadius: '20px', fontWeight: '800' }}>
-                  AI 맞춤 진단 — 최종 정착 : 인프라 & 주거·복지 지원
+                  사용자 추천 단계: 최종 정착 — 인프라 & 주거·복지 지원
                 </span>
                 <button
                   onClick={() => setCareerScreen('step3_job')}
@@ -1622,7 +1790,6 @@ export default function App() {
                 </button>
               </div>
 
-              {/* 🌟 상단 미니 로드맵 바 */}
               {renderMiniRoadmap()}
 
               <h2 style={{ fontSize: '2.2rem', fontWeight: '900', marginBottom: '6px', color: '#0f172a' }}>
