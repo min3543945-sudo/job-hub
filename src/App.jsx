@@ -57,7 +57,7 @@ const calculateDDay = (endDate) => {
   return `D-${diffDays}`;
 };
 
-// 🌟 [핵심 기능] 공고 제목의 대괄호 [...] 및 【...】 내부 텍스트 제거 유틸리티
+// 공고 제목 대괄호 제거 유틸리티
 const cleanTitle = (title) => {
   if (!title || typeof title !== 'string') return '제목 없음';
   const cleaned = title.replace(/\[.*?\]|【.*?】/g, '').replace(/\s+/g, ' ').trim();
@@ -78,17 +78,9 @@ const categoryEmojiMap = {
   '자원봉사': '💛', '기타': '📌'
 };
 
-const detailKeyMap = {
-  capacity: '모집 인원', recruitment_count: '모집 인원',
-  team_size: '팀원 수', employmentType: '고용 형태',
-  salaryText: '급여 / 지원금', fee: '참가비 / 관람료',
-  prize: '상금 내역', tuition: '교육비', certificate: '수료증 발급',
-  working_hours: '근무 시간', event_time: '행사 시간',
-  applicationMethod: '지원 방법', host: '주최', organizer: '주관',
-  contact_name: '담당자', contact_phone: '연락처', contact_email: '이메일 주소'
-};
+const normalizeItem = (item, index) => { 
+  
 
-const normalizeItem = (item, index) => {
   let orgName = '주관기관 미상';
   if (item.organization && typeof item.organization === 'object') {
     orgName = item.organization.name || item.organization.department || '주관기관 미상';
@@ -120,7 +112,7 @@ const normalizeItem = (item, index) => {
     if (details.contact.email) details.contact_email = details.contact.email;
   }
 
-  const imageUrl = item.thumbnail_url || item.imageUrl || '/moabom.png';
+  const imageUrl = item.thumbnail_url || item.imageUrl || '/moabom.png';  
 
   let targetsStr = '제한없음';
   if (Array.isArray(item.targets) && item.targets.length > 0) {
@@ -202,52 +194,35 @@ const VOCATIONAL_JOB_MAPPING = {
   '바이오·자연과학': ['바이오 제조·생산', '품질검사(QC) 보조', '스마트팜 시설 관리', '환경·안전 관리']
 };
 
-// 🌟 [커리어로드] 1~7단계 춘천 특화 큐레이션 데이터 27건
 const CAREER_OPPORTUNITIES = [
-  // --- [1단계 : 직무 탐색] ---
   { id: 'cr-101', step: 1, isTop: true, category: '🧭 진로·특강', title: '춘천 IT·SW 현직자 직무 콘서트 & 진로 설명회', orgName: '춘천시 청년청', deadline: '2026-08-20', matchRate: 98, statusText: '✔ AI 맞춤 98%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 프론트엔드 vs 백엔드 직무 비교 및 현직 시니어 특강' },
   { id: 'cr-102', step: 1, isTop: false, category: '🧭 기초 상담', title: '강원권 청년 1:1 진로 탐색 컨설팅 패키지', orgName: '강원대학교 일자리센터', deadline: '상시모집', matchRate: 90, statusText: '✔ 적합도 90%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 춘천 관내 취업 로드맵 수립 및 적성 검사 지원' },
   { id: 'cr-103', step: 1, isTop: false, category: '🧭 기업 견학', title: '춘천 바이오·IT 산업단지 기업 탐방 오픈 데이', orgName: '강원도경제진흥원', deadline: '2026-08-30', matchRate: 85, statusText: '✔ 적합도 85%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🏢 춘천 주요 기업 사옥 투어 및 채용 설명회' },
-
-  // --- [2단계 : 기초 역량] ---
   { id: 'cr-201', step: 2, isTop: true, category: '📚 교육·강좌', title: '춘천 청년 K-Digital 백엔드(Java/Python) 부트캠프', orgName: '강원대학교 산학협력단', deadline: '2026-08-10', matchRate: 96, statusText: '✔ AI 맞춤 96% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 교육비 100% 무료 | 매월 훈련수당 31만 원 지급' },
   { id: 'cr-202', step: 2, isTop: true, category: '📚 교육·강좌', title: '웹 개발 및 실전 데이터베이스(DB) 실무 강좌', orgName: '춘천 정보문화진흥원', deadline: '2026-08-25', matchRate: 92, statusText: '✔ AI 맞춤 92%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 SQL 및 Spring Boot 기초 프로젝트 실습 서버 무상' },
   { id: 'cr-203', step: 2, isTop: false, category: '📚 스터디', title: '춘천 코딩 코테 대비 알고리즘 집중반 모집', orgName: '커먼즈필드 춘천 코딩클럽', deadline: '상시모집', matchRate: 88, statusText: '✔ 적합도 88%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 온·오프라인 코딩 테스트 멘토링 & 스터디룸 무료' },
-
-  // --- [3단계 : 프로젝트] ---
   { id: 'cr-301', step: 3, isTop: true, category: '💻 해커톤', title: '제4회 춘천시 공공데이터 문제해결 해커톤', orgName: '춘천시청 스마트도시과', deadline: '2026-08-15', matchRate: 96, statusText: '✔ AI 맞춤 96% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💰 대상 상금 300만 원 | 춘천시장 표창 및 실전 포트폴리오' },
   { id: 'cr-302', step: 3, isTop: true, category: '🤝 지역 프로젝트', title: '춘천 로컬 문제해결 청년 아이디어 프로젝트', orgName: '춘천문화재단', deadline: '2026-08-30', matchRate: 91, statusText: '✔ AI 맞춤 91%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 기획 프로젝트 활동비 150만 원 지원 & 멘토링' },
   { id: 'cr-303', step: 3, isTop: false, category: '💻 오픈소스', title: '강원 ICT 오픈소스 기여 및 팀 프로젝트 경진대회', orgName: '강원ICT융합연구원', deadline: '2026-09-05', matchRate: 85, statusText: '✔ 적합도 85%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 깃허브(GitHub) 포트폴리오 검증 및 개발 서버 보조' },
-
-  // --- [4단계 : 실무 경험] ---
   { id: 'cr-401', step: 4, isTop: true, category: '🚀 마이크로 외주', title: '춘천시 청년 정책 앱 UI/UX 개선 마이크로 프로젝트', orgName: '춘천시 청년청', deadline: '2026-08-25', matchRate: 95, statusText: '✔ AI 맞춤 95% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💰 프로젝트 기성금 120만 원 지급 | 시정 참여 공식 경력' },
   { id: 'cr-402', step: 4, isTop: true, category: '💼 단기 인턴', title: '춘천 IT기업 백엔드 개발자 실무 인턴 모집', orgName: '(주)강원테크솔루션', deadline: '2026-08-20', matchRate: 90, statusText: '✔ AI 맞춤 90%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💼 실무 클라우드 백엔드 개발 경험 | 정규직 전환율 80%' },
   { id: 'cr-403', step: 4, isTop: false, category: '💼 기업 캡스톤', title: '춘천 스마트팜 IT 융합 기업 연계 캡스톤 디자인', orgName: '(주)강원애그리텍', deadline: '2026-08-10', matchRate: 84, statusText: '✔ 적합도 84%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 기업 실무 과제 해결 | 완료 후 우수자 인턴 가점' },
-
-  // --- [5단계 : 기업 연결] ---
   { id: 'cr-501', step: 5, isTop: true, category: '🤝 1:1 멘토링', title: '더존비즈온 현직 시니어 개발자 1:1 멘토링 패키지', orgName: '더존비즈온 춘천 캠퍼스', deadline: '2026-09-01', matchRate: 97, statusText: '✔ AI 맞춤 97% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🏢 백엔드 시니어 코드 리뷰 & 실무 면접 및 포트폴리오 피드백' },
   { id: 'cr-502', step: 5, isTop: true, category: '🤝 기업 과제', title: '춘천 앵커기업 기업 과제 수행 및 채용 설명회', orgName: '강원도경제진흥원', deadline: '2026-09-10', matchRate: 91, statusText: '✔ AI 맞춤 91%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 실제 현업 이슈 과제 풀이 | 우수 해결팀 채용 가산점' },
   { id: 'cr-503', step: 5, isTop: false, category: '🤝 포트폴리오', title: 'IT 인사담당자 초청 이력서·포트폴리오 클리닉', orgName: '춘천 일자리센터', deadline: '상시모집', matchRate: 86, statusText: '✔ 적합도 86%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 서류 탈락율을 줄이는 직군 맞춤 1:1 이력서 첨삭' },
-
-  // --- [6단계 : 취업] ---
   { id: 'cr-601', step: 6, isTop: true, category: '🎯 지역인재 채용', title: '강원정보문화진흥원 지역인재 SW 신입사원 공채', orgName: '강원정보문화진흥원', deadline: '2026-09-15', matchRate: 96, statusText: '✔ AI 맞춤 96% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🌟 춘천 지역인재 가산점 부여 | 주거 안정 지원금 연계' },
   { id: 'cr-602', step: 6, isTop: true, category: '🎯 채용 전환', title: '유바이오로직스 데이터 분석 IT 신입사원 모집', orgName: '유바이오로직스 춘천', deadline: '2026-09-20', matchRate: 93, statusText: '✔ AI 맞춤 93% (추천)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💼 채용 전환형 인턴 3개월 근무 후 100% 정규직 발령' },
   { id: 'cr-603', step: 6, isTop: false, category: '🎯 신입 채용', title: '바디텍메드(주) 정보전략팀 SW 개발 신입 채용', orgName: '바디텍메드 춘천본사', deadline: '2026-09-30', matchRate: 87, statusText: '✔ 적합도 87%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🏢 춘천 거주 청년 우선 선발 | 중소기업 취업장려금 연계' },
-
-  // --- [7단계 : 정착 (인프라 & 정책)] ---
-  { id: 'cr-701', step: 7, isTop: true, category: '🏡 주거·월세', title: '춘천 청년 월세 특별지원사업 (월 20만 원 x 12개월)', orgName: '춘천시 청년지원과', deadline: '2026-09-30', matchRate: 98, statusText: '✔ AI 맞춤 98% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🏠 연간 총 240만 원 무상 주거비 지원으로 생활 부담 해소' },
-  { id: 'cr-702', step: 7, isTop: true, category: '🎒 정주 복지', title: '강원·춘천 대학생 및 청년 전입장려금 지원', orgName: '춘천시 자치행정과', deadline: '상시모집', matchRate: 95, statusText: '✔ AI 맞춤 95% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🎒 관내 대학교 전입 학생 학기별 정착 축하금 30만 원 지급' },
-  { id: 'cr-703', step: 7, isTop: true, category: '💼 취업 장려', title: '춘천 관내 중소기업 청년 취업장려금 및 구직수당', orgName: '춘천시 기업지원과', deadline: '2026-11-30', matchRate: 94, statusText: '✔ AI 맞춤 94% (추천)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💰 춘천 소재 기업 근로 청년 연 최대 100만 원 지원 장려금' },
+  { id: 'cr-701', step: 7, isTop: true, category: '🏡 주거·월세', title: '춘천 청년 월세 특별지원사업', orgName: '춘천시 청년지원과', deadline: '2026-09-30', matchRate: 98, statusText: '✔ AI 맞춤 98% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🏠 연간 총 240만 원 무상 주거비 지원으로 생활 부담 해소' },
+  { id: 'cr-702', step: 7, isTop: true, category: '🎒 정주 복지', title: '대학생 및 청년 전입장려금 지원', orgName: '춘천시 자치행정과', deadline: '상시모집', matchRate: 95, statusText: '✔ AI 맞춤 95% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🎒 관내 대학교 전입 학생 학기별 정착 축하금 30만 원 지급' },
+  { id: 'cr-703', step: 7, isTop: true, category: '💼 취업 장려', title: '중소기업 청년 취업장려금', orgName: '춘천시 기업지원과', deadline: '2026-11-30', matchRate: 94, statusText: '✔ AI 맞춤 94% (추천)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💰 춘천 소재 기업 근로 청년 연 최대 100만 원 지원 장려금' },
   { id: 'cr-704', step: 7, isTop: false, category: '🚌 교통 지원', title: '춘천 청년 대중교통비 지원 & 교통카드 패스', orgName: '춘천시 청년청', deadline: '상시모집', matchRate: 90, statusText: '✔ 적합도 90%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🚌 춘천 시내버스 및 광역 교통비 연간 최대 15만 원 환급' },
   { id: 'cr-705', step: 7, isTop: false, category: '🏙️ 청년 공간', title: '커먼즈필드 춘천 청년 코워킹스페이스 무료 멤버십', orgName: '춘천사회혁신센터', deadline: '상시모집', matchRate: 88, statusText: '✔ 적합도 88%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🏙️ 춘천 효자동 소재 청년 전용 공유 오피스 24시간 라운지' },
   { id: 'cr-706', step: 7, isTop: false, category: '🏡 전세 대출', title: '춘천 청년 전세보증금 대출 이자 지원 사업', orgName: '강원도 주택도시기금', deadline: '상시모집', matchRate: 85, statusText: '✔ 적합도 85%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🏠 전세 및 보증금 대출 연 3.0% 이자 시청 직권 무상 대납' }
 ];
 
-// 🌟 [요청 반영: STEP 4 복지/정책 단계에 교육·부트캠프·공모전 등 이상한 데이터 유입 원천 차단]
 const getNoticesForCareerStep = (notices, stepNum, userProfile = null) => {
-  const majorKeyword = userProfile?.majorCategory
-    ? userProfile.majorCategory.split('·')[0].toLowerCase()
-    : '';
+  const majorKeyword = userProfile?.majorCategory ? userProfile.majorCategory.split('·')[0].toLowerCase() : '';
   const jobKeyword = userProfile?.job ? userProfile.job.toLowerCase() : '';
 
   const matchingNotices = notices.filter(item => {
@@ -256,41 +231,24 @@ const getNoticesForCareerStep = (notices, stepNum, userProfile = null) => {
     const cat = (item.category || '').toLowerCase();
     const fullText = `${title} ${desc} ${cat}`;
 
-    if (stepNum === 1) {
-      return cat.includes('교육') || fullText.includes('설명회') || fullText.includes('특강') || fullText.includes('상담') || fullText.includes('진로') || fullText.includes('탐방') || fullText.includes('컨설팅');
-    }
+    if (stepNum === 1) return cat.includes('교육') || fullText.includes('설명회') || fullText.includes('특강') || fullText.includes('상담') || fullText.includes('진로') || fullText.includes('탐방') || fullText.includes('컨설팅');
     if (stepNum === 2) {
       const isEdu = cat.includes('교육') || cat.includes('강좌') || fullText.includes('부트캠프') || fullText.includes('아카데미') || fullText.includes('스터디') || fullText.includes('코딩');
       const matchesMajor = majorKeyword ? fullText.includes(majorKeyword) || fullText.includes('it') || fullText.includes('sw') : true;
       return isEdu && matchesMajor;
     }
-    if (stepNum === 3) {
-      return cat.includes('해커톤') || cat.includes('공모전') || fullText.includes('해커톤') || fullText.includes('공모전') || fullText.includes('대회') || fullText.includes('프로젝트') || fullText.includes('경진');
-    }
-    if (stepNum === 4) {
-      return cat.includes('인턴') || cat.includes('대외활동') || fullText.includes('인턴') || fullText.includes('실무') || fullText.includes('실습') || fullText.includes('외주') || fullText.includes('캡스톤');
-    }
+    if (stepNum === 3) return cat.includes('해커톤') || cat.includes('공모전') || fullText.includes('해커톤') || fullText.includes('공모전') || fullText.includes('대회') || fullText.includes('프로젝트') || fullText.includes('경진');
+    if (stepNum === 4) return cat.includes('인턴') || cat.includes('대외활동') || fullText.includes('인턴') || fullText.includes('실무') || fullText.includes('실습') || fullText.includes('외주') || fullText.includes('캡스톤');
     if (stepNum === 5) {
       const isJobOrMentor = cat.includes('채용') || cat.includes('인턴') || fullText.includes('멘토링') || fullText.includes('채용') || fullText.includes('신입') || fullText.includes('공채');
       const matchesJob = jobKeyword ? fullText.includes(jobKeyword) || fullText.includes(majorKeyword) : true;
       return isJobOrMentor && matchesJob;
     }
-    if (stepNum === 6) {
-      return cat.includes('채용') || cat.includes('일자리') || fullText.includes('채용') || fullText.includes('신입') || fullText.includes('공채') || fullText.includes('정규직') || fullText.includes('사원');
-    }
+    if (stepNum === 6) return cat.includes('채용') || cat.includes('일자리') || fullText.includes('채용') || fullText.includes('신입') || fullText.includes('공채') || fullText.includes('정규직') || fullText.includes('사원');
     if (stepNum === 7) {
-      // 🌟 [핵심 수정] 주거/복지/월세/정책 키워드만 허용하고 교육·부트캠프·해커톤·채용 단어가 있으면 무조건 제외!
       const isPolicyCat = cat.includes('지원금') || cat.includes('정책') || cat.includes('복지') || cat.includes('주거');
       const hasPolicyKeyword = fullText.includes('월세') || fullText.includes('주거') || fullText.includes('교통') || fullText.includes('전입') || fullText.includes('장려금') || fullText.includes('대출') || fullText.includes('공간');
-      const isNotNoise = !fullText.includes('교육') &&
-                         !fullText.includes('부트캠프') &&
-                         !fullText.includes('국비') &&
-                         !fullText.includes('클라우드') &&
-                         !fullText.includes('강좌') &&
-                         !fullText.includes('해커톤') &&
-                         !fullText.includes('공모전') &&
-                         !fullText.includes('채용') &&
-                         !fullText.includes('인턴');
+      const isNotNoise = !fullText.includes('교육') && !fullText.includes('부트캠프') && !fullText.includes('국비') && !fullText.includes('클라우드') && !fullText.includes('강좌') && !fullText.includes('해커톤') && !fullText.includes('공모전') && !fullText.includes('채용') && !fullText.includes('인턴');
       return (isPolicyCat || hasPolicyKeyword) && isNotNoise;
     }
     return false;
@@ -312,15 +270,36 @@ const getNoticesForCareerStep = (notices, stepNum, userProfile = null) => {
     return o.step === stepNum;
   });
 
-  // STEP 4(정착)는 항상 춘천 특화 큐레이션 정책(월세, 장려금 등)을 상단에 최우선 배치
   const combined = [...curatedList, ...matchingNotices];
-  const uniqueList = Array.from(new Map(combined.map(item => [String(item.id), item])).values());
-  return uniqueList;
+  return Array.from(new Map(combined.map(item => [String(item.id), item])).values());
 };
-
-// =========================================================
-// 3. 메인 App 컴포넌트
-// =========================================================
+const renderChatMessage = (text, notices, handleCardClick, setShowChat) => {
+  if (!text) return '';
+  const parts = text.split(/(\[.*?\]\(open_post\))/g);
+  return parts.map((part, i) => {
+    const match = part.match(/\[(.*?)\]\(open_post\)/);
+    if (match) {
+      return (
+        <span
+          key={i}
+          onClick={() => {
+            const foundPost = notices.find(n => n.title.includes(match[1]) || match[1].includes(n.title));
+            if (foundPost) {
+              handleCardClick(foundPost);
+              setShowChat(false);
+            } else {
+              alert(`"${match[1]}" 공고 상세 페이지로 이동합니다.`);
+            }
+          }}
+          style={{ color: '#2563eb', fontWeight: '800', cursor: 'pointer', textDecoration: 'underline', display: 'inline-block', margin: '4px 0' }}
+        >
+          🔗 [{match[1]}] (클릭하여 공고 확인하기)
+        </span>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+};
 export default function App() {
   const [mainMode, setMainMode] = useState('directory');
   const [notices, setNotices] = useState([]);
@@ -332,7 +311,6 @@ export default function App() {
   const [selectedSubCategory, setSelectedSubCategory] = useState('전체');
   const [currentPage, setCurrentPage] = useState(1);
 
-  // 4개씩 5줄 = 페이지당 20개 / 5페이지 블록 단위로 한 번에 100개 로딩
   const ITEMS_PER_PAGE = 20;
   const PAGES_PER_BLOCK = 5;
 
@@ -347,7 +325,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState('list');
   const [showMyPage, setShowMyPage] = useState(false);
   const [currentCalDate, setCurrentCalDate] = useState(new Date());
-  const [currentBannerIdx, setCurrentBannerIdx] = useState(0);
+  const [currentBannerIdx, setCurrentBannerIdx] = useState(0); // 0번 인덱스 = AI 커리어로드 고정 첫 페이지
   const [showTopBtn, setShowTopBtn] = useState(false);
   const [showNoti, setShowNoti] = useState(false);
   const [showChat, setShowChat] = useState(false);
@@ -361,7 +339,6 @@ export default function App() {
   const [viewCounts, setViewCounts] = useState({});
   const [serverRecommendedPicks, setServerRecommendedPicks] = useState([]);
 
-  // 공통 스크랩/메모 상태
   const [bookmarks, setBookmarks] = useState(() => {
     try { const saved = localStorage.getItem('bookmarks'); return saved ? JSON.parse(saved) : []; } catch (error) { return []; }
   });
@@ -372,7 +349,6 @@ export default function App() {
   const [editingMemoId, setEditingMemoId] = useState(null);
   const [editingMemoText, setEditingMemoText] = useState('');
 
-  // AI 커리어 로드 전용 상태
   const [careerScreen, setCareerScreen] = useState('landing');
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [userProfile, setUserProfile] = useState({
@@ -458,14 +434,24 @@ export default function App() {
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
+  // 실시간 공고 상위 3개 추출
+  const topPicks = notices.length > 0 ? [...notices].sort((a, b) => (viewCounts[b.id] || 0) - (viewCounts[a.id] || 0)).slice(0, 3) : [];
+
+  // 자동 슬라이드 타이머 (4.5초마다 0번 ➔ 1번 ➔ 2번 ➔ 3번 순환)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBannerIdx((prev) => (prev + 1) % 4);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, []);
+
+  const nextBanner = (e) => { e.stopPropagation(); setCurrentBannerIdx((prev) => (prev + 1) % 4); };
+  const prevBanner = (e) => { e.stopPropagation(); setCurrentBannerIdx((prev) => (prev === 0 ? 3 : prev - 1)); };
+
   const displayRecommendedPicks = useMemo(() => {
-    if (serverRecommendedPicks && serverRecommendedPicks.length > 0) {
-      return serverRecommendedPicks;
-    }
+    if (serverRecommendedPicks && serverRecommendedPicks.length > 0) return serverRecommendedPicks;
     if (!notices || notices.length === 0) return [];
-    return [...notices]
-      .sort((a, b) => (viewCounts[b.id] || 0) - (viewCounts[a.id] || 0))
-      .slice(0, 6);
+    return [...notices].sort((a, b) => (viewCounts[b.id] || 0) - (viewCounts[a.id] || 0)).slice(0, 6);
   }, [serverRecommendedPicks, notices, viewCounts]);
 
   const handleAuthSubmit = async (e) => {
@@ -534,9 +520,7 @@ export default function App() {
   const toggleBookmark = (e, item) => {
     if (e) e.stopPropagation();
     const itemIdStr = String(item.id);
-    setBookmarks((prev) =>
-      prev.includes(itemIdStr) ? prev.filter((bId) => String(bId) !== itemIdStr) : [...prev, itemIdStr]
-    );
+    setBookmarks((prev) => prev.includes(itemIdStr) ? prev.filter((bId) => String(bId) !== itemIdStr) : [...prev, itemIdStr]);
   };
 
   const handleSaveMemo = () => {
@@ -571,9 +555,7 @@ export default function App() {
     setEditingMemoId(null);
   };
 
-  const getCurrentMapping = (eduType) => {
-    return eduType === '고졸·특성화고 (학력무관)' ? VOCATIONAL_JOB_MAPPING : MAJOR_JOB_MAPPING;
-  };
+  const getCurrentMapping = (eduType) => eduType === '고졸·특성화고 (학력무관)' ? VOCATIONAL_JOB_MAPPING : MAJOR_JOB_MAPPING;
 
   const handleEduTypeChange = (edu) => {
     const mapping = getCurrentMapping(edu);
@@ -590,15 +572,10 @@ export default function App() {
   const handleFinishOnboarding = () => {
     let step = 3;
     let title = '프로젝트 경험 보완';
-
     if (userProfile.projectCount === '2개 이상' || userProfile.teamExperience !== '없음') {
       step = 4;
       title = '실무 및 인턴십 준비';
-    } else {
-      step = 3;
-      title = '프로젝트 경험 보완';
     }
-
     setDiagnosedStepNum(step);
     setDiagnosedTitle(title);
     setCareerScreen('step1_roadmap');
@@ -1672,41 +1649,92 @@ export default function App() {
             {selectedCategory === '전체' && !showBookmarksOnly && (
               <div className="animate-fade-in">
                 <div className={`hero-section ${isLoggedIn ? 'logged-in' : ''}`}>
-                  {/* 🌟 [요청 반영] 기존 슬라이더 제거 -> 왼쪽 전체를 꽉 채우는 'AI 커리어로드 원클릭 대형 CTA 배너'로 교체 */}
-                  <div
-                    className="hero-banner career-hero-banner"
-                    onClick={() => {
-                      setMainMode('career_road');
-                      setCareerScreen('landing');
-                      scrollToTop();
-                    }}
-                  >
-                    <div className="banner-content">
-                      <div className="banner-text" style={{ maxWidth: '100%' }}>
-                        <span className="banner-badge" style={{ background: '#fbbf24', color: '#1e293b' }}>
-                          ⚡ 모아봄 메인 서비스
-                        </span>
-                        <h2 style={{ fontSize: '2.1rem', marginBottom: '14px', lineHeight: '1.3' }}>
-                          나에게 꼭 맞는 춘천시 정착 경로,<br />
-                          AI 커리어 로드맵으로 맞춤 진단하기
-                        </h2>
-                        <p style={{ fontSize: '1.05rem', opacity: 0.95, marginBottom: '28px' }}>
-                          학력과 관심 직무만 선택하면 1단계(탐색)부터 7단계(주거·월세 지원)까지 1초 만에 완성해 드려요.
-                        </p>
-                        <button
-                          className="btn-go"
-                          style={{
-                            background: '#ffffff',
-                            color: '#1e3a8a',
-                            padding: '14px 32px',
-                            fontSize: '1.05rem',
-                            boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
-                          }}
-                        >
-                          🚀 지금 바로 AI 커리어로드 시작하기 &gt;
-                        </button>
+                  <div className="hero-banner">
+                    {currentBannerIdx === 0 ? (
+                      <div
+                        className="banner-content"
+                        onClick={() => {
+                          setMainMode('career_road');
+                          setCareerScreen('landing');
+                          scrollToTop();
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div className="banner-text" style={{ maxWidth: '100%' }}>
+                          <span className="banner-badge" style={{ background: '#fbbf24', color: '#1e293b' }}>
+                            ⚡ 모아봄 메인 서비스
+                          </span>
+                          <h2 style={{ fontSize: '1.85rem', marginBottom: '10px' }}>
+                            나에게 꼭 맞는 춘천시 정착 경로,<br />
+                            AI 커리어 로드맵으로 맞춤 진단하기
+                          </h2>
+                          <p style={{ fontSize: '0.95rem', opacity: 0.95, marginBottom: '20px' }}>
+                            학력과 관심 직무만 선택하면 1단계부터 7단계까지 1초 만에 완성해 드려요.
+                          </p>
+                          <button
+                            className="btn-go"
+                            style={{ background: '#ffffff', color: '#1e3a8a', padding: '10px 24px', fontWeight: '800' }}
+                          >
+                            🚀 지금 바로 AI 커리어로드 시작하기 &gt;
+                          </button>
+                        </div>
+                        <div className="banner-controls" onClick={(e) => e.stopPropagation()}>
+                          <button onClick={prevBanner}>◀</button>
+                          <span className="banner-page">1 / 4</span>
+                          <button onClick={nextBanner}>▶</button>
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      (() => {
+                        const pick = topPicks[currentBannerIdx - 1];
+                        if (!pick) {
+                          return (
+                            <div className="banner-content" onClick={() => { setMainMode('career_road'); setCareerScreen('landing'); scrollToTop(); }}>
+                              <div className="banner-text" style={{ maxWidth: '100%' }}>
+                                <span className="banner-badge" style={{ background: '#fbbf24', color: '#1e293b' }}>⚡ 모아봄 메인 서비스</span>
+                                <h2 style={{ fontSize: '1.85rem', marginBottom: '10px' }}>나에게 꼭 맞는 춘천시 정착 경로, AI 커리어 로드맵</h2>
+                                <button className="btn-go" style={{ background: '#ffffff', color: '#1e3a8a' }}>🚀 시작하기 &gt;</button>
+                              </div>
+                              <div className="banner-controls" onClick={(e) => e.stopPropagation()}>
+                                <button onClick={prevBanner}>◀</button>
+                                <span className="banner-page">{currentBannerIdx + 1} / 4</span>
+                                <button onClick={nextBanner}>▶</button>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return (
+                          <div className="banner-content" onClick={() => handleCardClick(pick)}>
+                            <div className="banner-text">
+                              <span className="banner-badge">🔥 실시간 인기/추천 공고</span>
+                              <h2>{pick.title}</h2>
+                              <p>{pick.orgName} | 마감: {formatDateString(pick.deadline)}</p>
+                              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '14px', flexWrap: 'wrap' }}>
+                                <button className="btn-go">바로가기 &gt;</button>
+                                <button
+                                  className="btn-go"
+                                  style={{ background: '#fbbf24', color: '#1e293b', fontWeight: '800' }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setMainMode('career_road');
+                                    setCareerScreen('landing');
+                                    scrollToTop();
+                                  }}
+                                >
+                                  🚀 AI 커리어로드 시작 &gt;
+                                </button>
+                              </div>
+                            </div>
+                            <img src={pick.imageUrl} alt="인기 공고 이미지" className="banner-image" onError={handleImgError} />
+                            <div className="banner-controls" onClick={(e) => e.stopPropagation()}>
+                              <button onClick={prevBanner}>◀</button>
+                              <span className="banner-page">{currentBannerIdx + 1} / 4</span>
+                              <button onClick={nextBanner}>▶</button>
+                            </div>
+                          </div>
+                        );
+                      })()
+                    )}
                   </div>
 
                   {isLoggedIn ? (
@@ -1717,11 +1745,10 @@ export default function App() {
                         day: '2-digit'
                       });
 
-                      // 무조건 있는 핵심 지원 정책 3개 고정! (부트캠프/클래스 등 소음 완전 제거)
                       const fixedPolicyList = [
                         {
                           id: 'cr-701',
-                          title: '춘천 청년 월세 특별지원사업 (월 20만 원 x 12개월)',
+                          title: '춘천 청년 월세 특별지원사업',
                           displayMoney: '2,400,000원',
                           orgName: '춘천시 청년지원과',
                           category: '지원금·정책',
@@ -1731,7 +1758,7 @@ export default function App() {
                         },
                         {
                           id: 'cr-703',
-                          title: '춘천 관내 중소기업 청년 취업장려금 및 구직수당',
+                          title: '청년 취업장려금 및 구직수당',
                           displayMoney: '1,000,000원',
                           orgName: '춘천시 기업지원과',
                           category: '지원금·정책',
@@ -1741,7 +1768,7 @@ export default function App() {
                         },
                         {
                           id: 'cr-702',
-                          title: '강원·춘천 대학생 및 청년 전입장려금 지원',
+                          title: '대학생 및 청년 전입장려금 지원',
                           displayMoney: '300,000원',
                           orgName: '춘천시 자치행정과',
                           category: '지원금·정책',
@@ -1985,6 +2012,7 @@ export default function App() {
         </>
       )}
 
+      
       {/* AI 챗봇 모달 */}
       <button className="chatbot-fab" onClick={() => setShowChat(!showChat)}>{showChat ? '✕' : '💬'}</button>
       {showChat && (
@@ -1995,34 +2023,58 @@ export default function App() {
           </div>
           <div className="chatbot-messages">
             {chatMessages.map((msg, idx) => (
-              <div key={idx} className={`msg-bubble ${msg.type === 'bot' ? 'msg-bot' : 'msg-user'}`}>
-                {msg.text}
-              </div>
-            ))}
-          </div>
+            <div key={idx} className={`msg-bubble ${msg.type === 'bot' ? 'msg-bot' : 'msg-user'}`}>
+              {msg.type === 'bot' ? renderChatMessage(msg.text) : msg.text}
+            </div>
+          ))}
+        </div>
+        
           <form
-            className="chatbot-input"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!chatInput.trim() || isChatLoading) return;
-              const userMsg = chatInput;
-              setChatMessages(prev => [...prev, { type: 'user', text: userMsg }]);
-              setChatInput('');
-              setIsChatLoading(true);
-              setTimeout(() => {
-                setChatMessages(prev => [...prev, { type: 'bot', text: `🤖 [AI 모아봄 추천]\n"${userMsg}"에 가장 적절한 춘천시 공고를 찾아보았습니다. 위의 맞춤 추천 카드나 커리어로드 탭에서 확인해 보세요!` }]);
-                setIsChatLoading(false);
-              }, 800);
-            }}
-          >
-            <input
-              type="text"
-              placeholder="공고나 정착 정책에 대해 물어보세요!"
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-            />
-            <button type="submit">↑</button>
-          </form>
+    className="chatbot-input"
+    onSubmit={async (e) => {
+      e.preventDefault();
+      if (!chatInput.trim() || isChatLoading) return;
+      const userMsg = chatInput;
+      setChatMessages(prev => [...prev, { type: 'user', text: userMsg }]);
+      setChatInput('');
+      setIsChatLoading(true);
+
+      try {
+        // 1. 현재 로드된 공고들의 제목과 요약 정보를 텍스트로 압축
+        const noticesSummary = notices.slice(0, 40).map(n => `- [${n.category}] ${n.title} (${n.orgName}, 마감: ${n.deadline || '상시'})`).join('\n');
+
+        // 2. Vercel 서버less API (/api/chat) 호출
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: userMsg,
+            noticesSummary: noticesSummary
+          })
+        });
+
+        if (!response.ok) throw new Error('챗봇 서버 응답 오류');
+
+        const data = await response.json();
+        const botReply = data.reply || '답변을 생성하지 못했습니다.';
+
+        setChatMessages(prev => [...prev, { type: 'bot', text: botReply }]);
+      } catch (err) {
+        console.error('챗봇 통신 에러:', err);
+        setChatMessages(prev => [...prev, { type: 'bot', text: '🤖 죄송합니다. 일시적인 통신 오류가 발생했습니다. 잠시 후 다시 시도해 주세요!' }]);
+      } finally {
+        setIsChatLoading(false);
+      }
+    }}
+  >
+    <input
+      type="text"
+      placeholder="공고나 정착 정책에 대해 물어보세요!"
+      value={chatInput}
+      onChange={(e) => setChatInput(e.target.value)}
+    />
+    <button type="submit" disabled={isChatLoading}>↑</button>
+  </form>
         </div>
       )}
 
