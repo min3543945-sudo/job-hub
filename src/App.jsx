@@ -93,11 +93,15 @@ const normalizeItem = (item, index) => {
   const deadline = item.dates?.recruit_end_at || item.dates?.applicationEndAt || item.dates?.activity_end_at || '';
   const activityStart = item.dates?.activity_start_at || item.dates?.activityStartAt || '';
   const activityEnd = item.dates?.activity_end_at || item.dates?.activityEndAt || '';
-  const sourceName = item.source || item.source?.sourceName || '기타';
+  
+  // 🌟 [안전 파싱 1] source 항목이 객체이거나 문자열일 때 모두 에러 없이 처리
+  const sourceName = typeof item.source === 'object' ? (item.source?.sourceName || '기타') : (item.source || '기타');
 
   let categoryRaw = item.category || '기타';
   let category = categoryMap[categoryRaw] || categoryRaw;
-  let topics = item.topics || [];
+  
+  // 🌟 [안전 파싱 2] topics가 배열이 아니면 무조건 빈 배열로 초기화하여 .some 에러 원천 차단
+  let topics = Array.isArray(item.topics) ? item.topics : [];
 
   let locType = item.location?.operation_type || item.location?.type || '';
   let locName = item.location?.region || '';
@@ -114,21 +118,28 @@ const normalizeItem = (item, index) => {
     if (details.contact.email) details.contact_email = details.contact.email;
   }
 
-  // 🌟 [로고 교체] 썸네일 이미지가 없으면 랜덤 이미지 대신 공식 모아봄 로고('/moabom.png') 사용
   const imageUrl = item.thumbnail_url || item.imageUrl || '/moabom.png';
+
+  // 🌟 [안전 파싱 3] targets 항목이 문자열로 들어와도 크래시 안 나도록 방어
+  let targetsStr = '제한없음';
+  if (Array.isArray(item.targets) && item.targets.length > 0) {
+    targetsStr = item.targets.join(', ');
+  } else if (typeof item.targets === 'string' && item.targets.trim()) {
+    targetsStr = item.targets;
+  }
 
   return {
     id,
     title: item.title || '제목 없음',
     orgName,
     deadline,
-    sourceName,
+    sourceName: String(sourceName),
     category,
     topics,
     locTag,
     imageUrl,
     url: item.source_url || item.url || '#',
-    targets: item.targets?.length > 0 ? item.targets.join(', ') : '제한없음',
+    targets: targetsStr,
     activityStart,
     activityEnd,
     details,
@@ -240,16 +251,14 @@ export default function App() {
   const [serverRecommendedPicks, setServerRecommendedPicks] = useState([]);
   const BASE_URL = 'https://moabom-backend.onrender.com';
 
-  // 🌟 이미지 로딩 실패 시 공식 로고('/moabom.png')로 대체하는 핸들러
   const handleImgError = (e) => {
-    e.target.onerror = null; // 무한 루프 방지
+    e.target.onerror = null; 
     e.target.src = '/moabom.png';
   };
 
   useEffect(() => { localStorage.setItem('bookmarks', JSON.stringify(bookmarks)); }, [bookmarks]);
   useEffect(() => { localStorage.setItem('memos', JSON.stringify(memos)); }, [memos]);
 
-  // 🌟 [DB 연동] 백엔드 맞춤 추천 목록 조회 함수 (로그인 직후 및 클릭/찜 이벤트 발생 시 자동 호출)
   const fetchRecommendations = useCallback(async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -267,7 +276,6 @@ export default function App() {
 
       if (res.ok) {
         const data = await res.json();
-        // 백엔드 응답 포맷(배열 또는 { data: [] }, { content: [] }, { recommendations: [] }) 완벽 대응
         const listData = Array.isArray(data) ? data : data.content || data.items || data.data || data.recommendations || [];
         const normalizedRecs = listData.map((item, index) => normalizeItem(item, index));
         setServerRecommendedPicks(normalizedRecs);
@@ -311,6 +319,7 @@ export default function App() {
           setCurrentPage((page - 1) * PAGES_PER_BLOCK + 1);
         }
       } catch (err) {
+        console.error("공고 데이터 로딩 에러:", err);
         if (page === 1) setNotices([]); 
       } finally {
         setLoading(false);
@@ -345,7 +354,6 @@ export default function App() {
     setShowMyPage(false);
   };
 
-  // 🌟 [DB 연동] 카드 클릭 시 DB에 사용자 관심사('click') 이벤트 전송 후 추천 목록 실시간 업데이트
   const handleCardClick = async (post) => {
     setSelectedPost(post);
     setShowMyPage(false);
@@ -371,7 +379,6 @@ export default function App() {
             category: post.category 
           })
         });
-        // 사용자 이벤트 기록 직후 최신 맞춤 추천 목록 갱신
         fetchRecommendations();
       } catch (error) {
         console.error('클릭 이벤트 전송 실패:', error);
@@ -420,7 +427,6 @@ export default function App() {
     setEditingMemoId(null);
   };
 
-  // 🌟 [DB 연동] 찜하기 시 DB에 사용자 관심사('bookmark') 이벤트 전송 후 추천 목록 실시간 업데이트
   const toggleBookmark = async (e, item) => {
     e.stopPropagation();
     const itemIdStr = String(item.id);
@@ -443,7 +449,6 @@ export default function App() {
             category: item.category 
           })
         });
-        // 찜하기 완료 후 백엔드 DB 기반 추천 목록 즉시 새로고침
         fetchRecommendations();
       } catch (error) {
         console.error('북마크 이벤트 전송 실패:', error);
@@ -573,14 +578,14 @@ export default function App() {
 
       expandedKeywords = [...new Set(expandedKeywords)];
       matchesSubCategory = expandedKeywords.some(keyword => 
-        item.title.toLowerCase().includes(keyword) || 
-        item.topics.some(t => t.toLowerCase().includes(keyword)) || 
-        item.description.toLowerCase().includes(keyword)
+        (item.title || '').toLowerCase().includes(keyword) || 
+        (Array.isArray(item.topics) && item.topics.some(t => String(t).toLowerCase().includes(keyword))) || 
+        (item.description || '').toLowerCase().includes(keyword)
       );
     }
 
     const searchLower = debouncedSearchTerm ? debouncedSearchTerm.toLowerCase() : '';
-    const matchesSearch = item.title.toLowerCase().includes(searchLower) || item.category.toLowerCase().includes(searchLower) || item.orgName.toLowerCase().includes(searchLower) || item.topics.some(t => t.toLowerCase().includes(searchLower)); 
+    const matchesSearch = item.title.toLowerCase().includes(searchLower) || item.category.toLowerCase().includes(searchLower) || item.orgName.toLowerCase().includes(searchLower) || (Array.isArray(item.topics) && item.topics.some(t => String(t).toLowerCase().includes(searchLower))); 
     
     let isExpired = false;
     if (item.deadline) {
@@ -621,7 +626,6 @@ export default function App() {
   const nextBanner = (e) => { e.stopPropagation(); setCurrentBannerIdx((prev) => (prev + 1) % topPicks.length); };
   const prevBanner = (e) => { e.stopPropagation(); setCurrentBannerIdx((prev) => (prev === 0 ? topPicks.length - 1 : prev - 1)); };
   
-  // 🌟 [DB 연동] 로그인/회원가입 처리 및 로그인 성공 직후 추천 목록 즉시 호출
   const handleAuthSubmit = async (e) => { 
     e.preventDefault(); 
     
@@ -653,7 +657,6 @@ export default function App() {
       setUserName(newUserName); 
       setAuthModal(null); 
       
-      // 로그인 완료 직후 DB에 저장된 사용자의 추천 목록 동기화
       fetchRecommendations();
       
       alert(`${isLogin ? '로그인' : '회원가입'} 완료되었습니다!`);
@@ -683,7 +686,6 @@ export default function App() {
       <header className="top-header">
         <div className="header-inner">
           <div className="logo-area" onClick={() => { setSelectedPost(null); setShowMyPage(false); setSearchTerm(''); handleCategoryClick('전체'); }}>
-            {/* 🌟 헤더에 실제 모아봄 로고 이미지 적용 */}
             <img src="/moabom.png" alt="모아봄 로고" className="logo-icon-img" onError={handleImgError} />
             <h1 className="logo-text">모아봄</h1>
           </div>
@@ -966,14 +968,62 @@ export default function App() {
                         month: '2-digit',
                         day: '2-digit'
                       });
+                      const todayMidnight = new Date().setHours(0, 0, 0, 0);
 
-                      const fixedReceiptItems = [
-                        { id: 'receipt-1', title: '청년 구직활동 지원금', displayMoney: '500,000원', numMoney: 500000 },
-                        { id: 'receipt-2', title: '면접 정장 대여 (춘천 날개)', displayMoney: '50,000원', numMoney: 50000 },
-                        { id: 'receipt-3', title: '자격증 응시료 지원', displayMoney: '100,000원', numMoney: 100000 }
+                      const ignoreKeywords = [
+                        '입찰', '용역', '공사', '구매', '제조', '납품', '소모품', '토너', '레미콘', '건설',
+                        '정규직', '계약직', '채용', '어시스턴트', '사원', '바이오노트', '티씨케이', '카카오페이'
+                      ];
+                      
+                      const benefitCandidates = notices.filter(item => {
+                        const title = (item.title || '').toLowerCase();
+                        const cat = item.category || '';
+                        const notExpired = !item.deadline || new Date(item.deadline) >= todayMidnight;
+                        
+                        const isTruePolicy = cat.includes('지원금') || cat.includes('정책') || cat.includes('사업') ||
+                                             title.includes('지원금') || title.includes('장학') || title.includes('수당') || title.includes('바우처');
+                        
+                        const isNotNoise = !ignoreKeywords.some(kw => title.includes(kw));
+                        return notExpired && isTruePolicy && isNotNoise;
+                      });
+
+                      const uniqueItems = Array.from(new Map(benefitCandidates.map(item => [item.id, item])).values()).slice(0, 3);
+
+                      const defaultYouthBenefits = [
+                        { id: 'default-1', title: '청년 구직활동 지원금', displayMoney: '500,000원', numMoney: 500000, url: '#' },
+                        { id: 'default-2', title: '면접 정장 대여 (춘천 날개)', displayMoney: '50,000원', numMoney: 50000, url: '#' },
+                        { id: 'default-3', title: '자격증 응시료 지원', displayMoney: '100,000원', numMoney: 100000, url: '#' }
                       ];
 
-                      const totalSum = fixedReceiptItems.reduce((acc, cur) => acc + cur.numMoney, 0);
+                      const defaultMoneyList = [500000, 50000, 100000];
+                      let totalSum = 0;
+
+                      const finalPolicies = Array.from({ length: 3 }).map((_, idx) => {
+                        const item = uniqueItems[idx];
+                        if (!item) {
+                          totalSum += defaultYouthBenefits[idx].numMoney;
+                          return defaultYouthBenefits[idx];
+                        }
+
+                        const fullText = `${item.title} ${item.details?.salaryText || ''} ${item.details?.prize || ''}`;
+                        const match = fullText.match(/([0-9,]+(?:만)?원)/);
+                        
+                        let displayMoney = '';
+                        let numValue = defaultMoneyList[idx % 3];
+
+                        if (match && match[1]) {
+                          displayMoney = match[1];
+                          const cleanNum = parseInt(match[1].replace(/[^0-9]/g, ''), 10);
+                          if (!isNaN(cleanNum)) {
+                            numValue = match[1].includes('만') ? cleanNum * 10000 : cleanNum;
+                          }
+                        } else {
+                          displayMoney = `${defaultMoneyList[idx % 3].toLocaleString()}원`;
+                        }
+
+                        totalSum += numValue;
+                        return { ...item, displayMoney };
+                      });
 
                       return (
                         <div className="receipt-wrapper">
@@ -985,11 +1035,11 @@ export default function App() {
                             </div>
                             <div className="receipt-line"></div>
                             
-                            {fixedReceiptItems.map((item, idx) => (
+                            {finalPolicies.map((item, idx) => (
                               <div 
                                 key={item.id || idx} 
                                 className="receipt-item dynamic-receipt-item"
-                                onClick={() => alert(`[${item.title}] 상세 지원 안내 페이지로 이동합니다.`)}
+                                onClick={() => item.id.startsWith('default-') ? alert('청년 혜택 대표 지원 사업입니다.') : handleCardClick(item)}
                                 title="클릭하여 공고 확인하기"
                                 style={{ cursor: 'pointer' }}
                               >
@@ -1019,7 +1069,7 @@ export default function App() {
                             <div className="receipt-total">
                               <span>총 놓친 금액</span>
                               <span>
-                                {totalSum.toLocaleString()}원
+                                {totalSum > 0 ? `${totalSum.toLocaleString()}원` : '650,000원'}
                               </span>
                             </div>
                             
