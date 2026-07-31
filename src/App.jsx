@@ -104,7 +104,6 @@ const normalizeItem = (item, index) => {
   let locTag = locType === 'OFFLINE' ? '오프라인' : locType === 'ONLINE' ? '온라인' : locType === 'MIXED' ? '온·오프라인 혼합' : locType;
   if (locName && locName !== 'UNKNOWN') locTag += `(${locName})`;
 
-  // 🌟 [핵심 수정] 0이나 null, undefined를 모두 안전하게 처리하여 절대 중복되지 않는 고유 ID 부여
   const rawId = item.id ?? item.externalId ?? `post-${index}-${(item.title || '').slice(0, 5)}`;
   const id = String(rawId).trim();
 
@@ -116,7 +115,7 @@ const normalizeItem = (item, index) => {
   }
 
   return {
-    id, // 무조건 문자열 String 고유 ID 보장
+    id,
     title: item.title || '제목 없음',
     orgName,
     deadline,
@@ -181,7 +180,6 @@ export default function App() {
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // API 관련 상태
   const [page, setPage] = useState(1); 
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -189,7 +187,6 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [selectedSubCategory, setSelectedSubCategory] = useState('전체');
   
-  // 화면 페이지네이션 상태
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 25;
   const PAGES_PER_BLOCK = 5;
@@ -205,7 +202,6 @@ export default function App() {
   const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
   const [showActiveOnly, setShowActiveOnly] = useState(true); 
   
-  // ✨ 지도 모드 제거, 마이페이지(showMyPage) 상태
   const [viewMode, setViewMode] = useState('list'); 
   const [showMyPage, setShowMyPage] = useState(false);
   const [currentCalDate, setCurrentCalDate] = useState(new Date());
@@ -231,7 +227,6 @@ export default function App() {
   });
   const [currentMemo, setCurrentMemo] = useState('');
 
-  // ✨ 마이페이지 내 메모 인라인 수정을 위한 상태
   const [editingMemoId, setEditingMemoId] = useState(null);
   const [editingMemoText, setEditingMemoText] = useState('');
 
@@ -335,7 +330,6 @@ export default function App() {
     setShowMyPage(false);
   };
 
-  // 🌟 [핵심 수정] 카드 클릭 시 무조건 문자열 ID 기준으로 메모 로딩
   const handleCardClick = async (post) => {
     setSelectedPost(post);
     setShowMyPage(false);
@@ -346,7 +340,7 @@ export default function App() {
     setCategoryWeights((prev) => ({ ...prev, [post.category]: (prev[post.category] || 0) + 1 }));
     setViewCounts((prev) => ({ ...prev, [post.id]: (prev[post.id] || 0) + 1 }));
 
-    if (isLoggedIn) {
+    if (isLoggedIn && post.id && !post.id.startsWith('default-')) {
       try {
         await fetch(`${BASE_URL}/api/user-events`, {
           method: 'POST',
@@ -362,7 +356,6 @@ export default function App() {
     }
   };
 
-  // 🌟 [핵심 수정] 상세 페이지 메모 저장 (비어있으면 자동 Clean-up)
   const handleSaveMemo = () => {
     if (!selectedPost) return;
     const postIdStr = String(selectedPost.id);
@@ -379,7 +372,6 @@ export default function App() {
     alert('메모가 안전하게 저장되었습니다! 📝');
   };
 
-  // 🌟 [핵심 수정] 마이페이지 내 메모 삭제
   const handleDeleteMemo = (postId) => {
     const postIdStr = String(postId);
     if (window.confirm('이 메모를 삭제하시겠습니까?')) {
@@ -391,7 +383,6 @@ export default function App() {
     }
   };
 
-  // 🌟 [핵심 수정] 마이페이지 내 메모 인라인 수정 저장
   const handleUpdateMemo = (postId) => {
     const postIdStr = String(postId);
     setMemos((prev) => {
@@ -933,19 +924,77 @@ export default function App() {
                     ) : <div className="banner-loading">로딩 중...</div>}
                   </div>
                   {isLoggedIn ? (
-                    <div className="receipt-wrapper">
-                      <div className="receipt-card">
-                        <div className="receipt-title">🧾 미수령 혜택 영수증</div>
-                        <div className="receipt-subtitle">발급대상: {userName} 님<br/>발급일자: 2026. 07. 27</div>
-                        <div className="receipt-line"></div>
-                        <div className="receipt-item"><span>청년 구직활동 지원금</span><span>500,000원</span></div>
-                        <div className="receipt-item"><span>면접 정장 대여 (춘천 날개)</span><span>50,000원</span></div>
-                        <div className="receipt-item"><span>자격증 응시료 지원</span><span>100,000원</span></div>
-                        <div className="receipt-line"></div>
-                        <div className="receipt-total"><span>총 놓친 금액</span><span>650,000원</span></div>
-                        <div className="receipt-footer-text">"이번 달은 모아봄에서 꼭 다 챙겨가세요!"</div>
-                      </div>
-                    </div>
+                    (() => {
+                      const todayStr = new Date().toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                      });
+
+                      // 🌟 보여주신 스크린샷과 정확히 일치하는 춘천 청년 대표 혜택 3대장 고정 구성 (단위 포함)
+                      const fixedReceiptItems = [
+                        { id: 'receipt-1', title: '청년 구직활동 지원금', displayMoney: '500,000원', numMoney: 500000 },
+                        { id: 'receipt-2', title: '면접 정장 대여 (춘천 날개)', displayMoney: '50,000원', numMoney: 50000 },
+                        { id: 'receipt-3', title: '자격증 응시료 지원', displayMoney: '100,000원', numMoney: 100000 }
+                      ];
+
+                      const totalSum = fixedReceiptItems.reduce((acc, cur) => acc + cur.numMoney, 0);
+
+                      return (
+                        <div className="receipt-wrapper">
+                          <div className="receipt-card">
+                            <div className="receipt-title">🧾 미수령 혜택 영수증</div>
+                            <div className="receipt-subtitle">
+                              발급대상: {userName} 님<br />
+                              발급일자: {todayStr}
+                            </div>
+                            <div className="receipt-line"></div>
+                            
+                            {fixedReceiptItems.map((item, idx) => (
+                              <div 
+                                key={item.id || idx} 
+                                className="receipt-item dynamic-receipt-item"
+                                onClick={() => alert(`[${item.title}] 상세 지원 안내 페이지로 이동합니다.`)}
+                                title="클릭하여 공고 확인하기"
+                                style={{ cursor: 'pointer' }}
+                              >
+                                <span style={{ 
+                                  flex: 1,
+                                  overflow: 'hidden', 
+                                  textOverflow: 'ellipsis', 
+                                  whiteSpace: 'nowrap',
+                                  marginRight: '12px',
+                                  textAlign: 'left'
+                                }}>
+                                  {item.title}
+                                </span>
+                                <span style={{ 
+                                  whiteSpace: 'nowrap', 
+                                  textAlign: 'right',
+                                  color: '#475569', 
+                                  fontWeight: '600' 
+                                }}>
+                                  {item.displayMoney}
+                                </span>
+                              </div>
+                            ))}
+
+                            <div className="receipt-line"></div>
+                            
+                            <div className="receipt-total">
+                              <span>총 놓친 금액</span>
+                              <span>
+                                {totalSum.toLocaleString()}원
+                              </span>
+                            </div>
+                            
+                            <div className="receipt-footer-text">
+                              "이번 달은 모아봄에서 꼭 다 챙겨가세요!"
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()
                   ) : (
                     <div className="login-box">
                       <div className="login-box-header">

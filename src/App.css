@@ -102,7 +102,7 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .banner-page { color: white; font-size: 0.95rem; font-weight: 700; letter-spacing: 2px; }
 
 /* -------------------------------------
-   우측 영수증 / 로그인 박스
+   우측 영수증 / 로그인 박스 (스크린샷 비율 완벽 싱크로율)
 ------------------------------------- */
 .receipt-wrapper { flex: 0 0 320px; width: 100%; display: flex; justify-content: center; }
 .receipt-card { background: #fff; width: 100%; padding: 24px 20px 20px 20px; border-radius: 4px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; position: relative; color: #334155; display: flex; flex-direction: column; }
@@ -117,6 +117,12 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .receipt-total span:first-child { font-size: 1rem; font-weight: 800; word-break: keep-all; }
 .receipt-total span:last-child { font-size: 1.25rem; font-weight: 900; white-space: nowrap; }
 .receipt-footer-text { text-align: center; font-size: 0.8rem; color: #94a3b8; margin-top: 20px; word-break: keep-all; }
+
+/* ✨ 항목 마우스오버 시 클릭 유도 효과 */
+.dynamic-receipt-item:hover span:first-child {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
 
 .login-box { width: 320px; background: #f1f5f9; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; border: 1px solid var(--border-color); justify-content: center; }
 .login-box-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
