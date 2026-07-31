@@ -458,13 +458,13 @@ export default function App() {
       if (page > 1) setIsLoadingMore(true);
       else setLoading(true);
 
-      const API_URL = `${BASE_URL}/api/opportunities?page=${page}&size=100`;
+      const API_URL = `${BASE_URL}/api/opportunities?page=${page}&size=800`;
       try {
         const res = await fetch(API_URL);
         if (res.ok) {
           const data = await res.json();
           const listData = Array.isArray(data) ? data : data.content || data.items || data.data || [];
-          if (listData.length < 100) setHasMore(false);
+          if (listData.length < 800) setHasMore(false);
           const normalizedData = listData.map((item, index) => normalizeItem(item, index + (page - 1) * 100));
 
           if (page === 1) setNotices(normalizedData);
