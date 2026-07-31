@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useDeferredValue, useRef, useId } from 'react';
+import React, { useState, useEffect, useDeferredValue, useRef } from 'react';
 import './App.css'; 
 
 // ==========================================
@@ -104,7 +104,10 @@ const normalizeItem = (item, index) => {
   let locTag = locType === 'OFFLINE' ? '오프라인' : locType === 'ONLINE' ? '온라인' : locType === 'MIXED' ? '온·오프라인 혼합' : locType;
   if (locName && locName !== 'UNKNOWN') locTag += `(${locName})`;
 
-  const id = item.id || item.externalId || `item-${index}`;
+  // 🌟 [핵심 수정] 0이나 null, undefined를 모두 안전하게 처리하여 절대 중복되지 않는 고유 ID 부여
+  const rawId = item.id ?? item.externalId ?? `post-${index}-${(item.title || '').slice(0, 5)}`;
+  const id = String(rawId).trim();
+
   const details = { ...(item.details || {}) };
   if (details.contact) {
     if (details.contact.name) details.contact_name = details.contact.name;
@@ -112,23 +115,8 @@ const normalizeItem = (item, index) => {
     if (details.contact.email) details.contact_email = details.contact.email;
   }
 
-  let lat = parseFloat(item.latitude || item.location?.latitude);
-  let lng = parseFloat(item.longitude || item.location?.longitude);
-
-  if (!lat || isNaN(lat)) {
-    if (orgName.includes('강원대')) { lat = 37.8695; lng = 127.7448; }
-    else if (orgName.includes('한림대')) { lat = 37.8863; lng = 127.7381; }
-    else if (orgName.includes('춘천교대')) { lat = 37.8650; lng = 127.7400; }
-    else if (orgName.includes('한림성심')) { lat = 37.8965; lng = 127.7530; }
-    else if (orgName.includes('춘천시청')) { lat = 37.8813; lng = 127.7298; }
-    else { 
-      lat = null; 
-      lng = null; 
-    } 
-  }
-
   return {
-    id: String(id),
+    id, // 무조건 문자열 String 고유 ID 보장
     title: item.title || '제목 없음',
     orgName,
     deadline,
@@ -136,357 +124,18 @@ const normalizeItem = (item, index) => {
     category,
     topics,
     locTag,
-    imageUrl: item.thumbnail_url || item.imageUrl || `https://picsum.photos/seed/${String(id).length + index}/800/800`,
+    imageUrl: item.thumbnail_url || item.imageUrl || `https://picsum.photos/seed/${id.length + index}/800/800`,
     url: item.source_url || item.url || '#',
     targets: item.targets?.length > 0 ? item.targets.join(', ') : '제한없음',
     activityStart,
     activityEnd,
     details,
-    description: item.summary || item.description || '상세 내용이 없습니다.',
-    latitude: lat,
-    longitude: lng,
-    address: item.address || item.location?.region || orgName 
+    description: item.summary || item.description || '상세 내용이 없습니다.'
   };
 };
 
 // ==========================================
-// 2. VWorld 지도 컴포넌트 
-// ==========================================
-const SDK_SCRIPT_ID = "vworld-2d-sdk";
-const CHUNCHEON_CENTER = { longitude: 127.7298, latitude: 37.8813 };
-const INITIAL_ZOOM = 13;
-let sdkLoadPromise = null;
-
-function waitForVWorldGlobal(timeoutMs = 8000) {
-  const startedAt = Date.now();
-  return new Promise((resolve, reject) => {
-    const check = () => {
-      if (window.vw?.ol3?.Map && window.ol?.Map) {
-        resolve({ vw: window.vw, ol: window.ol });
-        return;
-      }
-      if (Date.now() - startedAt >= timeoutMs) {
-        reject(new Error("SDK는 응답했지만 VWorld 전역 객체(vw 또는 ol)가 생성되지 않았습니다."));
-        return;
-      }
-      window.setTimeout(check, 50);
-    };
-    check();
-  });
-}
-
-function loadVWorldSdk(apiKey, domain) {
-  if (window.vw?.ol3?.Map && window.ol?.Map) return Promise.resolve({ vw: window.vw, ol: window.ol });
-  if (sdkLoadPromise) return sdkLoadPromise;
-
-  sdkLoadPromise = new Promise((resolve, reject) => {
-    const params = new URLSearchParams({ version: "2.0", apiKey, domain });
-    const sdkUrl = `https://map.vworld.kr/js/vworldMapInit.js.do?${params}`;
-    let script = document.getElementById(SDK_SCRIPT_ID);
-    const originalDocumentWrite = document.write.bind(document);
-    let interceptingDocumentWrite = false;
-    const dependencyLoads = [];
-
-    const safeDocumentWrite = (markup) => {
-      const template = document.createElement("template");
-      template.innerHTML = String(markup).trim();
-      template.content.querySelectorAll("script").forEach((sourceScript) => {
-        const dependencyScript = document.createElement("script");
-        dependencyScript.async = false;
-        if (sourceScript.src) {
-          dependencyScript.src = sourceScript.src;
-          dependencyLoads.push(
-            new Promise((dependencyResolve, dependencyReject) => {
-              dependencyScript.addEventListener("load", dependencyResolve, { once: true });
-              dependencyScript.addEventListener("error", () => dependencyReject(new Error("VWorld SDK 하위 스크립트 요청이 실패했습니다.")), { once: true });
-            })
-          );
-        } else {
-          dependencyScript.text = sourceScript.text;
-        }
-        document.head.appendChild(dependencyScript);
-      });
-    };
-
-    const beginDocumentWriteInterception = () => {
-      if (!interceptingDocumentWrite) {
-        document.write = safeDocumentWrite;
-        interceptingDocumentWrite = true;
-      }
-    };
-
-    const endDocumentWriteInterception = () => {
-      if (interceptingDocumentWrite && document.write === safeDocumentWrite) {
-        document.write = originalDocumentWrite;
-      }
-      interceptingDocumentWrite = false;
-    };
-
-    const handleLoad = async () => {
-      try {
-        await Promise.all(dependencyLoads);
-        const globals = await waitForVWorldGlobal();
-        script.dataset.loaded = "true";
-        resolve(globals);
-      } catch (error) {
-        sdkLoadPromise = null;
-        reject(error);
-      } finally {
-        endDocumentWriteInterception();
-      }
-    };
-
-    const handleError = () => {
-      endDocumentWriteInterception();
-      sdkLoadPromise = null;
-      reject(new Error("VWorld SDK HTTP 요청이 실패했습니다. 네트워크와 SDK URL을 확인해 주세요."));
-    };
-
-    if (script) {
-      if (script.dataset.loaded === "true") { handleLoad(); return; }
-      script.addEventListener("load", handleLoad, { once: true });
-      script.addEventListener("error", handleError, { once: true });
-      return;
-    }
-
-    script = document.createElement("script");
-    script.id = SDK_SCRIPT_ID;
-    script.src = sdkUrl;
-    script.async = true;
-    script.dataset.vworldSdk = "2.0";
-    script.addEventListener("load", handleLoad, { once: true });
-    script.addEventListener("error", handleError, { once: true });
-    beginDocumentWriteInterception();
-    document.head.appendChild(script);
-  });
-
-  return sdkLoadPromise;
-}
-
-function createPopupElement(onClose) {
-  const popup = document.createElement("section");
-  popup.className = "vworld-popup";
-  popup.setAttribute("role", "dialog");
-  popup.setAttribute("aria-label", "위치 정보");
-
-  const closeButton = document.createElement("button");
-  closeButton.type = "button";
-  closeButton.className = "vworld-popup__close";
-  closeButton.setAttribute("aria-label", "정보창 닫기");
-  closeButton.textContent = "×";
-  closeButton.addEventListener("click", onClose);
-
-  const title = document.createElement("strong");
-  title.className = "vworld-popup__title";
-  const address = document.createElement("span");
-  address.className = "vworld-popup__address";
-  const note = document.createElement("span");
-  note.className = "vworld-popup__note";
-
-  popup.append(closeButton, title, address, note);
-  return { popup, closeButton, title, address, note };
-}
-
-function VWorldMap({ places = [], onCardClick }) {
-  const reactId = useId();
-  const containerId = `vworld-map-${reactId.replaceAll(":", "")}`;
-  const containerRef = useRef(null);
-  const mapRef = useRef(null);
-  const markerLayerRef = useRef(null);
-  const popupOverlayRef = useRef(null);
-  const markerFeaturesRef = useRef([]);
-  const [status, setStatus] = useState("loading");
-  const [errorMessage, setErrorMessage] = useState("");
-
-  useEffect(() => {
-    const apiKey = "496334FD-768A-3A42-B7BC-2C0BD37CFE42";
-    const domain = window.location.origin || "http://localhost:5173";
-    
-    let cancelled = false;
-    let map = null;
-    let markerLayer = null;
-    let popupOverlay = null;
-    let popupElements = null;
-    let mapClickHandler = null;
-    let closeHandler = null;
-
-    const initialize = async () => {
-      setStatus("loading");
-      setErrorMessage("");
-
-      try {
-        const { vw, ol } = await loadVWorldSdk(apiKey, domain);
-        if (cancelled) return;
-
-        const container = containerRef.current;
-        if (!container) throw new Error("지도 컨테이너를 찾지 못했습니다.");
-
-        const mapOptions = {
-          basemapType: vw.ol3.BasemapType.GRAPHIC,
-          controlDensity: vw.ol3.DensityType.BASIC,
-          interactionDensity: vw.ol3.DensityType.BASIC,
-          controlsAutoArrange: true,
-          homePosition: vw.ol3.CameraPosition,
-          initPosition: vw.ol3.CameraPosition,
-        };
-
-        map = new vw.ol3.Map(containerId, mapOptions);
-        mapRef.current = map;
-
-        const toWebMercator = ({ longitude, latitude }) => {
-          return ol.proj.transform([longitude, latitude], "EPSG:4326", "EPSG:3857");
-        };
-
-        map.getView().setCenter(toWebMercator(CHUNCHEON_CENTER));
-        map.getView().setZoom(INITIAL_ZOOM);
-
-        closeHandler = () => popupOverlay?.setPosition(undefined);
-        popupElements = createPopupElement(closeHandler);
-        popupOverlay = new ol.Overlay({
-          element: popupElements.popup,
-          positioning: "bottom-center",
-          offset: [0, -18],
-          stopEvent: true,
-        });
-        popupOverlayRef.current = popupOverlay;
-        map.addOverlay(popupOverlay);
-
-        markerLayer = new ol.layer.Vector({
-          source: new ol.source.Vector(),
-          className: "test-place-markers",
-        });
-        markerLayerRef.current = markerLayer;
-        map.addLayer(markerLayer);
-
-        const openInfoWindow = (place) => {
-          popupElements.title.textContent = place.title;
-          popupElements.address.textContent = place.address;
-          popupElements.note.textContent = "클릭하여 공고 상세보기";
-          popupElements.note.style.cursor = "pointer";
-          popupElements.note.onclick = () => { if(onCardClick) onCardClick(place); };
-          popupOverlay.setPosition(toWebMercator(place));
-        };
-
-        const getMarkerStyle = (place) => {
-          const cat = place.category || '';
-          const org = place.orgName || '';
-          if (org.includes('대') || org.includes('학교') || cat.includes('교육')) return { emoji: '📚', color: '#10b981' }; 
-          if (cat.includes('채용') || cat.includes('일자리') || cat.includes('사업') || cat.includes('인턴')) return { emoji: '🏢', color: '#3b82f6' }; 
-          if (cat.includes('해커톤') || cat.includes('공모전')) return { emoji: '💻', color: '#8b5cf6' }; 
-          if (cat.includes('행사') || cat.includes('봉사') || cat.includes('대외활동')) return { emoji: '🤝', color: '#f59e0b' }; 
-          return { emoji: '📌', color: '#ef4444' };
-        };
-
-        const createMarker = (place) => {
-          const feature = new ol.Feature({
-            geometry: new ol.geom.Point(toWebMercator(place)),
-            place,
-          });
-          feature.setId(place.id);
-          const styleInfo = getMarkerStyle(place);
-
-          feature.setStyle(
-            new ol.style.Style({
-              image: new ol.style.Circle({
-                radius: 18,
-                fill: new ol.style.Fill({ color: styleInfo.color }),
-                stroke: new ol.style.Stroke({ color: "#ffffff", width: 3 }),
-              }),
-              text: new ol.style.Text({
-                text: styleInfo.emoji,
-                font: '16px sans-serif',
-                offsetY: 1
-              })
-            })
-          );
-          return feature;
-        };
-
-        markerLayer.getSource().clear();
-        const features = places.map(createMarker);
-        markerLayer.getSource().addFeatures(features);
-        markerFeaturesRef.current = features;
-
-        mapClickHandler = (event) => {
-          const feature = map.forEachFeatureAtPixel(
-            event.pixel,
-            (candidate, layer) => layer === markerLayer ? candidate : undefined
-          );
-          if (feature) {
-            const place = feature.get("place");
-            openInfoWindow(place);
-            map.getView().animate({
-              center: toWebMercator(place),
-              duration: 400,
-              zoom: 15
-            });
-          } else {
-            popupOverlay.setPosition(undefined);
-          }
-        };
-        map.on("singleclick", mapClickHandler);
-
-        window.setTimeout(() => {
-          if (!cancelled) {
-            map.updateSize();
-            setStatus("ready");
-          }
-        }, 0);
-      } catch (error) {
-        setStatus("error");
-        setErrorMessage("지도를 불러오는 데 실패했습니다.");
-      }
-    };
-
-    initialize();
-
-    return () => {
-      cancelled = true;
-      if (map && mapClickHandler) map.un?.("singleclick", mapClickHandler);
-      if (popupElements && closeHandler) popupElements.closeButton.removeEventListener("click", closeHandler);
-      if (markerLayer) {
-        markerLayer.getSource().clear();
-        map?.removeLayer(markerLayer);
-      }
-      if (popupOverlay) map?.removeOverlay(popupOverlay);
-      map?.setTarget?.(null);
-    };
-  }, [containerId, places]);
-
-  return (
-    <section className="map-panel" aria-label="춘천 청년 기회 지도">
-      <div className="map-status-row">
-        <span className="marker-legend" aria-label="마커 범례">
-          <span>📚 교육/학교</span>&nbsp;&nbsp;
-          <span>🏢 채용/창업/인턴</span>&nbsp;&nbsp;
-          <span>💻 공모전/해커톤</span>
-        </span>
-        <span className="sdk-label">VWorld 2D API</span>
-      </div>
-
-      <div className="map-frame">
-        <div id={containerId} ref={containerRef} className="vworld-map" aria-label="춘천시 중심 VWorld 지도" />
-        
-        <button className="map-floating-btn" title="내 위치로 이동" onClick={() => alert('GPS 기반 내 위치 이동 기능입니다. (시연용)')}>
-          🧭
-        </button>
-
-        {status === "loading" && (
-          <div className="map-overlay-message" role="status">지도를 불러오는 중입니다.</div>
-        )}
-        {status === "error" && (
-          <div className="map-overlay-message map-overlay-message--error" role="alert">
-            <strong>지도를 불러오지 못했습니다.</strong>
-            <span>{errorMessage}</span>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-// ==========================================
-// 3. 카테고리 트리 및 유의어 사전 (정밀 검색 적용)
+// 2. 카테고리 트리 및 유의어 사전
 // ==========================================
 const CATEGORY_TREE = {
   '전체': [],
@@ -503,7 +152,6 @@ const CATEGORY_TREE = {
 };
 const NAV_TABS = Object.keys(CATEGORY_TREE);
 
-// ✨ [수정] 2단계 하위 메뉴 분류를 위해 '신입', '채용' 등이 너무 넓게 안 걸리도록 정교하게 조정
 const SUBCATEGORY_SYNONYMS = {
   '기획': ['기획', '아이디어', '제안', '비즈니스'],
   '광고': ['광고', '마케팅', '홍보', 'sns', '콘텐츠', '서포터즈', '브랜딩', '크리에이터'],
@@ -521,19 +169,19 @@ const SUBCATEGORY_SYNONYMS = {
   '멘토링': ['멘토링', '컨설팅', '교육', '특강', '전문가', '피드백'],
   '공간지원': ['공간', '입주', '오피스', '사무실', '창업센터', '보육'],
   '네트워킹': ['네트워킹', '교류', '밋업', '커뮤니티', '포럼'],
-  '신입': ['신입', '정규직', '신입사원'], // '채용' 제거
+  '신입': ['신입', '정규직', '신입사원'],
   '경력': ['경력', '경력직', '경력사원'],
   '인턴': ['인턴', '체험형', '채용연계형']
 };
 
 // ==========================================
-// 4. 메인 App 컴포넌트
+// 3. 메인 App 컴포넌트
 // ==========================================
 export default function App() {
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // API 관련 상태 (1번 호출당 125개씩 가져옴)
+  // API 관련 상태
   const [page, setPage] = useState(1); 
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -557,7 +205,9 @@ export default function App() {
   const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
   const [showActiveOnly, setShowActiveOnly] = useState(true); 
   
+  // ✨ 지도 모드 제거, 마이페이지(showMyPage) 상태
   const [viewMode, setViewMode] = useState('list'); 
+  const [showMyPage, setShowMyPage] = useState(false);
   const [currentCalDate, setCurrentCalDate] = useState(new Date());
 
   const [currentBannerIdx, setCurrentBannerIdx] = useState(0); 
@@ -581,6 +231,10 @@ export default function App() {
   });
   const [currentMemo, setCurrentMemo] = useState('');
 
+  // ✨ 마이페이지 내 메모 인라인 수정을 위한 상태
+  const [editingMemoId, setEditingMemoId] = useState(null);
+  const [editingMemoText, setEditingMemoText] = useState('');
+
   const [sortBy, setSortBy] = useState('latest');
   const [categoryWeights, setCategoryWeights] = useState({});
   const [viewCounts, setViewCounts] = useState({});
@@ -600,7 +254,6 @@ export default function App() {
     }
   }, []);
 
-  // ✨ [핵심 수정] 페이지별 125개씩 불러와서 확실하게 '누적(이어붙이기)' 시킴
   useEffect(() => {
     const fetchNotices = async () => {
       if (page > 1) setIsLoadingMore(true);
@@ -621,9 +274,8 @@ export default function App() {
         if (page === 1) {
           setNotices(normalizedData);
         } else {
-          // 기존 데이터 뒤에 새로 가져온 125개 이어붙이기 -> 총 250개 -> 다음번엔 375개
           setNotices(prev => [...prev, ...normalizedData]);
-          setCurrentPage((page - 1) * PAGES_PER_BLOCK + 1); // 6페이지, 11페이지 등으로 정확히 이동
+          setCurrentPage((page - 1) * PAGES_PER_BLOCK + 1);
         }
       } catch (err) {
         if (page === 1) setNotices([]); 
@@ -636,10 +288,10 @@ export default function App() {
   }, [page]); 
 
   useEffect(() => {
-    if (viewMode === 'list' && !selectedPost) {
+    if (viewMode === 'list' && !selectedPost && !showMyPage) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [currentPage]);
+  }, [currentPage, showMyPage]);
 
   useEffect(() => {
     const fetchRecommendations = async () => {
@@ -680,11 +332,15 @@ export default function App() {
     setSelectedSubCategory('전체');
     setCurrentPage(1); 
     setShowBookmarksOnly(false);
+    setShowMyPage(false);
   };
 
+  // 🌟 [핵심 수정] 카드 클릭 시 무조건 문자열 ID 기준으로 메모 로딩
   const handleCardClick = async (post) => {
     setSelectedPost(post);
-    setCurrentMemo(memos[post.id] || ''); 
+    setShowMyPage(false);
+    const postIdStr = String(post.id);
+    setCurrentMemo(memos[postIdStr] || ''); 
     scrollToTop(); 
     
     setCategoryWeights((prev) => ({ ...prev, [post.category]: (prev[post.category] || 0) + 1 }));
@@ -706,17 +362,56 @@ export default function App() {
     }
   };
 
+  // 🌟 [핵심 수정] 상세 페이지 메모 저장 (비어있으면 자동 Clean-up)
   const handleSaveMemo = () => {
     if (!selectedPost) return;
-    setMemos(prev => ({ ...prev, [selectedPost.id]: currentMemo }));
+    const postIdStr = String(selectedPost.id);
+    
+    setMemos(prev => {
+      const updated = { ...prev };
+      if (!currentMemo.trim()) {
+        delete updated[postIdStr];
+      } else {
+        updated[postIdStr] = currentMemo;
+      }
+      return updated;
+    });
     alert('메모가 안전하게 저장되었습니다! 📝');
+  };
+
+  // 🌟 [핵심 수정] 마이페이지 내 메모 삭제
+  const handleDeleteMemo = (postId) => {
+    const postIdStr = String(postId);
+    if (window.confirm('이 메모를 삭제하시겠습니까?')) {
+      setMemos((prev) => {
+        const updated = { ...prev };
+        delete updated[postIdStr];
+        return updated;
+      });
+    }
+  };
+
+  // 🌟 [핵심 수정] 마이페이지 내 메모 인라인 수정 저장
+  const handleUpdateMemo = (postId) => {
+    const postIdStr = String(postId);
+    setMemos((prev) => {
+      const updated = { ...prev };
+      if (!editingMemoText.trim()) {
+        delete updated[postIdStr];
+      } else {
+        updated[postIdStr] = editingMemoText;
+      }
+      return updated;
+    });
+    setEditingMemoId(null);
   };
 
   const toggleBookmark = async (e, item) => {
     e.stopPropagation();
-    const isAdding = !bookmarks.includes(item.id);
+    const itemIdStr = String(item.id);
+    const isAdding = !bookmarks.includes(itemIdStr);
     
-    setBookmarks((prev) => isAdding ? [...prev, item.id] : prev.filter((bId) => bId !== item.id));
+    setBookmarks((prev) => isAdding ? [...prev, itemIdStr] : prev.filter((bId) => String(bId) !== itemIdStr));
 
     if (isLoggedIn) {
       try {
@@ -838,14 +533,11 @@ export default function App() {
     });
   };
 
-  // ✨ [수정] 메인/서브 카테고리 필터링 개선 (신입 탭 눌렀을 때 제목, 태그, 본문에서만 정밀 검사)
   const filteredData = notices.filter((item) => {
-    if (showBookmarksOnly && !bookmarks.includes(item.id)) return false;
+    if (showBookmarksOnly && !bookmarks.includes(String(item.id))) return false;
     
-    // 1. 메인 카테고리 필터
     const matchesCategory = selectedCategory === '전체' || item.category.includes(selectedCategory);
     
-    // 2. 2단계 서브 카테고리 필터
     let matchesSubCategory = true;
     if (selectedSubCategory !== '전체') {
       const subKeywords = selectedSubCategory.split('/').map(k => k.trim().toLowerCase());
@@ -858,8 +550,6 @@ export default function App() {
       });
 
       expandedKeywords = [...new Set(expandedKeywords)];
-
-      // '신입', '인턴' 등이 카테고리 명('채용·일자리') 때문에 억지로 걸리는 것 방지: 제목/태그/본문에서만 검사
       matchesSubCategory = expandedKeywords.some(keyword => 
         item.title.toLowerCase().includes(keyword) || 
         item.topics.some(t => t.toLowerCase().includes(keyword)) || 
@@ -867,11 +557,9 @@ export default function App() {
       );
     }
 
-    // 3. 검색어 필터
     const searchLower = debouncedSearchTerm ? debouncedSearchTerm.toLowerCase() : '';
     const matchesSearch = item.title.toLowerCase().includes(searchLower) || item.category.toLowerCase().includes(searchLower) || item.orgName.toLowerCase().includes(searchLower) || item.topics.some(t => t.toLowerCase().includes(searchLower)); 
     
-    // 4. 마감 여부 필터
     let isExpired = false;
     if (item.deadline) {
       const today = new Date();
@@ -952,6 +640,7 @@ export default function App() {
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUserName('춘천 청년');
+    setShowMyPage(false);
     localStorage.removeItem('token');
     localStorage.removeItem('userName');
     setServerRecommendedPicks([]);
@@ -967,7 +656,7 @@ export default function App() {
     <div className="app-container">
       <header className="top-header">
         <div className="header-inner">
-          <div className="logo-area" onClick={() => { setSelectedPost(null); setSearchTerm(''); handleCategoryClick('전체'); }}>
+          <div className="logo-area" onClick={() => { setSelectedPost(null); setShowMyPage(false); setSearchTerm(''); handleCategoryClick('전체'); }}>
             <span className="logo-icon">🎓</span>
             <h1 className="logo-text">모아봄</h1>
           </div>
@@ -990,6 +679,12 @@ export default function App() {
               )}
               {isLoggedIn ? (
                 <div className="user-info">
+                  <button 
+                    className={`btn-mypage-top ${showMyPage ? 'active' : ''}`}
+                    onClick={() => { setShowMyPage(true); setSelectedPost(null); }}
+                  >
+                    👤 마이페이지
+                  </button>
                   <span className="user-name">{userName}님</span>
                   <button className="btn-text" onClick={handleLogout}>로그아웃</button>
                 </div>
@@ -1043,6 +738,151 @@ export default function App() {
               </div>
             )}
           </div>
+        </main>
+      ) : showMyPage ? (
+        <main className="mypage-main animate-fade-in">
+          <button className="back-btn" onClick={() => setShowMyPage(false)}>← 전체 공고 목록으로 돌아가기</button>
+          
+          <div className="mypage-header-banner">
+            <div className="mypage-profile-info">
+              <div className="profile-avatar">👤</div>
+              <div>
+                <h2>{userName}님의 마이페이지</h2>
+                <p>내가 찜한 공고와 작성한 메모를 한곳에서 스마트하게 관리하세요.</p>
+              </div>
+            </div>
+            <div className="mypage-stats">
+              <div className="stat-box">
+                <span>작성한 메모</span>
+                <strong>{Object.keys(memos).filter(k => memos[k]?.trim()).length}건</strong>
+              </div>
+              <div className="stat-box">
+                <span>⭐ 북마크</span>
+                <strong>{bookmarks.length}건</strong>
+              </div>
+            </div>
+          </div>
+
+          <section className="mypage-section">
+            <h3 className="mypage-section-title">📝 메모장 몰아보기 (스크랩북 & 지원 관리 도구)</h3>
+            <p className="mypage-section-desc">공고별로 작성한 메모를 바로 확인하고, 이 자리에서 즉시 수정하거나 삭제할 수 있습니다.</p>
+            
+            {Object.keys(memos).filter(k => memos[k]?.trim()).length === 0 ? (
+              <div className="mypage-empty">
+                <span>📝</span>
+                <p>아직 작성된 메모가 없습니다. 관심 있는 공고에 나만의 메모를 남겨보세요!</p>
+              </div>
+            ) : (
+              <div className="memo-card-grid">
+                {Object.entries(memos).map(([postId, memoText]) => {
+                  if (!memoText?.trim()) return null;
+                  const post = notices.find(n => String(n.id) === String(postId));
+                  const title = post ? post.title : `저장된 공고 #${postId}`;
+                  const orgName = post ? post.orgName : '주관기관 미상';
+                  const dDay = post ? calculateDDay(post.deadline) : '상시';
+                  const category = post ? post.category : '기타';
+
+                  return (
+                    <div key={postId} className="memo-manage-card">
+                      <div className="memo-card-header">
+                        <span className="memo-badge">{category}</span>
+                        <span className="memo-dday">{dDay}</span>
+                      </div>
+                      <h4 className="memo-post-title" onClick={() => post && handleCardClick(post)}>
+                        {title}
+                      </h4>
+                      <p className="memo-post-org">🏢 {orgName}</p>
+                      
+                      {editingMemoId === postId ? (
+                        <div className="memo-edit-area">
+                          <textarea
+                            className="memo-edit-textarea"
+                            value={editingMemoText}
+                            onChange={(e) => setEditingMemoText(e.target.value)}
+                          />
+                          <div className="memo-edit-btns">
+                            <button className="btn-memo-save" onClick={() => handleUpdateMemo(postId)}>저장</button>
+                            <button className="btn-memo-cancel" onClick={() => setEditingMemoId(null)}>취소</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="memo-text-box">
+                          {memoText}
+                        </div>
+                      )}
+
+                      <div className="memo-card-footer">
+                        {editingMemoId !== postId && (
+                          <>
+                            <button 
+                              className="btn-memo-action"
+                              onClick={() => {
+                                setEditingMemoId(postId);
+                                setEditingMemoText(memoText);
+                              }}
+                            >
+                              ✏️ 수정
+                            </button>
+                            <button 
+                              className="btn-memo-action delete"
+                              onClick={() => handleDeleteMemo(postId)}
+                            >
+                              🗑️ 삭제
+                            </button>
+                          </>
+                        )}
+                        {post && (
+                          <button 
+                            className="btn-memo-go"
+                            onClick={() => handleCardClick(post)}
+                          >
+                            공고 보기 &gt;
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+
+          <section className="mypage-section" style={{ marginTop: '48px' }}>
+            <h3 className="mypage-section-title">⭐ 내가 찜한 맞춤 공고</h3>
+            <p className="mypage-section-desc">내가 눈여겨보고 찜한 공고들을 놓치지 말고 체크하세요.</p>
+            
+            {bookmarks.length === 0 ? (
+              <div className="mypage-empty">
+                <span>⭐</span>
+                <p>아직 찜한 공고가 없습니다. 마음에 드는 공고의 별 모양을 눌러보세요!</p>
+              </div>
+            ) : (
+              <div className="force-grid">
+                {notices.filter(n => bookmarks.includes(String(n.id))).map((item) => {
+                  const today = new Date(); today.setHours(0, 0, 0, 0);
+                  const isExpired = item.deadline ? new Date(item.deadline) < today : false;
+                  return (
+                    <div key={item.id} className={`force-card ${isExpired ? 'expired' : ''}`} onClick={() => handleCardClick(item)}>
+                      <div className="force-img-wrap">
+                        <img src={item.imageUrl} alt={item.title} />
+                        {isExpired && <div className="expired-overlay">마감됨</div>}
+                        <button className="bookmark-btn" onClick={(e) => toggleBookmark(e, item)}>⭐</button>
+                      </div>
+                      <div className="force-body">
+                        <div className="card-header-row">
+                          <span className="card-badge">{item.category}</span>
+                          <span className={`card-dday ${isExpired ? 'expired' : 'active'}`}>{calculateDDay(item.deadline)}</span>
+                        </div>
+                        <h3 className="card-title">{item.title}</h3>
+                        <p className="card-org">{item.orgName}</p>
+                        <div className="card-meta"><span>조회 {viewCounts[item.id] || 0}</span><span>마감: {formatDateString(item.deadline)}</span></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
         </main>
       ) : (
         <>
@@ -1146,7 +986,6 @@ export default function App() {
                 <div className="view-toggle">
                   <button className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')}>목록형</button>
                   <button className={viewMode === 'calendar' ? 'active' : ''} onClick={() => setViewMode('calendar')}>달력형</button>
-                  <button className={viewMode === 'map' ? 'active' : ''} onClick={() => setViewMode('map')}>지도형</button>
                 </div>
                 <label className="filter-label">
                   <input type="checkbox" className="filter-checkbox" checked={showActiveOnly} onChange={(e) => { setShowActiveOnly(e.target.checked); setCurrentPage(1); }} />
@@ -1188,8 +1027,6 @@ export default function App() {
                   })}
                 </div>
               </div>
-            ) : viewMode === 'map' ? (
-              <VWorldMap places={sortedData.filter(item => item.latitude !== null && item.longitude !== null)} onCardClick={handleCardClick} />
             ) : (
               <div className="force-grid animate-fade-in" key={`grid-${selectedCategory}-${selectedSubCategory}-${showBookmarksOnly}-${showActiveOnly}`}>
                 {(loading || isLoadingMore) ? (
@@ -1216,7 +1053,7 @@ export default function App() {
                 ) : (
                   currentDisplayData.map((item) => {
                     const views = viewCounts[item.id] || 0;
-                    const isBookmarked = bookmarks.includes(item.id);
+                    const isBookmarked = bookmarks.includes(String(item.id));
                     const today = new Date(); today.setHours(0, 0, 0, 0);
                     const isExpired = item.deadline ? new Date(item.deadline) < today : false;
                     const dynamicDDay = calculateDDay(item.deadline);
@@ -1240,7 +1077,6 @@ export default function App() {
               </div>
             )}
             
-            {/* ✨ 125개 단위 페이지네이션 및 다음 화살표 부드럽게 작동 */}
             {viewMode === 'list' && (totalPages > 0) && !loading && !isLoadingMore && (
               <div className="pagination-container animate-fade-in">
                 <button 
@@ -1276,7 +1112,6 @@ export default function App() {
                     const currentBlock = Math.ceil(currentPage / PAGES_PER_BLOCK);
                     const maxLoadedBlock = Math.ceil(totalPages / PAGES_PER_BLOCK);
                     
-                    // 더 로드할 수 있으면 page=2(125개 추가) 호출 -> 로딩 뜬 후 6,7,8,9,10페이지 생성
                     if (currentBlock >= maxLoadedBlock && hasMore) {
                       setPage(prev => prev + 1);
                     } else if (currentBlock < maxLoadedBlock) {

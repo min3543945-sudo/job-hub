@@ -40,10 +40,29 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .header-links { position: relative; display: flex; align-items: center; gap: 8px; }
 .noti-btn { position: relative; font-size: 1.2rem; margin-right: 4px; background: none; border: none; cursor: pointer; }
 .noti-badge { position: absolute; top: -4px; right: -4px; width: 8px; height: 8px; background-color: #ef4444; border-radius: 50%; }
-.user-info { display: flex; align-items: center; gap: 8px; }
+.user-info { display: flex; align-items: center; gap: 10px; }
 .user-name { font-size: 0.9rem; font-weight: bold; color: #1e293b; }
 .btn-text { font-weight: bold; color: #64748b; background: none; border: none; cursor: pointer; font-size: 0.8rem; }
 .btn-text.primary { color: var(--primary-color); font-size: 0.9rem; }
+
+/* ✨ 헤더 마이페이지 진입 버튼 */
+.btn-mypage-top {
+  background-color: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-mypage-top:hover, .btn-mypage-top.active {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
 
 .main-nav { background-color: #ffffff; border-bottom: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
 .nav-inner { max-width: var(--max-width); margin: 0 auto; padding: 0 20px; display: flex; gap: 32px; overflow-x: auto; white-space: nowrap; -ms-overflow-style: none; scrollbar-width: none; }
@@ -53,7 +72,6 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .nav-item.active { color: var(--primary-color); }
 .nav-item.active::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background-color: var(--primary-color); }
 
-/* ✨ 2단계 서브 카테고리 (둥근 캡슐 모양 버튼) */
 .sub-nav { background-color: #ffffff; border-bottom: 1px solid #e2e8f0; width: 100%; }
 .sub-nav-inner { max-width: var(--max-width); margin: 0 auto; padding: 16px 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .sub-nav-item { background-color: #ffffff; border: 1px solid #cbd5e1; color: #64748b; padding: 8px 18px; border-radius: 50px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease-in-out; outline: none; }
@@ -106,7 +124,6 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .login-box-header p { font-size: 0.9rem; font-weight: 700; color: var(--text-dark); line-height: 1.4; margin: 0; }
 .login-subtext { font-size: 0.8rem; color: var(--text-gray); margin-bottom: 20px; text-align: left; padding-left: 60px; }
 
-/* 로그인 버튼 분리 스타일 */
 .login-btn-group { display: flex; gap: 10px; width: 100%; }
 .btn-login-main { flex: 1; background: var(--primary-color); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-bottom: 0; transition: background 0.2s; }
 .btn-login-main:hover { background: var(--primary-hover); }
@@ -144,13 +161,13 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .sort-dropdown { padding: 8px 36px 8px 16px; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--card-bg); font-size: 0.95rem; font-weight: 500; cursor: pointer; outline: none; appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 12px auto; }
 
 /* -------------------------------------
-   🚨 가장 확실한 1:1 강제 비율 및 카드 높이 동일화
+   카드 그리드 및 1:1 강제 비율
 ------------------------------------- */
 .force-grid { 
   display: grid; 
   grid-template-columns: repeat(5, 1fr); 
   gap: 24px 16px; 
-  align-items: stretch; /* 줄 맞춤 강제 */
+  align-items: stretch;
 }
 
 .force-card { 
@@ -161,7 +178,7 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
   border-radius: 12px;
   cursor: pointer; 
   transition: transform 0.2s, box-shadow 0.2s; 
-  height: 100%; /* 카드 높이를 모두 같게 만듦 */
+  height: 100%;
   overflow: hidden;
 }
 
@@ -172,13 +189,12 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 
 .force-card.expired { filter: grayscale(100%); opacity: 0.7; }
 
-/* 이미지 영역 고정 (비율 보장) */
 .force-img-wrap { 
   width: 100%; 
-  aspect-ratio: 1 / 1; /* 정사각형 강제 */
+  aspect-ratio: 1 / 1;
   position: relative; 
   background-color: #f1f5f9; 
-  flex-shrink: 0; /* 이미지 영역 찌그러짐 방지 */
+  flex-shrink: 0;
 }
 
 .force-img-wrap img { 
@@ -191,12 +207,11 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .expired-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; font-weight: bold; z-index: 5; }
 .bookmark-btn { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10; }
 
-/* 텍스트 바디 영역: 남은 공간 모두 차지하게 만들기 */
 .force-body { 
   padding: 16px; 
   display: flex; 
   flex-direction: column; 
-  flex-grow: 1; /* 텍스트 영역이 남은 공간 꽉 채움 */
+  flex-grow: 1;
 }
 
 .card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
@@ -205,7 +220,6 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .card-dday.active { color: #ef4444; }
 .card-dday.expired { color: #94a3b8; }
 
-/* 제목 2줄 강제 고정 */
 .card-title { 
   font-size: 1rem; 
   font-weight: 700; 
@@ -213,11 +227,11 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
   margin: 0 0 8px 0; 
   color: #1e293b; 
   display: -webkit-box; 
-  -webkit-line-clamp: 2; /* 2줄까지만 표시 */
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical; 
   overflow: hidden; 
   text-overflow: ellipsis; 
-  min-height: 2.8em; /* 1줄이든 2줄이든 무조건 공간 차지 */
+  min-height: 2.8em;
   word-break: keep-all; 
 }
 
@@ -232,9 +246,8 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
   width: 100%; 
 }
 
-/* 메타 정보를 항상 바닥으로 밀어버림 */
 .card-meta { 
-  margin-top: auto; /* 공간이 남으면 무조건 바닥에 붙임 */
+  margin-top: auto;
   padding-top: 12px; 
   border-top: 1px solid #f1f5f9;
   display: flex; 
@@ -250,7 +263,6 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .skeleton-title { width: 100%; height: 20px; background: #e2e8f0; margin-bottom: 8px; border-radius: 4px; }
 .skeleton-desc { width: 70%; height: 20px; background: #e2e8f0; border-radius: 4px; }
 
-/* 공고 없음 */
 .empty-state { text-align: center; padding: 80px 20px; background: var(--card-bg); border: 1px dashed #cbd5e1; border-radius: 12px; grid-column: 1 / -1; }
 .empty-icon { font-size: 3rem; margin-bottom: 16px; }
 .btn-reset { margin-top: 16px; padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; margin-left: 8px; }
@@ -277,7 +289,6 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .detail-link-btn { display: inline-block; background: var(--primary-color); color: white; padding: 16px 48px; border-radius: 50px; font-size: 1.2rem; font-weight: 800; text-decoration: none; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3); transition: transform 0.2s; }
 .detail-link-btn:hover { transform: translateY(-2px); }
 
-/* ✨ 상세 페이지 AI 버튼 및 메모장 */
 .btn-ai-extract { width: 100%; padding: 16px; margin-bottom: 24px; border: none; border-radius: 12px; background: linear-gradient(135deg, #6366f1, #3b82f6, #8b5cf6); background-size: 200% 200%; color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); transition: transform 0.2s, background-position 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .btn-ai-extract:hover { transform: translateY(-2px); background-position: right center; }
 .memo-pad { background: #fef9c3; border: 1px solid #fde047; border-radius: 12px; padding: 20px; margin-top: 40px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
@@ -286,6 +297,291 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .memo-btn-wrap { overflow: hidden; }
 .memo-pad button { background: #eab308; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; float: right; transition: background 0.2s; }
 .memo-pad button:hover { background: #ca8a04; }
+
+/* =========================================================
+   ✨ 마이페이지 (스크랩북 & 메모 몰아보기/수정/삭제 전용 스타일)
+========================================================= */
+.mypage-main {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 32px 20px;
+  padding-bottom: 100px;
+}
+
+.mypage-header-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: #ffffff;
+  padding: 32px 40px;
+  border-radius: 16px;
+  margin-bottom: 40px;
+  box-shadow: 0 10px 20px rgba(29, 78, 216, 0.15);
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.mypage-profile-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  backdrop-filter: blur(4px);
+}
+
+.mypage-profile-info h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.mypage-profile-info p {
+  font-size: 0.95rem;
+  opacity: 0.95;
+}
+
+.mypage-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-box {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 12px 24px;
+  border-radius: 12px;
+  text-align: center;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-box span {
+  display: block;
+  font-size: 0.8rem;
+  opacity: 0.9;
+  margin-bottom: 4px;
+}
+
+.stat-box strong {
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.mypage-section-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.mypage-section-desc {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin-bottom: 24px;
+}
+
+.mypage-empty {
+  text-align: center;
+  padding: 60px 20px;
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+}
+
+.mypage-empty span {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.mypage-empty p {
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* 메모 카드 그리드 및 관리 UI */
+.memo-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+.memo-manage-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.memo-manage-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.06);
+}
+
+.memo-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.memo-badge {
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.memo-dday {
+  color: #ef4444;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.memo-post-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 6px;
+  cursor: pointer;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.memo-post-title:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.memo-post-org {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 16px;
+}
+
+.memo-text-box {
+  background: #fef9c3;
+  border: 1px solid #fde047;
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #334155;
+  margin-bottom: 16px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  flex-grow: 1;
+}
+
+.memo-edit-area {
+  margin-bottom: 16px;
+  flex-grow: 1;
+}
+
+.memo-edit-textarea {
+  width: 100%;
+  height: 100px;
+  padding: 12px;
+  border: 1.5px solid var(--primary-color);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  background: #fffbeb;
+  margin-bottom: 8px;
+}
+
+.memo-edit-btns {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btn-memo-save {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.btn-memo-cancel {
+  background: #e2e8f0;
+  color: #475569;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.memo-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.btn-memo-action {
+  background: #f1f5f9;
+  border: none;
+  color: #475569;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-memo-action:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.btn-memo-action.delete:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.btn-memo-go {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.btn-memo-go:hover {
+  text-decoration: underline;
+}
 
 /* -------------------------------------
    달력 뷰 전용
@@ -349,41 +645,15 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .chat-link { color: #2563eb; text-decoration: underline; font-weight: bold; }
 .chat-action-btn { background: none; border: none; color: #2563eb; text-decoration: underline; cursor: pointer; padding: 0; font-size: inherit; font-weight: bold; text-align: left; }
 
-/* 탑 스크롤 버튼 */
 .btn-scroll-top { position: fixed; bottom: 40px; right: 40px; width: 48px; height: 48px; background: white; border: 1px solid #e2e8f0; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; z-index: 998; transition: right 0.3s, transform 0.2s; }
 .btn-scroll-top:hover { transform: translateY(-4px); }
 .btn-scroll-top.chat-open { right: 120px; }
 
-/* ✨ 하단 페이지 번호 (Pagination) */
 .pagination-container { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 50px; padding-bottom: 40px; grid-column: 1 / -1; }
 .page-nav-btn, .page-num-btn { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; min-width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; color: #64748b; cursor: pointer; transition: all 0.2s ease; }
 .page-nav-btn:disabled { background: #f8fafc; color: #cbd5e1; cursor: not-allowed; border-color: #f1f5f9; }
 .page-nav-btn:not(:disabled):hover, .page-num-btn:not(.active):hover { background: #f1f5f9; color: var(--primary-color); border-color: var(--primary-color); }
 .page-num-btn.active { background: var(--primary-color); color: #ffffff; border-color: var(--primary-color); }
-
-/* -------------------------------------
-   지도 관련 뷰 CSS
-------------------------------------- */
-.map-panel { overflow: hidden; border: 1px solid #dce3ee; border-radius: 18px; background: #ffffff; box-shadow: 0 18px 60px rgb(38 57 89 / 10%); }
-.map-status-row { display: flex; align-items: center; justify-content: space-between; min-height: 54px; padding: 0 18px; border-bottom: 1px solid #e7ecf3; color: #526078; font-size: 0.86rem; }
-.marker-legend { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; }
-.marker-legend__dot { width: 12px; height: 12px; border: 2px solid #ffffff; border-radius: 999px; background: #155eef; box-shadow: 0 0 0 1px #155eef; }
-.sdk-label { color: #7c899e; }
-.map-frame { position: relative; width: 100%; min-height: 400px; }
-.vworld-map { width: 100%; height: 600px; min-height: 400px; background: #e9eef5; }
-.map-overlay-message { position: absolute; inset: 0; z-index: 10; display: grid; place-content: center; gap: 8px; padding: 24px; color: #526078; background: rgb(244 247 251 / 88%); text-align: center; backdrop-filter: blur(4px); }
-.map-overlay-message--error { color: #a12626; background: rgb(255 246 246 / 94%); }
-.map-overlay-message--error strong, .map-overlay-message--error span { display: block; }
-.map-overlay-message--error span { max-width: 640px; margin-top: 8px; color: #7a3434; line-height: 1.55; }
-.vworld-popup { position: relative; display: grid; min-width: 250px; max-width: 320px; gap: 6px; padding: 18px 42px 18px 18px; border: 1px solid #d9e1ed; border-radius: 12px; background: #ffffff; box-shadow: 0 12px 30px rgb(24 38 62 / 24%); }
-.vworld-popup::after { position: absolute; bottom: -9px; left: 50%; width: 16px; height: 16px; border-right: 1px solid #d9e1ed; border-bottom: 1px solid #d9e1ed; background: #ffffff; content: ""; transform: translateX(-50%) rotate(45deg); }
-.vworld-popup__close { position: absolute; top: 8px; right: 9px; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 8px; color: #68758a; background: transparent; cursor: pointer; font-size: 1.35rem; line-height: 1; }
-.vworld-popup__close:hover { background: #f0f3f8; }
-.vworld-popup__title { color: #172033; font-size: 1rem; }
-.vworld-popup__address, .vworld-popup__note { color: #526078; font-size: 0.82rem; line-height: 1.45; }
-.vworld-popup__note { color: #155eef; font-weight: 700; }
-.map-floating-btn { position: absolute; bottom: 24px; right: 24px; background: white; border: 1px solid #e2e8f0; border-radius: 50%; width: 48px; height: 48px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 1.5rem; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
-.map-floating-btn:hover { transform: scale(1.1); }
 
 /* -------------------------------------
    반응형 (Media Queries)
@@ -399,6 +669,8 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
   .banner-image { width: 100%; opacity: 0.3; mask-image: none; -webkit-mask-image: none; }
   .banner-controls { bottom: 16px; right: 50%; transform: translateX(50%); }
   .login-box { width: 100%; }
+  .mypage-header-banner { flex-direction: column; text-align: center; }
+  .mypage-profile-info { flex-direction: column; }
 }
 
 @media (max-width: 768px) {
@@ -408,6 +680,7 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
   .content-header { flex-direction: column; align-items: flex-start; gap: 12px; }
   .header-controls { width: 100%; justify-content: space-between; } 
   .force-grid { grid-template-columns: repeat(2, 1fr); gap: 24px 12px; }
+  .memo-card-grid { grid-template-columns: 1fr; }
   .card-title { font-size: 0.95rem; height: 2.8em; }
   .card-org { font-size: 0.8rem; }
   .card-meta { font-size: 0.75rem; }
@@ -418,6 +691,4 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
   .noti-dropdown { width: 280px; right: -10px; }
   .cal-cell { min-height: 80px; padding: 4px; } 
   .cal-event-badge { font-size: 0.65rem; padding: 2px 4px; }
-  .map-status-row { align-items: flex-start; flex-direction: column; gap: 4px; padding-block: 12px; }
-  .vworld-map { height: 500px; }
 }
