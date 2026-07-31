@@ -2419,7 +2419,7 @@ export default function App() {
               setIsChatLoading(true);
 
               try {
-                const noticesSummary = notices.slice(0, 40).map(n => `- [${n.category}] ${n.title} (${n.orgName}, 마감: ${n.deadline || '상시'})`).join('\n');
+                const noticesSummary = notices.slice(0, 8).map(n => `- [${n.category}] ${n.title} (${n.orgName}, 마감: ${n.deadline || '상시'})`).join('\n');
 
                 const response = await fetch('/api/chat', {
                   method: 'POST',
