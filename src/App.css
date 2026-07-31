@@ -91,6 +91,7 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 .banner-controls button:hover { transform: scale(1.2); color: #fbbf24; }
 .banner-page { color: white; font-size: 0.9rem; font-weight: 700; letter-spacing: 2px; }
 
+/* 🌟 영수증 카드 및 CTA 버튼 디자인 개선 */
 .receipt-wrapper { flex: 0 0 340px; width: 100%; display: flex; justify-content: center; height: 100%; }
 .receipt-card { background: #fff; width: 100%; height: 100%; padding: 22px 20px 18px 20px; border-radius: 4px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; position: relative; color: #334155; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
 .receipt-card::before { content: ""; position: absolute; top: -6px; left: 0; right: 0; height: 6px; background: linear-gradient(135deg, transparent 33.333%, #fff 33.333%, #fff 66.667%, transparent 66.667%), linear-gradient(45deg, transparent 33.333%, #fff 33.333%, #fff 66.667%, transparent 66.667%); background-size: 12px 12px; background-repeat: repeat-x; }
@@ -103,8 +104,12 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 .receipt-total { display: flex; justify-content: space-between; align-items: center; color: #ef4444; margin-top: 8px; gap: 12px; }
 .receipt-total span:first-child { font-size: 1rem; font-weight: 800; word-break: keep-all; }
 .receipt-total span:last-child { font-size: 1.25rem; font-weight: 900; white-space: nowrap; }
-.receipt-footer-text { text-align: center; font-size: 0.8rem; color: #94a3b8; margin-top: 10px; word-break: keep-all; }
+.receipt-footer-text { text-align: center; font-size: 0.78rem; color: #94a3b8; margin-top: 8px; word-break: keep-all; }
 .dynamic-receipt-item:hover span:first-child { color: var(--primary-color); text-decoration: underline; }
+
+/* 🌟 1페이즈 AI 커리어로드 바로가기 버튼 CSS */
+.receipt-cta-btn { width: 100%; margin-top: 10px; padding: 10px 14px; background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; border: none; border-radius: 8px; font-weight: 800; font-size: 0.85rem; cursor: pointer; box-shadow: 0 4px 10px rgba(37,99,235,0.25); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.receipt-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(37,99,235,0.35); }
 
 .login-box { width: 340px; background: #f1f5f9; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; border: 1px solid var(--border-color); justify-content: center; height: 100%; box-sizing: border-box; }
 .login-box-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
@@ -148,25 +153,25 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 .sort-dropdown { padding: 8px 36px 8px 16px; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--card-bg); font-size: 0.95rem; font-weight: 500; cursor: pointer; outline: none; appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 12px auto; }
 
 /* -------------------------------------
-   카드 그리드 (.force-grid, .force-card)
+   🌟 카드 그리드 (4개씩 5줄 = 4열 레이아웃)
 ------------------------------------- */
-.force-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px 16px; align-items: stretch; }
-.force-card { display: flex; flex-direction: column; background-color: #fff; border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; height: 100%; overflow: hidden; }
-.force-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+.force-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px 20px; align-items: stretch; }
+.force-card { display: flex; flex-direction: column; background-color: #fff; border: 1px solid #e2e8f0; border-radius: 14px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; height: 100%; overflow: hidden; }
+.force-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06); }
 .force-card.expired { filter: grayscale(100%); opacity: 0.7; }
 .force-img-wrap { width: 100%; aspect-ratio: 1 / 1; position: relative; background-color: #f1f5f9; flex-shrink: 0; }
 .force-img-wrap img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
 .expired-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; font-weight: bold; z-index: 5; }
-.bookmark-btn { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10; }
-.force-body { padding: 16px; display: flex; flex-direction: column; flex-grow: 1; }
-.card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
-.card-badge { font-size: 0.8rem; font-weight: bold; color: #3b82f6; background: #eff6ff; padding: 4px 8px; border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: calc(100% - 40px); }
-.card-dday { font-size: 0.85rem; font-weight: 900; white-space: nowrap; flex-shrink: 0; }
+.bookmark-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10; }
+.force-body { padding: 18px; display: flex; flex-direction: column; flex-grow: 1; }
+.card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
+.card-badge { font-size: 0.82rem; font-weight: bold; color: #3b82f6; background: #eff6ff; padding: 4px 8px; border-radius: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: calc(100% - 45px); }
+.card-dday { font-size: 0.88rem; font-weight: 900; white-space: nowrap; flex-shrink: 0; }
 .card-dday.active { color: #ef4444; }
 .card-dday.expired { color: #94a3b8; }
-.card-title { font-size: 1rem; font-weight: 700; line-height: 1.4; margin: 0 0 8px 0; color: #1e293b; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; min-height: 2.8em; word-break: keep-all; }
-.card-org { font-size: 0.85rem; color: #64748b; margin: 0; margin-bottom: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-.card-meta { margin-top: auto; padding-top: 12px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #94a3b8; }
+.card-title { font-size: 1.08rem; font-weight: 700; line-height: 1.45; margin: 0 0 10px 0; color: #1e293b; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; min-height: 2.9em; word-break: keep-all; }
+.card-org { font-size: 0.9rem; color: #64748b; margin: 0; margin-bottom: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+.card-meta { margin-top: auto; padding-top: 14px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #94a3b8; }
 .skeleton-card { border: 1px solid #e2e8f0; pointer-events: none; }
 .skeleton-img { background: #e2e8f0; }
 .skeleton-badge { width: 40px; height: 16px; background: #e2e8f0; margin-bottom: 8px; border-radius: 4px; }
@@ -270,7 +275,7 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 .cal-event-badge.urgent { background: #fef2f2; color: #ef4444; border-color: #fecaca; }
 
 /* -------------------------------------
-   🌟 인증 모달 (.modal-overlay, .modal-content 필수 보존)
+   🌟 인증 모달
 ------------------------------------- */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
 .modal-content { background: white; padding: 40px; border-radius: 16px; width: 90%; max-width: 400px; position: relative; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
@@ -347,7 +352,7 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
   .search-bar { width: 100%; }
   .content-header { flex-direction: column; align-items: flex-start; gap: 12px; }
   .header-controls { width: 100%; justify-content: space-between; } 
-  .force-grid { grid-template-columns: repeat(2, 1fr); gap: 24px 12px; }
+  .force-grid { grid-template-columns: repeat(2, 1fr); gap: 20px 12px; }
   .memo-card-grid { grid-template-columns: 1fr; }
   .card-title { font-size: 0.95rem; height: 2.8em; }
   .card-org { font-size: 0.8rem; }

@@ -57,6 +57,13 @@ const calculateDDay = (endDate) => {
   return `D-${diffDays}`;
 };
 
+// 🌟 [핵심 기능] 공고 제목의 대괄호 [...] 및 【...】 내부 텍스트 제거 유틸리티
+const cleanTitle = (title) => {
+  if (!title || typeof title !== 'string') return '제목 없음';
+  const cleaned = title.replace(/\[.*?\]|【.*?】/g, '').replace(/\s+/g, ' ').trim();
+  return cleaned || title;
+};
+
 const categoryMap = {
   'CONTEST': '공모전', 'JOB': '채용·일자리', 'EDUCATION': '교육·강좌',
   'ACTIVITY': '대외활동', 'HACKATHON': '해커톤', 'STARTUP': '사업·창업',
@@ -124,7 +131,7 @@ const normalizeItem = (item, index) => {
 
   return {
     id,
-    title: item.title || '제목 없음',
+    title: cleanTitle(item.title || '제목 없음'),
     orgName,
     deadline,
     sourceName: String(sourceName),
@@ -236,14 +243,13 @@ const CAREER_OPPORTUNITIES = [
   { id: 'cr-706', step: 7, isTop: false, category: '🏡 전세 대출', title: '춘천 청년 전세보증금 대출 이자 지원 사업', orgName: '강원도 주택도시기금', deadline: '상시모집', matchRate: 85, statusText: '✔ 적합도 85%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🏠 전세 및 보증금 대출 연 3.0% 이자 시청 직권 무상 대납' }
 ];
 
-// 🌟 [핵심 수정] 사용자 전공/직무 프로필을 반영하고 엉뚱한 데이터를 막는 정밀 필터 매칭
+// 🌟 [요청 반영: STEP 4 복지/정책 단계에 교육·부트캠프·공모전 등 이상한 데이터 유입 원천 차단]
 const getNoticesForCareerStep = (notices, stepNum, userProfile = null) => {
   const majorKeyword = userProfile?.majorCategory
     ? userProfile.majorCategory.split('·')[0].toLowerCase()
     : '';
   const jobKeyword = userProfile?.job ? userProfile.job.toLowerCase() : '';
 
-  // 1. 서버 공고 중 단계 및 카테고리에 정확히 일치하는 공고만 엄격 추출
   const matchingNotices = notices.filter(item => {
     const title = (item.title || '').toLowerCase();
     const desc = (item.description || '').toLowerCase();
@@ -273,11 +279,19 @@ const getNoticesForCareerStep = (notices, stepNum, userProfile = null) => {
       return cat.includes('채용') || cat.includes('일자리') || fullText.includes('채용') || fullText.includes('신입') || fullText.includes('공채') || fullText.includes('정규직') || fullText.includes('사원');
     }
     if (stepNum === 7) {
-      // 🌟 [복지·정책] IT 채용이나 일반 해커톤이 섞이지 않도록 주거/정책/지원금만 엄격히 제한
+      // 🌟 [핵심 수정] 주거/복지/월세/정책 키워드만 허용하고 교육·부트캠프·해커톤·채용 단어가 있으면 무조건 제외!
       const isPolicyCat = cat.includes('지원금') || cat.includes('정책') || cat.includes('복지') || cat.includes('주거');
       const hasPolicyKeyword = fullText.includes('월세') || fullText.includes('주거') || fullText.includes('교통') || fullText.includes('전입') || fullText.includes('장려금') || fullText.includes('대출') || fullText.includes('공간');
-      const isNotJob = !cat.includes('채용') && !cat.includes('해커톤') && !cat.includes('공모전');
-      return (isPolicyCat || hasPolicyKeyword) && isNotJob;
+      const isNotNoise = !fullText.includes('교육') &&
+                         !fullText.includes('부트캠프') &&
+                         !fullText.includes('국비') &&
+                         !fullText.includes('클라우드') &&
+                         !fullText.includes('강좌') &&
+                         !fullText.includes('해커톤') &&
+                         !fullText.includes('공모전') &&
+                         !fullText.includes('채용') &&
+                         !fullText.includes('인턴');
+      return (isPolicyCat || hasPolicyKeyword) && isNotNoise;
     }
     return false;
   }).map(item => ({
@@ -291,7 +305,6 @@ const getNoticesForCareerStep = (notices, stepNum, userProfile = null) => {
     desc: item.desc || (item.description ? item.description.slice(0, 50) + '...' : '춘천 관내 실시간 공고')
   }));
 
-  // 2. 고품질 맞춤 커리어로드 데이터 우선 확보 (이상한 데이터 유입 차단)
   let curatedList = CAREER_OPPORTUNITIES.filter(o => {
     if (stepNum === 2) return o.step === 2 || o.step === 3;
     if (stepNum === 5) return o.step === 4 || o.step === 5 || o.step === 6;
@@ -299,7 +312,8 @@ const getNoticesForCareerStep = (notices, stepNum, userProfile = null) => {
     return o.step === stepNum;
   });
 
-  const combined = [...matchingNotices, ...curatedList];
+  // STEP 4(정착)는 항상 춘천 특화 큐레이션 정책(월세, 장려금 등)을 상단에 최우선 배치
+  const combined = [...curatedList, ...matchingNotices];
   const uniqueList = Array.from(new Map(combined.map(item => [String(item.id), item])).values());
   return uniqueList;
 };
@@ -317,8 +331,11 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [selectedSubCategory, setSelectedSubCategory] = useState('전체');
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 25;
+
+  // 4개씩 5줄 = 페이지당 20개 / 5페이지 블록 단위로 한 번에 100개 로딩
+  const ITEMS_PER_PAGE = 20;
   const PAGES_PER_BLOCK = 5;
+
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [selectedPost, setSelectedPost] = useState(null);
@@ -344,7 +361,7 @@ export default function App() {
   const [viewCounts, setViewCounts] = useState({});
   const [serverRecommendedPicks, setServerRecommendedPicks] = useState([]);
 
-  // 🌟 공통 스크랩/메모 상태
+  // 공통 스크랩/메모 상태
   const [bookmarks, setBookmarks] = useState(() => {
     try { const saved = localStorage.getItem('bookmarks'); return saved ? JSON.parse(saved) : []; } catch (error) { return []; }
   });
@@ -355,7 +372,7 @@ export default function App() {
   const [editingMemoId, setEditingMemoId] = useState(null);
   const [editingMemoText, setEditingMemoText] = useState('');
 
-  // 🌟 AI 커리어 로드 전용 상태
+  // AI 커리어 로드 전용 상태
   const [careerScreen, setCareerScreen] = useState('landing');
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [userProfile, setUserProfile] = useState({
@@ -399,14 +416,14 @@ export default function App() {
       if (page > 1) setIsLoadingMore(true);
       else setLoading(true);
 
-      const API_URL = `${BASE_URL}/api/opportunities?page=${page}&size=125`;
+      const API_URL = `${BASE_URL}/api/opportunities?page=${page}&size=100`;
       try {
         const res = await fetch(API_URL);
         if (!res.ok) throw new Error(`서버 응답 오류: ${res.status}`);
         const data = await res.json();
         const listData = Array.isArray(data) ? data : data.content || data.items || data.data || [];
-        if (listData.length < 125) setHasMore(false);
-        const normalizedData = listData.map((item, index) => normalizeItem(item, index + (page - 1) * 125));
+        if (listData.length < 100) setHasMore(false);
+        const normalizedData = listData.map((item, index) => normalizeItem(item, index + (page - 1) * 100));
 
         if (page === 1) setNotices(normalizedData);
         else {
@@ -441,7 +458,6 @@ export default function App() {
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  // 🌟 [핵심 수정] ReferenceError 해결: 로그인/비회원 클릭 시 크래시 없는 맞춤 추천 배열 정의
   const displayRecommendedPicks = useMemo(() => {
     if (serverRecommendedPicks && serverRecommendedPicks.length > 0) {
       return serverRecommendedPicks;
@@ -452,7 +468,6 @@ export default function App() {
       .slice(0, 6);
   }, [serverRecommendedPicks, notices, viewCounts]);
 
-  // 안전 로그인/회원가입 처리
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
     const email = e.target[0].value;
@@ -634,11 +649,6 @@ export default function App() {
 
   const totalPages = Math.ceil(sortedData.length / ITEMS_PER_PAGE);
   const currentDisplayData = sortedData.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-  const topPicks = notices.length > 0 ? [...notices].sort((a, b) => (viewCounts[b.id] || 0) - (viewCounts[a.id] || 0)).slice(0, 4) : [];
-  const activePick = topPicks[currentBannerIdx];
-
-  const nextBanner = (e) => { e.stopPropagation(); setCurrentBannerIdx((prev) => (prev + 1) % topPicks.length); };
-  const prevBanner = (e) => { e.stopPropagation(); setCurrentBannerIdx((prev) => (prev === 0 ? topPicks.length - 1 : prev - 1)); };
 
   const allBookmarkedItems = [
     ...notices.filter(n => bookmarks.includes(String(n.id))),
@@ -708,7 +718,7 @@ export default function App() {
                 <div className="noti-dropdown animate-fade-in">
                   <div className="noti-header">알림 <span className="noti-read-all">모두 읽음 처리</span></div>
                   <div className="noti-item"><h4>🔥 [해커톤] 신청 마감 D-1</h4><p>북마크하신 '강원 해커톤 대회' 마감이 내일입니다. 잊지 말고 지원하세요!</p></div>
-                  <div className="noti-item"><h4>✨ 맞춤 공고 추천</h4><p>{userName}님을 위한 새로운 [마케팅 인턴] 공고가 3건 등록되었습니다.</p></div>
+                  <div className="noti-item"><h4>✨ 맞춤 공고 추천</h4><p>{userName}님을 위한 새로운 마케팅 인턴 공고가 3건 등록되었습니다.</p></div>
                 </div>
               )}
 
@@ -1420,7 +1430,7 @@ export default function App() {
             </div>
           )}
 
-          {/* 🌟 STEP 4 화면: 최종 정착 & 인프라 */}
+          {/* 🌟 STEP 4 화면: 최종 정착 & 인프라 (순수 주거/복지 정책만 보장) */}
           {careerScreen === 'step4_settle' && (
             <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 20px', width: '100%' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -1625,7 +1635,7 @@ export default function App() {
         </div>
       ) : null}
 
-      {/* 디렉토리 메인 화면 */}
+      {/* 디렉토리 메인 화면 (1페이즈) */}
       {mainMode === 'directory' && !selectedPost && !showMyPage && (
         <>
           <nav className="main-nav">
@@ -1662,23 +1672,41 @@ export default function App() {
             {selectedCategory === '전체' && !showBookmarksOnly && (
               <div className="animate-fade-in">
                 <div className={`hero-section ${isLoggedIn ? 'logged-in' : ''}`}>
-                  <div className="hero-banner">
-                    {activePick ? (
-                      <div className="banner-content" onClick={() => handleCardClick(activePick)}>
-                        <div className="banner-text">
-                          <span className="banner-badge">🔥 실시간 인기/추천 공고</span>
-                          <h2>{activePick.title}</h2>
-                          <p>{activePick.orgName} | 마감: {formatDateString(activePick.deadline)}</p>
-                          <button className="btn-go">바로가기 &gt;</button>
-                        </div>
-                        <img src={activePick.imageUrl} alt="인기 공고 이미지" className="banner-image" onError={handleImgError} />
-                        <div className="banner-controls">
-                          <button onClick={prevBanner}>◀</button>
-                          <span className="banner-page">{currentBannerIdx + 1} / {topPicks.length}</span>
-                          <button onClick={nextBanner}>▶</button>
-                        </div>
+                  {/* 🌟 [요청 반영] 기존 슬라이더 제거 -> 왼쪽 전체를 꽉 채우는 'AI 커리어로드 원클릭 대형 CTA 배너'로 교체 */}
+                  <div
+                    className="hero-banner career-hero-banner"
+                    onClick={() => {
+                      setMainMode('career_road');
+                      setCareerScreen('landing');
+                      scrollToTop();
+                    }}
+                  >
+                    <div className="banner-content">
+                      <div className="banner-text" style={{ maxWidth: '100%' }}>
+                        <span className="banner-badge" style={{ background: '#fbbf24', color: '#1e293b' }}>
+                          ⚡ 모아봄 메인 서비스
+                        </span>
+                        <h2 style={{ fontSize: '2.1rem', marginBottom: '14px', lineHeight: '1.3' }}>
+                          나에게 꼭 맞는 춘천시 정착 경로,<br />
+                          AI 커리어 로드맵으로 맞춤 진단하기
+                        </h2>
+                        <p style={{ fontSize: '1.05rem', opacity: 0.95, marginBottom: '28px' }}>
+                          학력과 관심 직무만 선택하면 1단계(탐색)부터 7단계(주거·월세 지원)까지 1초 만에 완성해 드려요.
+                        </p>
+                        <button
+                          className="btn-go"
+                          style={{
+                            background: '#ffffff',
+                            color: '#1e3a8a',
+                            padding: '14px 32px',
+                            fontSize: '1.05rem',
+                            boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+                          }}
+                        >
+                          🚀 지금 바로 AI 커리어로드 시작하기 &gt;
+                        </button>
                       </div>
-                    ) : <div className="banner-loading">로딩 중...</div>}
+                    </div>
                   </div>
 
                   {isLoggedIn ? (
@@ -1688,58 +1716,40 @@ export default function App() {
                         month: '2-digit',
                         day: '2-digit'
                       });
-                      const todayMidnight = new Date().setHours(0, 0, 0, 0);
 
-                      const ignoreKeywords = [
-                        '입찰', '용역', '공사', '구매', '제조', '납품', '소모품', '토너', '레미콘', '건설',
-                        '정규직', '계약직', '채용', '어시스턴트', '사원', '바이오노트', '티씨케이', '카카오페이'
-                      ];
-
-                      const benefitCandidates = notices.filter(item => {
-                        const title = (item.title || '').toLowerCase();
-                        const cat = item.category || '';
-                        const notExpired = !item.deadline || new Date(item.deadline) >= todayMidnight;
-                        const isTruePolicy = cat.includes('지원금') || cat.includes('정책') || cat.includes('사업') ||
-                                             title.includes('지원금') || title.includes('장학') || title.includes('수당') || title.includes('바우처');
-                        const isNotNoise = !ignoreKeywords.some(kw => title.includes(kw));
-                        return notExpired && isTruePolicy && isNotNoise;
-                      });
-
-                      const uniqueItems = Array.from(new Map(benefitCandidates.map(item => [item.id, item])).values()).slice(0, 3);
-
-                      const defaultYouthBenefits = [
-                        { id: 'default-1', title: '청년 구직활동 지원금', displayMoney: '500,000원', numMoney: 500000, url: '#' },
-                        { id: 'default-2', title: '면접 정장 대여 (춘천 날개)', displayMoney: '50,000원', numMoney: 50000, url: '#' },
-                        { id: 'default-3', title: '자격증 응시료 지원', displayMoney: '100,000원', numMoney: 100000, url: '#' }
-                      ];
-
-                      const defaultMoneyList = [500000, 50000, 100000];
-                      let totalSum = 0;
-
-                      const finalPolicies = Array.from({ length: 3 }).map((_, idx) => {
-                        const item = uniqueItems[idx];
-                        if (!item) {
-                          totalSum += defaultYouthBenefits[idx].numMoney;
-                          return defaultYouthBenefits[idx];
+                      // 무조건 있는 핵심 지원 정책 3개 고정! (부트캠프/클래스 등 소음 완전 제거)
+                      const fixedPolicyList = [
+                        {
+                          id: 'cr-701',
+                          title: '춘천 청년 월세 특별지원사업 (월 20만 원 x 12개월)',
+                          displayMoney: '2,400,000원',
+                          orgName: '춘천시 청년지원과',
+                          category: '지원금·정책',
+                          deadline: '2026-09-30',
+                          description: '연간 총 240만 원의 주거비를 지원받아 춘천 정착 부담을 덜어보세요.',
+                          url: '#'
+                        },
+                        {
+                          id: 'cr-703',
+                          title: '춘천 관내 중소기업 청년 취업장려금 및 구직수당',
+                          displayMoney: '1,000,000원',
+                          orgName: '춘천시 기업지원과',
+                          category: '지원금·정책',
+                          deadline: '2026-11-30',
+                          description: '춘천 소재 중소기업 근로 청년에게 연 최대 100만 원 지원 장려금 지급',
+                          url: '#'
+                        },
+                        {
+                          id: 'cr-702',
+                          title: '강원·춘천 대학생 및 청년 전입장려금 지원',
+                          displayMoney: '300,000원',
+                          orgName: '춘천시 자치행정과',
+                          category: '지원금·정책',
+                          deadline: '상시모집',
+                          description: '관내 대학교 전입 학생에게 학기별 정착 축하금 30만 원 지급',
+                          url: '#'
                         }
-                        const fullText = `${item.title} ${item.details?.salaryText || ''} ${item.details?.prize || ''}`;
-                        const match = fullText.match(/([0-9,]+(?:만)?원)/);
-                        let displayMoney = '';
-                        let numValue = defaultMoneyList[idx % 3];
-
-                        if (match && match[1]) {
-                          displayMoney = match[1];
-                          const cleanNum = parseInt(match[1].replace(/[^0-9]/g, ''), 10);
-                          if (!isNaN(cleanNum)) {
-                            numValue = match[1].includes('만') ? cleanNum * 10000 : cleanNum;
-                          }
-                        } else {
-                          displayMoney = `${defaultMoneyList[idx % 3].toLocaleString()}원`;
-                        }
-
-                        totalSum += numValue;
-                        return { ...item, displayMoney };
-                      });
+                      ];
 
                       return (
                         <div className="receipt-wrapper">
@@ -1750,12 +1760,12 @@ export default function App() {
                               발급일자: {todayStr}
                             </div>
                             <div className="receipt-line"></div>
-                            {finalPolicies.map((item, idx) => (
+                            {fixedPolicyList.map((item, idx) => (
                               <div
                                 key={item.id || idx}
                                 className="receipt-item dynamic-receipt-item"
-                                onClick={() => item.id.startsWith('default-') ? alert('청년 혜택 대표 지원 사업입니다.') : handleCardClick(item)}
-                                title="클릭하여 공고 확인하기"
+                                onClick={() => handleCardClick(item)}
+                                title="클릭하여 공고 상세 확인하기"
                                 style={{ cursor: 'pointer' }}
                               >
                                 <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '12px', textAlign: 'left' }}>
@@ -1769,11 +1779,21 @@ export default function App() {
                             <div className="receipt-line"></div>
                             <div className="receipt-total">
                               <span>총 놓친 금액</span>
-                              <span>{totalSum > 0 ? `${totalSum.toLocaleString()}원` : '650,000원'}</span>
+                              <span>3,700,000원</span>
                             </div>
                             <div className="receipt-footer-text">
                               "이번 달은 모아봄에서 꼭 다 챙겨가세요!"
                             </div>
+                            <button
+                              className="receipt-cta-btn"
+                              onClick={() => {
+                                setMainMode('career_road');
+                                setCareerScreen('landing');
+                                scrollToTop();
+                              }}
+                            >
+                              🚀 내 맞춤 AI 커리어로드 시작하기 &gt;
+                            </button>
                           </div>
                         </div>
                       );
@@ -1793,7 +1813,6 @@ export default function App() {
                   )}
                 </div>
 
-                {/* 🌟 로그인 시 흰색 화면 크래시를 막은 안전 맞춤 추천 공고 렌더링 */}
                 {isLoggedIn && displayRecommendedPicks.length > 0 && (
                   <div className="recommendation-wrapper animate-fade-in">
                     <h3>✨ {userName}님을 위한 맞춤 추천 공고</h3>
