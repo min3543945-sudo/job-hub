@@ -69,7 +69,7 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 .sub-nav-item.active { background-color: var(--primary-color); border-color: var(--primary-color); color: #ffffff; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2); }
 
 /* -------------------------------------
-   메인 레이아웃 & 배너 (높이 1:1 고정)
+   메인 레이아웃 & 배너
 ------------------------------------- */
 .content-area { max-width: var(--max-width); margin: 0 auto; padding: 32px 20px; padding-bottom: 100px; width: 100%; }
 .hero-section { display: flex; gap: 24px; align-items: stretch; height: 360px; }
@@ -98,7 +98,7 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 .receipt-subtitle { text-align: center; font-size: 0.8rem; color: #64748b; margin-bottom: 8px; }
 .receipt-line { border-bottom: 1.5px dashed #cbd5e1; margin: 8px 0; }
 .receipt-item { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 6px; font-weight: 600; color: #475569; gap: 12px; }
-.receipt-item span:first-child { flex: 1; word-break: keep-all; text-align: left; }
+.receipt-item span:first-child { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
 .receipt-item span:last-child { white-space: nowrap; text-align: right; }
 .receipt-total { display: flex; justify-content: space-between; align-items: center; color: #ef4444; margin-top: 8px; gap: 12px; }
 .receipt-total span:first-child { font-size: 1rem; font-weight: 800; word-break: keep-all; }
@@ -270,7 +270,7 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 .cal-event-badge.urgent { background: #fef2f2; color: #ef4444; border-color: #fecaca; }
 
 /* -------------------------------------
-   🌟 인증 모달 (.modal-overlay, .modal-content 필수 복구!)
+   🌟 인증 모달 (.modal-overlay, .modal-content 필수 보존)
 ------------------------------------- */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
 .modal-content { background: white; padding: 40px; border-radius: 16px; width: 90%; max-width: 400px; position: relative; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }

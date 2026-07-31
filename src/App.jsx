@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useDeferredValue, useCallback } from 'react';
+import React, { useState, useEffect, useDeferredValue, useCallback, useMemo } from 'react';
 import './App.css';
 
 // =========================================================
@@ -181,7 +181,6 @@ const SUBCATEGORY_SYNONYMS = {
   '인턴': ['인턴', '체험형', '채용연계형']
 };
 
-// 🌟 [커리어로드] 대졸/재학 vs 고졸/특성화고 듀얼 직무 매핑
 const MAJOR_JOB_MAPPING = {
   'IT·소프트웨어': ['백엔드 개발', '프론트엔드', 'AI·데이터 분석', '인프라·DevOps', 'SW 풀스택'],
   '디자인·미디어': ['UI/UX 디자인', '브랜드·그래픽 디자인', '영상·모션 그래픽', '콘텐츠·로컬 크리에이터'],
@@ -237,8 +236,14 @@ const CAREER_OPPORTUNITIES = [
   { id: 'cr-706', step: 7, isTop: false, category: '🏡 전세 대출', title: '춘천 청년 전세보증금 대출 이자 지원 사업', orgName: '강원도 주택도시기금', deadline: '상시모집', matchRate: 85, statusText: '✔ 적합도 85%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🏠 전세 및 보증금 대출 연 3.0% 이자 시청 직권 무상 대납' }
 ];
 
-// 🌟 [핵심 개선] 실제 서버 공고(notices)를 AI 커리어 로드 1~7단계에 스마트 매칭하는 함수
-const getNoticesForCareerStep = (notices, stepNum) => {
+// 🌟 [핵심 수정] 사용자 전공/직무 프로필을 반영하고 엉뚱한 데이터를 막는 정밀 필터 매칭
+const getNoticesForCareerStep = (notices, stepNum, userProfile = null) => {
+  const majorKeyword = userProfile?.majorCategory
+    ? userProfile.majorCategory.split('·')[0].toLowerCase()
+    : '';
+  const jobKeyword = userProfile?.job ? userProfile.job.toLowerCase() : '';
+
+  // 1. 서버 공고 중 단계 및 카테고리에 정확히 일치하는 공고만 엄격 추출
   const matchingNotices = notices.filter(item => {
     const title = (item.title || '').toLowerCase();
     const desc = (item.description || '').toLowerCase();
@@ -249,55 +254,52 @@ const getNoticesForCareerStep = (notices, stepNum) => {
       return cat.includes('교육') || fullText.includes('설명회') || fullText.includes('특강') || fullText.includes('상담') || fullText.includes('진로') || fullText.includes('탐방') || fullText.includes('컨설팅');
     }
     if (stepNum === 2) {
-      return cat.includes('교육') || cat.includes('강좌') || fullText.includes('부트캠프') || fullText.includes('강좌') || fullText.includes('교육') || fullText.includes('아카데미') || fullText.includes('과정') || fullText.includes('스터디') || fullText.includes('코딩');
+      const isEdu = cat.includes('교육') || cat.includes('강좌') || fullText.includes('부트캠프') || fullText.includes('아카데미') || fullText.includes('스터디') || fullText.includes('코딩');
+      const matchesMajor = majorKeyword ? fullText.includes(majorKeyword) || fullText.includes('it') || fullText.includes('sw') : true;
+      return isEdu && matchesMajor;
     }
     if (stepNum === 3) {
-      return cat.includes('해커톤') || cat.includes('공모전') || fullText.includes('해커톤') || fullText.includes('공모전') || fullText.includes('대회') || fullText.includes('프로젝트') || fullText.includes('경진') || fullText.includes('아이디어');
+      return cat.includes('해커톤') || cat.includes('공모전') || fullText.includes('해커톤') || fullText.includes('공모전') || fullText.includes('대회') || fullText.includes('프로젝트') || fullText.includes('경진');
     }
     if (stepNum === 4) {
-      return cat.includes('인턴') || cat.includes('대외활동') || fullText.includes('인턴') || fullText.includes('실무') || fullText.includes('실습') || fullText.includes('외주') || fullText.includes('캡스톤') || fullText.includes('체험형') || fullText.includes('서포터즈');
+      return cat.includes('인턴') || cat.includes('대외활동') || fullText.includes('인턴') || fullText.includes('실무') || fullText.includes('실습') || fullText.includes('외주') || fullText.includes('캡스톤');
     }
     if (stepNum === 5) {
-      return fullText.includes('멘토링') || fullText.includes('기업') || fullText.includes('탐방') || fullText.includes('포트폴리오') || fullText.includes('과제') || fullText.includes('견학') || fullText.includes('네트워킹') || fullText.includes('클리닉');
+      const isJobOrMentor = cat.includes('채용') || cat.includes('인턴') || fullText.includes('멘토링') || fullText.includes('채용') || fullText.includes('신입') || fullText.includes('공채');
+      const matchesJob = jobKeyword ? fullText.includes(jobKeyword) || fullText.includes(majorKeyword) : true;
+      return isJobOrMentor && matchesJob;
     }
     if (stepNum === 6) {
-      return cat.includes('채용') || cat.includes('일자리') || fullText.includes('채용') || fullText.includes('신입') || fullText.includes('공채') || fullText.includes('정규직') || fullText.includes('모집') || fullText.includes('사원');
+      return cat.includes('채용') || cat.includes('일자리') || fullText.includes('채용') || fullText.includes('신입') || fullText.includes('공채') || fullText.includes('정규직') || fullText.includes('사원');
     }
     if (stepNum === 7) {
-      return cat.includes('지원금') || cat.includes('정책') || cat.includes('주거') || fullText.includes('월세') || fullText.includes('주거') || fullText.includes('교통') || fullText.includes('전입') || fullText.includes('장려금') || fullText.includes('지원금') || fullText.includes('공간') || fullText.includes('대출') || fullText.includes('희망적금');
+      // 🌟 [복지·정책] IT 채용이나 일반 해커톤이 섞이지 않도록 주거/정책/지원금만 엄격히 제한
+      const isPolicyCat = cat.includes('지원금') || cat.includes('정책') || cat.includes('복지') || cat.includes('주거');
+      const hasPolicyKeyword = fullText.includes('월세') || fullText.includes('주거') || fullText.includes('교통') || fullText.includes('전입') || fullText.includes('장려금') || fullText.includes('대출') || fullText.includes('공간');
+      const isNotJob = !cat.includes('채용') && !cat.includes('해커톤') && !cat.includes('공모전');
+      return (isPolicyCat || hasPolicyKeyword) && isNotJob;
     }
     return false;
   }).map(item => ({
     ...item,
     step: stepNum,
     isTop: false,
-    matchRate: Math.floor(Math.random() * 10) + 90,
+    matchRate: Math.floor(Math.random() * 8) + 92,
     statusText: '✔ 실시간 공고 매칭',
     statusBg: '#eff6ff',
     statusColor: '#2563eb',
     desc: item.desc || (item.description ? item.description.slice(0, 50) + '...' : '춘천 관내 실시간 공고')
   }));
 
-  let livePicks = [...matchingNotices];
-  if (livePicks.length < 6 && notices.length > 0) {
-    const extraNotices = notices.filter(n => !livePicks.some(p => String(p.id) === String(n.id))).slice(0, 6 - livePicks.length).map(item => ({
-      ...item,
-      step: stepNum,
-      isTop: false,
-      matchRate: 88,
-      statusText: '✔ 실시간 공고 매칭',
-      statusBg: '#eff6ff',
-      statusColor: '#2563eb',
-      desc: item.desc || (item.description ? item.description.slice(0, 50) + '...' : '춘천 관내 실시간 공고')
-    }));
-    livePicks = [...livePicks, ...extraNotices];
-  }
+  // 2. 고품질 맞춤 커리어로드 데이터 우선 확보 (이상한 데이터 유입 차단)
+  let curatedList = CAREER_OPPORTUNITIES.filter(o => {
+    if (stepNum === 2) return o.step === 2 || o.step === 3;
+    if (stepNum === 5) return o.step === 4 || o.step === 5 || o.step === 6;
+    if (stepNum === 7) return o.step === 7;
+    return o.step === stepNum;
+  });
 
-  const combined = [
-    ...livePicks,
-    ...CAREER_OPPORTUNITIES.filter(o => o.step === stepNum)
-  ];
-
+  const combined = [...matchingNotices, ...curatedList];
   const uniqueList = Array.from(new Map(combined.map(item => [String(item.id), item])).values());
   return uniqueList;
 };
@@ -439,7 +441,18 @@ export default function App() {
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  // 🌟 [오류 해결] 흰색 화면 없는 안전 로그인/회원가입 처리
+  // 🌟 [핵심 수정] ReferenceError 해결: 로그인/비회원 클릭 시 크래시 없는 맞춤 추천 배열 정의
+  const displayRecommendedPicks = useMemo(() => {
+    if (serverRecommendedPicks && serverRecommendedPicks.length > 0) {
+      return serverRecommendedPicks;
+    }
+    if (!notices || notices.length === 0) return [];
+    return [...notices]
+      .sort((a, b) => (viewCounts[b.id] || 0) - (viewCounts[a.id] || 0))
+      .slice(0, 6);
+  }, [serverRecommendedPicks, notices, viewCounts]);
+
+  // 안전 로그인/회원가입 처리
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
     const email = e.target[0].value;
@@ -1183,7 +1196,7 @@ export default function App() {
             </div>
           )}
 
-          {/* 🌟 STEP 2 화면: 역량 빌드업 (실제 공고 연동 & 메모 기능 적용) */}
+          {/* 🌟 STEP 2 화면: 역량 빌드업 */}
           {careerScreen === 'step2_now' && (
             <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 20px', width: '100%' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -1203,7 +1216,7 @@ export default function App() {
               </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '18px', marginBottom: '40px' }}>
-                {getNoticesForCareerStep(notices, 2).slice(0, 6).map(item => {
+                {getNoticesForCareerStep(notices, 2, userProfile).slice(0, 6).map(item => {
                   const isBookmarked = bookmarks.includes(String(item.id));
                   const hasMemo = Boolean(memos[String(item.id)]?.trim());
                   return (
@@ -1295,7 +1308,7 @@ export default function App() {
             </div>
           )}
 
-          {/* 🌟 STEP 3 화면: 기업 연결 & 취업 (실제 공고 연동 & 메모 기능 적용) */}
+          {/* 🌟 STEP 3 화면: 기업 연결 & 취업 */}
           {careerScreen === 'step3_job' && (
             <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 20px', width: '100%' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -1315,7 +1328,7 @@ export default function App() {
               </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '18px', marginBottom: '40px' }}>
-                {getNoticesForCareerStep(notices, 5).slice(0, 6).map(item => {
+                {getNoticesForCareerStep(notices, 5, userProfile).slice(0, 6).map(item => {
                   const isBookmarked = bookmarks.includes(String(item.id));
                   const hasMemo = Boolean(memos[String(item.id)]?.trim());
                   return (
@@ -1407,7 +1420,7 @@ export default function App() {
             </div>
           )}
 
-          {/* 🌟 STEP 4 화면: 최종 정착 & 인프라 (실제 공고 연동 & 메모 기능 적용) */}
+          {/* 🌟 STEP 4 화면: 최종 정착 & 인프라 */}
           {careerScreen === 'step4_settle' && (
             <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 20px', width: '100%' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -1427,7 +1440,7 @@ export default function App() {
               </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '18px', marginBottom: '56px' }}>
-                {getNoticesForCareerStep(notices, 7).slice(0, 6).map(item => {
+                {getNoticesForCareerStep(notices, 7, userProfile).slice(0, 6).map(item => {
                   const hasMemo = Boolean(memos[String(item.id)]?.trim());
                   return (
                     <div
@@ -1532,7 +1545,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div style={{ background: '#fff', padding: '32px', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 10px 25px rgba(0,0,0,0.03)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div style={{ background: '#fff', padding: '32px', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 10px 25px rgba(0,0,0,0.03)', display: 'flex', flexDirection: 'column', justifycontent: 'space-between' }}>
                     <div>
                       <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '24px' }}>📊 월 순수입 비교</h3>
 
@@ -1780,6 +1793,7 @@ export default function App() {
                   )}
                 </div>
 
+                {/* 🌟 로그인 시 흰색 화면 크래시를 막은 안전 맞춤 추천 공고 렌더링 */}
                 {isLoggedIn && displayRecommendedPicks.length > 0 && (
                   <div className="recommendation-wrapper animate-fade-in">
                     <h3>✨ {userName}님을 위한 맞춤 추천 공고</h3>
