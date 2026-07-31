@@ -2437,11 +2437,23 @@ export default function App() {
 
                 setChatMessages(prev => [...prev, { type: 'bot', text: botReply }]);
               } catch (err) {
-                console.error('챗봇 통신 에러:', err);
-                setChatMessages(prev => [...prev, { type: 'bot', text: '🤖 죄송합니다. 일시적인 통신 오류가 발생했습니다. 잠시 후 다시 시도해 주세요!' }]);
-              } finally {
-                setIsChatLoading(false);
-              }
+              console.error('챗봇 통신 에러 (안전 방어 모드로 자동 응답):', err);
+
+        // 🌟 API 통신 실패 시 "오류 메시지"를 절대 띄우지 않고, 입력한 키워드로 즉시 스마트 답변 생성!
+              const keyword = userMsg.trim();
+              const matchedPosts = notices.filter(n => {
+              const fullText = `${n.title} ${n.category} ${n.orgName} ${n.description || ''}`.toLowerCase();
+              return fullText.includes(keyword.toLowerCase());
+               }).slice(0, 3);
+
+               const fallbackReply = matchedPosts.length > 0
+              ? `🤖 "${keyword}" 관련 추천 공고입니다!\n\n${matchedPosts.map(p => `🔗 [${p.title}](open_post)\n- 주관: ${p.orgName} | 마감: ${formatDateString(p.deadline)}`).join('\n\n')}`
+              : `🤖 현재 "${keyword}" 키워드와 직접 일치하는 공고가 없습니다. 다른 검색어나 카테고리 탭을 이용해 보세요!`;
+
+        setChatMessages(prev => [...prev, { type: 'bot', text: fallbackReply }]);
+      } finally {
+        setIsChatLoading(false);
+      }
             }}
           >
             <input
