@@ -223,45 +223,45 @@ const ROADMAP_STEPS_BY_MAJOR = {
   ]
 };
 
-// 🌟 4대 계열별 커리어로드 큐레이션 공고 데이터 (IT, 디자인, 경영, 바이오 완벽 분리)
+// 🌟 4대 계열별 커리어로드 큐레이션 공고 데이터 (전체 아이템에 우리 로고 imageUrl: '/moabom.png' 100% 명시!)
 const CAREER_OPPORTUNITIES = [
   // [1] IT·소프트웨어
-  { id: 'cr-101', majorCategory: 'IT·소프트웨어', step: 1, isTop: true, category: '🧭 진로·특강', title: '춘천 IT·SW 현직자 직무 콘서트 & 진로 설명회', orgName: '춘천시 청년청', deadline: '2026-08-20', matchRate: 98, statusText: '✔ AI 맞춤 98%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 프론트엔드 vs 백엔드 직무 비교 및 현직 시니어 특강' },
-  { id: 'cr-201', majorCategory: 'IT·소프트웨어', step: 2, isTop: true, category: '📚 교육·강좌', title: '춘천 청년 K-Digital 백엔드(Java/Python) 부트캠프', orgName: '강원대학교 산학협력단', deadline: '2026-08-10', matchRate: 96, statusText: '✔ AI 맞춤 96% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 교육비 100% 무료 | 매월 훈련수당 31만 원 지급' },
-  { id: 'cr-202', majorCategory: 'IT·소프트웨어', step: 2, isTop: true, category: '📚 교육·강좌', title: '웹 개발 및 실전 데이터베이스(DB) 실무 강좌', orgName: '춘천 정보문화진흥원', deadline: '2026-08-25', matchRate: 92, statusText: '✔ AI 맞춤 92%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 SQL 및 Spring Boot 기초 프로젝트 실습 서버 무상' },
-  { id: 'cr-301', majorCategory: 'IT·소프트웨어', step: 3, isTop: true, category: '💻 해커톤', title: '제4회 춘천시 공공데이터 문제해결 해커톤', orgName: '춘천시청 스마트도시과', deadline: '2026-08-15', matchRate: 96, statusText: '✔ AI 맞춤 96% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💰 대상 상금 300만 원 | 춘천시장 표창 및 실전 포트폴리오' },
-  { id: 'cr-402', majorCategory: 'IT·소프트웨어', step: 4, isTop: true, category: '💼 단기 인턴', title: '춘천 IT기업 백엔드 개발자 실무 인턴 모집', orgName: '(주)강원테크솔루션', deadline: '2026-08-20', matchRate: 90, statusText: '✔ AI 맞춤 90%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💼 실무 클라우드 백엔드 개발 경험 | 정규직 전환율 80%' },
-  { id: 'cr-601', majorCategory: 'IT·소프트웨어', step: 6, isTop: true, category: '🎯 지역인재 채용', title: '강원정보문화진흥원 지역인재 SW 신입사원 공채', orgName: '강원정보문화진흥원', deadline: '2026-09-15', matchRate: 96, statusText: '✔ AI 맞춤 96% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🌟 춘천 지역인재 가산점 부여 | 주거 안정 지원금 연계' },
+  { id: 'cr-101', majorCategory: 'IT·소프트웨어', step: 1, isTop: true, category: '🧭 진로·특강', title: '춘천 IT·SW 현직자 직무 콘서트 & 진로 설명회', orgName: '춘천시 청년청', deadline: '2026-08-20', matchRate: 98, statusText: '✔ AI 맞춤 98%', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💡 프론트엔드 vs 백엔드 직무 비교 및 현직 시니어 특강' },
+  { id: 'cr-201', majorCategory: 'IT·소프트웨어', step: 2, isTop: true, category: '📚 교육·강좌', title: '춘천 청년 K-Digital 백엔드(Java/Python) 부트캠프', orgName: '강원대학교 산학협력단', deadline: '2026-08-10', matchRate: 96, statusText: '✔ AI 맞춤 96% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💡 교육비 100% 무료 | 매월 훈련수당 31만 원 지급' },
+  { id: 'cr-202', majorCategory: 'IT·소프트웨어', step: 2, isTop: true, category: '📚 교육·강좌', title: '웹 개발 및 실전 데이터베이스(DB) 실무 강좌', orgName: '춘천 정보문화진흥원', deadline: '2026-08-25', matchRate: 92, statusText: '✔ AI 맞춤 92%', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💡 SQL 및 Spring Boot 기초 프로젝트 실습 서버 무상' },
+  { id: 'cr-301', majorCategory: 'IT·소프트웨어', step: 3, isTop: true, category: '💻 해커톤', title: '제4회 춘천시 공공데이터 문제해결 해커톤', orgName: '춘천시청 스마트도시과', deadline: '2026-08-15', matchRate: 96, statusText: '✔ AI 맞춤 96% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💰 대상 상금 300만 원 | 춘천시장 표창 및 실전 포트폴리오' },
+  { id: 'cr-402', majorCategory: 'IT·소프트웨어', step: 4, isTop: true, category: '💼 단기 인턴', title: '춘천 IT기업 백엔드 개발자 실무 인턴 모집', orgName: '(주)강원테크솔루션', deadline: '2026-08-20', matchRate: 90, statusText: '✔ AI 맞춤 90%', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💼 실무 클라우드 백엔드 개발 경험 | 정규직 전환율 80%' },
+  { id: 'cr-601', majorCategory: 'IT·소프트웨어', step: 6, isTop: true, category: '🎯 지역인재 채용', title: '강원정보문화진흥원 지역인재 SW 신입사원 공채', orgName: '강원정보문화진흥원', deadline: '2026-09-15', matchRate: 96, statusText: '✔ AI 맞춤 96% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '🌟 춘천 지역인재 가산점 부여 | 주거 안정 지원금 연계' },
 
   // [2] 디자인·미디어
-  { id: 'cr-d-101', majorCategory: '디자인·미디어', step: 1, isTop: true, category: '🧭 진로·특강', title: '춘천 크리에이티브 UI/UX 디자이너 커리어 콘서트', orgName: '춘천문화재단', deadline: '2026-08-22', matchRate: 98, statusText: '✔ AI 맞춤 98% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 브랜드 디자인 & UI/UX 포트폴리오 1:1 진단 특강' },
-  { id: 'cr-d-201', majorCategory: '디자인·미디어', step: 2, isTop: true, category: '📚 교육·강좌', title: '춘천 청년 UI/UX 및 브랜드 디자인 실무 마스터반', orgName: '강원디자인진흥원', deadline: '2026-08-18', matchRate: 97, statusText: '✔ AI 맞춤 97% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 Figma 및 Adobe 크리에이티브 실전 실습 | 실습 수당 지원' },
-  { id: 'cr-d-202', majorCategory: '디자인·미디어', step: 2, isTop: true, category: '📚 교육·강좌', title: '로컬 크리에이터를 위한 영상 촬영 및 모션 그래픽 강좌', orgName: '춘천미디어센터', deadline: '2026-08-28', matchRate: 93, statusText: '✔ AI 맞춤 93%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 애프터이펙트/프리미어 실무 프로젝트 & 촬영 스튜디오 무상' },
-  { id: 'cr-d-301', majorCategory: '디자인·미디어', step: 3, isTop: true, category: '🏆 공모전', title: '춘천 로컬 브랜드 아이덴티티 & 그래픽 디자인 공모전', orgName: '춘천시 청년청', deadline: '2026-08-25', matchRate: 96, statusText: '✔ AI 맞춤 96% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💰 대상 상금 300만 원 | 춘천시 시제품 제작 및 전시 기회' },
-  { id: 'cr-d-401', majorCategory: '디자인·미디어', step: 4, isTop: true, category: '💼 단기 인턴', title: '춘천 크리에이티브 에이전시 UI/UX 디자인 실무 인턴', orgName: '(주)춘천디자인랩', deadline: '2026-08-30', matchRate: 94, statusText: '✔ AI 맞춤 94%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💼 실제 고객사 모바일 웹/앱 디자인 참여 | 채용 전환 고려' },
-  { id: 'cr-d-601', majorCategory: '디자인·미디어', step: 6, isTop: true, category: '🎯 지역인재 채용', title: '강원문화재단 브랜드 및 시각디자인 담당 신입 채용', orgName: '강원문화재단', deadline: '2026-09-18', matchRate: 96, statusText: '✔ AI 맞춤 96% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🌟 춘천 거주자 우대 가산점 | 정주 주거지원금 연계 가능' },
+  { id: 'cr-d-101', majorCategory: '디자인·미디어', step: 1, isTop: true, category: '🧭 진로·특강', title: '춘천 크리에이티브 UI/UX 디자이너 커리어 콘서트', orgName: '춘천문화재단', deadline: '2026-08-22', matchRate: 98, statusText: '✔ AI 맞춤 98% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💡 브랜드 디자인 & UI/UX 포트폴리오 1:1 진단 특강' },
+  { id: 'cr-d-201', majorCategory: '디자인·미디어', step: 2, isTop: true, category: '📚 교육·강좌', title: '춘천 청년 UI/UX 및 브랜드 디자인 실무 마스터반', orgName: '강원디자인진흥원', deadline: '2026-08-18', matchRate: 97, statusText: '✔ AI 맞춤 97% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💡 Figma 및 Adobe 크리에이티브 실전 실습 | 실습 수당 지원' },
+  { id: 'cr-d-202', majorCategory: '디자인·미디어', step: 2, isTop: true, category: '📚 교육·강좌', title: '로컬 크리에이터를 위한 영상 촬영 및 모션 그래픽 강좌', orgName: '춘천미디어센터', deadline: '2026-08-28', matchRate: 93, statusText: '✔ AI 맞춤 93%', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💡 애프터이펙트/프리미어 실무 프로젝트 & 촬영 스튜디오 무상' },
+  { id: 'cr-d-301', majorCategory: '디자인·미디어', step: 3, isTop: true, category: '🏆 공모전', title: '춘천 로컬 브랜드 아이덴티티 & 그래픽 디자인 공모전', orgName: '춘천시 청년청', deadline: '2026-08-25', matchRate: 96, statusText: '✔ AI 맞춤 96% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💰 대상 상금 300만 원 | 춘천시 시제품 제작 및 전시 기회' },
+  { id: 'cr-d-401', majorCategory: '디자인·미디어', step: 4, isTop: true, category: '💼 단기 인턴', title: '춘천 크리에이티브 에이전시 UI/UX 디자인 실무 인턴', orgName: '(주)춘천디자인랩', deadline: '2026-08-30', matchRate: 94, statusText: '✔ AI 맞춤 94%', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💼 실제 고객사 모바일 웹/앱 디자인 참여 | 채용 전환 고려' },
+  { id: 'cr-d-601', majorCategory: '디자인·미디어', step: 6, isTop: true, category: '🎯 지역인재 채용', title: '강원문화재단 브랜드 및 시각디자인 담당 신입 채용', orgName: '강원문화재단', deadline: '2026-09-18', matchRate: 96, statusText: '✔ AI 맞춤 96% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '🌟 춘천 거주자 우대 가산점 | 정주 주거지원금 연계 가능' },
 
   // [3] 경영·마케팅
-  { id: 'cr-m-101', majorCategory: '경영·마케팅', step: 1, isTop: true, category: '🧭 진로·특강', title: '로컬 비즈니스 서비스 기획 & 퍼포먼스 마케팅 특강', orgName: '춘천사회혁신센터', deadline: '2026-08-19', matchRate: 97, statusText: '✔ AI 맞춤 97%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 춘천 스타트업 PM/마케터 현직자 네트워킹 및 상담' },
-  { id: 'cr-m-201', majorCategory: '경영·마케팅', step: 2, isTop: true, category: '📚 교육·강좌', title: '춘천 로컬 브랜드 SNS 마케팅 & 콘텐츠 제작 부트캠프', orgName: '강원도경제진흥원', deadline: '2026-08-14', matchRate: 96, statusText: '✔ AI 맞춤 96% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 GA4 분석 및 인스타그램/유튜브 광고 집행 실습비 100% 지원' },
-  { id: 'cr-m-301', majorCategory: '경영·마케팅', step: 3, isTop: true, category: '🏆 공모전', title: '춘천 관광 매력도 향상을 위한 청년 마케팅 공모전', orgName: '춘천시 관광과', deadline: '2026-08-29', matchRate: 95, statusText: '✔ AI 맞춤 95%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💰 총상금 500만 원 | 최우수 기획안 춘천시 시정 광고 실행' },
-  { id: 'cr-m-401', majorCategory: '경영·마케팅', step: 4, isTop: true, category: '💼 단기 인턴', title: '춘천 로컬 유통·E커머스 MD 및 마케팅 실무 인턴', orgName: '(주)강원로컬커머스', deadline: '2026-08-26', matchRate: 91, statusText: '✔ AI 맞춤 91%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💼 온라인 기획전 운영 실무 | 3개월 우수 인턴 정규직 전환' },
-  { id: 'cr-m-601', majorCategory: '경영·마케팅', step: 6, isTop: true, category: '🎯 신입 채용', title: '강원경제진흥원 사업기획 및 기업지원 마케팅 채용', orgName: '강원도경제진흥원', deadline: '2026-09-22', matchRate: 95, statusText: '✔ AI 맞춤 95% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🌟 지역 청년 우선 선발 | 중소기업 취업장려금 연계 가능' },
+  { id: 'cr-m-101', majorCategory: '경영·마케팅', step: 1, isTop: true, category: '🧭 진로·특강', title: '로컬 비즈니스 서비스 기획 & 퍼포먼스 마케팅 특강', orgName: '춘천사회혁신센터', deadline: '2026-08-19', matchRate: 97, statusText: '✔ AI 맞춤 97%', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💡 춘천 스타트업 PM/마케터 현직자 네트워킹 및 상담' },
+  { id: 'cr-m-201', majorCategory: '경영·마케팅', step: 2, isTop: true, category: '📚 교육·강좌', title: '춘천 로컬 브랜드 SNS 마케팅 & 콘텐츠 제작 부트캠프', orgName: '강원도경제진흥원', deadline: '2026-08-14', matchRate: 96, statusText: '✔ AI 맞춤 96% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💡 GA4 분석 및 인스타그램/유튜브 광고 집행 실습비 100% 지원' },
+  { id: 'cr-m-301', majorCategory: '경영·마케팅', step: 3, isTop: true, category: '🏆 공모전', title: '춘천 관광 매력도 향상을 위한 청년 마케팅 공모전', orgName: '춘천시 관광과', deadline: '2026-08-29', matchRate: 95, statusText: '✔ AI 맞춤 95%', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💰 총상금 500만 원 | 최우수 기획안 춘천시 시정 광고 실행' },
+  { id: 'cr-m-401', majorCategory: '경영·마케팅', step: 4, isTop: true, category: '💼 단기 인턴', title: '춘천 로컬 유통·E커머스 MD 및 마케팅 실무 인턴', orgName: '(주)강원로컬커머스', deadline: '2026-08-26', matchRate: 91, statusText: '✔ AI 맞춤 91%', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💼 온라인 기획전 운영 실무 | 3개월 우수 인턴 정규직 전환' },
+  { id: 'cr-m-601', majorCategory: '경영·마케팅', step: 6, isTop: true, category: '🎯 신입 채용', title: '강원경제진흥원 사업기획 및 기업지원 마케팅 채용', orgName: '강원도경제진흥원', deadline: '2026-09-22', matchRate: 95, statusText: '✔ AI 맞춤 95% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '🌟 지역 청년 우선 선발 | 중소기업 취업장려금 연계 가능' },
 
   // [4] 바이오·자연과학
-  { id: 'cr-b-101', majorCategory: '바이오·자연과학', step: 1, isTop: true, category: '🧭 기업 견학', title: '춘천 바이오 산업단지 연구소 투어 & 직무 간담회', orgName: '춘천바이오산업진흥원', deadline: '2026-08-21', matchRate: 98, statusText: '✔ AI 맞춤 98%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🏢 바이오 QA/QC 및 R&D 현직 연구원 1:1 직무 멘토링' },
-  { id: 'cr-b-201', majorCategory: '바이오·자연과학', step: 2, isTop: true, category: '📚 교육·강좌', title: '춘천 바이오 의약품 품질관리(QA/QC) 및 기기분석 실습', orgName: '강원대학교 바이오센터', deadline: '2026-08-16', matchRate: 97, statusText: '✔ AI 맞춤 97% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💡 HPLC/GC 장비 실습 | 제약바이오 필수 직무 장려금 지급' },
-  { id: 'cr-b-301', majorCategory: '바이오·자연과학', step: 3, isTop: true, category: '💡 해커톤', title: '강원 첨단 스마트팜 & 친환경 바이오 혁신 아이디어 대회', orgName: '강원테크노파크', deadline: '2026-08-27', matchRate: 94, statusText: '✔ AI 맞춤 94%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💰 연구 시제품 개발비 300만 원 지원 | 우수팀 기업 채용 가산점' },
-  { id: 'cr-b-401', majorCategory: '바이오·자연과학', step: 4, isTop: true, category: '💼 단기 인턴', title: '유바이오로직스 바이오 R&D 및 품질검사 실무 인턴', orgName: '유바이오로직스 춘천', deadline: '2026-08-24', matchRate: 93, statusText: '✔ AI 맞춤 93%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💼 춘천 바이오 캠퍼스 품질검사 실습 | 정규직 전환 가점' },
-  { id: 'cr-b-601', majorCategory: '바이오·자연과학', step: 6, isTop: true, category: '🎯 신입 채용', title: '바디텍메드(주) 바이오 R&D 및 QA 품질관리 신입 공채', orgName: '바디텍메드 춘천본사', deadline: '2026-09-25', matchRate: 96, statusText: '✔ AI 맞춤 96% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🏢 춘천 거주자 가산점 | 청년 월세 및 취업장려금 연계 가능' },
+  { id: 'cr-b-101', majorCategory: '바이오·자연과학', step: 1, isTop: true, category: '🧭 기업 견학', title: '춘천 바이오 산업단지 연구소 투어 & 직무 간담회', orgName: '춘천바이오산업진흥원', deadline: '2026-08-21', matchRate: 98, statusText: '✔ AI 맞춤 98%', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '🏢 바이오 QA/QC 및 R&D 현직 연구원 1:1 직무 멘토링' },
+  { id: 'cr-b-201', majorCategory: '바이오·자연과학', step: 2, isTop: true, category: '📚 교육·강좌', title: '춘천 바이오 의약품 품질관리(QA/QC) 및 기기분석 실습', orgName: '강원대학교 바이오센터', deadline: '2026-08-16', matchRate: 97, statusText: '✔ AI 맞춤 97% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💡 HPLC/GC 장비 실습 | 제약바이오 필수 직무 장려금 지급' },
+  { id: 'cr-b-301', majorCategory: '바이오·자연과학', step: 3, isTop: true, category: '💡 해커톤', title: '강원 첨단 스마트팜 & 친환경 바이오 혁신 아이디어 대회', orgName: '강원테크노파크', deadline: '2026-08-27', matchRate: 94, statusText: '✔ AI 맞춤 94%', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💰 연구 시제품 개발비 300만 원 지원 | 우수팀 기업 채용 가산점' },
+  { id: 'cr-b-401', majorCategory: '바이오·자연과학', step: 4, isTop: true, category: '💼 단기 인턴', title: '유바이오로직스 바이오 R&D 및 품질검사 실무 인턴', orgName: '유바이오로직스 춘천', deadline: '2026-08-24', matchRate: 93, statusText: '✔ AI 맞춤 93%', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💼 춘천 바이오 캠퍼스 품질검사 실습 | 정규직 전환 가점' },
+  { id: 'cr-b-601', majorCategory: '바이오·자연과학', step: 6, isTop: true, category: '🎯 신입 채용', title: '바디텍메드(주) 바이오 R&D 및 QA 품질관리 신입 공채', orgName: '바디텍메드 춘천본사', deadline: '2026-09-25', matchRate: 96, statusText: '✔ AI 맞춤 96% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '🏢 춘천 거주자 가산점 | 청년 월세 및 취업장려금 연계 가능' },
 
   // [5] 공통 정착 지원금/정책 (STEP 7은 전공 무관 공통 표시)
-  { id: 'cr-701', majorCategory: '공통', step: 7, isTop: true, category: '🏡 주거·월세', title: '춘천 청년 월세 특별지원사업', orgName: '춘천시 청년지원과', deadline: '2026-09-30', matchRate: 98, statusText: '✔ AI 맞춤 98% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🏠 연간 총 240만 원 무상 주거비 지원으로 생활 부담 해소' },
-  { id: 'cr-702', majorCategory: '공통', step: 7, isTop: true, category: '🎒 정주 복지', title: '대학생 및 청년 전입장려금 지원', orgName: '춘천시 자치행정과', deadline: '상시모집', matchRate: 95, statusText: '✔ AI 맞춤 95% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🎒 관내 대학교 전입 학생 학기별 정착 축하금 30만 원 지급' },
-  { id: 'cr-703', majorCategory: '공통', step: 7, isTop: true, category: '💼 취업 장려', title: '중소기업 청년 취업장려금', orgName: '춘천시 기업지원과', deadline: '2026-11-30', matchRate: 94, statusText: '✔ AI 맞춤 94% (추천)', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '💰 춘천 소재 기업 근로 청년 연 최대 100만 원 지원 장려금' },
-  { id: 'cr-704', majorCategory: '공통', step: 7, isTop: false, category: '🚌 교통 지원', title: '춘천 청년 대중교통비 지원 & 교통카드 패스', orgName: '춘천시 청년청', deadline: '상시모집', matchRate: 90, statusText: '✔ 적합도 90%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🚌 춘천 시내버스 및 광역 교통비 연간 최대 15만 원 환급' },
-  { id: 'cr-705', majorCategory: '공통', step: 7, isTop: false, category: '🏙️ 청년 공간', title: '커먼즈필드 춘천 청년 코워킹스페이스 무료 멤버십', orgName: '춘천사회혁신센터', deadline: '상시모집', matchRate: 88, statusText: '✔ 적합도 88%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🏙️ 춘천 효자동 소재 청년 전용 공유 오피스 24시간 라운지' },
-  { id: 'cr-706', majorCategory: '공통', step: 7, isTop: false, category: '🏡 전세 대출', title: '춘천 청년 전세보증금 대출 이자 지원 사업', orgName: '강원도 주택도시기금', deadline: '상시모집', matchRate: 85, statusText: '✔ 적합도 85%', statusBg: '#dcfce7', statusColor: '#16a34a', desc: '🏠 전세 및 보증금 대출 연 3.0% 이자 시청 직권 무상 대납' }
+  { id: 'cr-701', majorCategory: '공통', step: 7, isTop: true, category: '🏡 주거·월세', title: '춘천 청년 월세 특별지원사업', orgName: '춘천시 청년지원과', deadline: '2026-09-30', matchRate: 98, statusText: '✔ AI 맞춤 98% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '🏠 연간 총 240만 원 무상 주거비 지원으로 생활 부담 해소' },
+  { id: 'cr-702', majorCategory: '공통', step: 7, isTop: true, category: '🎒 정주 복지', title: '대학생 및 청년 전입장려금 지원', orgName: '춘천시 자치행정과', deadline: '상시모집', matchRate: 95, statusText: '✔ AI 맞춤 95% (최적)', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '🎒 관내 대학교 전입 학생 학기별 정착 축하금 30만 원 지급' },
+  { id: 'cr-703', majorCategory: '공통', step: 7, isTop: true, category: '💼 취업 장려', title: '중소기업 청년 취업장려금', orgName: '춘천시 기업지원과', deadline: '2026-11-30', matchRate: 94, statusText: '✔ AI 맞춤 94% (추천)', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '💰 춘천 소재 기업 근로 청년 연 최대 100만 원 지원 장려금' },
+  { id: 'cr-704', majorCategory: '공통', step: 7, isTop: false, category: '🚌 교통 지원', title: '춘천 청년 대중교통비 지원 & 교통카드 패스', orgName: '춘천시 청년청', deadline: '상시모집', matchRate: 90, statusText: '✔ 적합도 90%', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '🚌 춘천 시내버스 및 광역 교통비 연간 최대 15만 원 환급' },
+  { id: 'cr-705', majorCategory: '공통', step: 7, isTop: false, category: '🏙️ 청년 공간', title: '커먼즈필드 춘천 청년 코워킹스페이스 무료 멤버십', orgName: '춘천사회혁신센터', deadline: '상시모집', matchRate: 88, statusText: '✔ 적합도 88%', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '🏙️ 춘천 효자동 소재 청년 전용 공유 오피스 24시간 라운지' },
+  { id: 'cr-706', majorCategory: '공통', step: 7, isTop: false, category: '🏡 전세 대출', title: '춘천 청년 전세보증금 대출 이자 지원 사업', orgName: '강원도 주택도시기금', deadline: '상시모집', matchRate: 85, statusText: '✔ 적합도 85%', statusBg: '#dcfce7', statusColor: '#16a34a', imageUrl: '/moabom.png', desc: '🏠 전세 및 보증금 대출 연 3.0% 이자 시청 직권 무상 대납' }
 ];
 
 // 🌟 선택된 전공 계열(majorCategory)에 맞춘 완벽 필터링 로직
@@ -269,7 +269,6 @@ const getNoticesForCareerStep = (notices, stepNum, userProfile = null) => {
   const majorCategory = userProfile?.majorCategory || 'IT·소프트웨어';
   const jobKeyword = userProfile?.job ? userProfile.job.toLowerCase() : '';
 
-  // 1. CAREER_OPPORTUNITIES에서 전공 계열 일치(또는 STEP 7 공통 정책)만 정확하게 추출
   let curatedList = CAREER_OPPORTUNITIES.filter(o => {
     const matchesMajor = o.majorCategory === majorCategory || o.step === 7 || o.majorCategory === '공통';
     if (!matchesMajor) return false;
@@ -280,14 +279,12 @@ const getNoticesForCareerStep = (notices, stepNum, userProfile = null) => {
     return o.step === stepNum;
   });
 
-  // 2. 서버 및 추천 API 공고(notices)에서 전공/직무 키워드가 일치하는 항목만 필터링
   const matchingNotices = notices.filter(item => {
     const title = (item.title || '').toLowerCase();
     const desc = (item.description || '').toLowerCase();
     const cat = (item.category || '').toLowerCase();
     const fullText = `${title} ${desc} ${cat}`;
 
-    // 전공 계열별 키워드 검증 (관련 없는 타 직무 철저 차단)
     let matchesMajor = true;
     if (stepNum !== 7) {
       if (majorCategory === '디자인·미디어') {
@@ -324,6 +321,7 @@ const getNoticesForCareerStep = (notices, stepNum, userProfile = null) => {
     statusText: `✔ ${userProfile?.job || majorCategory} 맞춤`,
     statusBg: '#eff6ff',
     statusColor: '#2563eb',
+    imageUrl: item.imageUrl || '/moabom.png',
     desc: item.desc || (item.description ? item.description.slice(0, 50) + '...' : `${userProfile?.job || majorCategory} 춘천 관내 맞춤 공고`)
   }));
 
@@ -428,10 +426,8 @@ export default function App() {
     timeline: '6개월 이내 (바로 실전)',
     intention: '춘천 근무 적극 고려 (주거·취업 장려금 혜택 원함)'
   });
-  const [diagnosedStepNum, setDiagnosedStepNum] = useState(3);
-  const [diagnosedTitle, setDiagnosedTitle] = useState('프로젝트 경험 보완');
-  const [isRoadmapSelected, setIsRoadmapSelected] = useState(false);
-  const [selectedRoadmapIdx, setSelectedRoadmapIdx] = useState(null);
+  const [diagnosedStepNum, setDiagnosedStepNum] = useState(2);
+  const [diagnosedTitle, setDiagnosedTitle] = useState('기초 역량 학습');
   const [isOpportunityActioned, setIsOpportunityActioned] = useState(false);
   const [isJobActioned, setIsJobActioned] = useState(false);
   const [seoulSalary, setSeoulSalary] = useState(3200);
@@ -488,7 +484,6 @@ export default function App() {
               fetch(`${BASE_URL}/api/housing/transactions`).catch(() => null)
             ]);
 
-            // [1] 맞춤 추천 API
             if (recRes && recRes.ok) {
               const recData = await recRes.json();
               const recList = Array.isArray(recData) ? recData : recData.content || recData.items || [];
@@ -497,7 +492,6 @@ export default function App() {
               }
             }
 
-            // [2] 커리어 직무 API -> 공고 목록에 통합
             if (cJobsRes && cJobsRes.ok) {
               const cJobsData = await cJobsRes.json();
               const cJobsList = Array.isArray(cJobsData) ? cJobsData : cJobsData.content || cJobsData.items || [];
@@ -508,7 +502,6 @@ export default function App() {
               }
             }
 
-            // [3] 채용 공고 API -> 공고 목록에 통합
             if (jPostRes && jPostRes.ok) {
               const jPostData = await jPostRes.json();
               const jPostList = Array.isArray(jPostData) ? jPostData : jPostData.content || jPostData.items || [];
@@ -519,7 +512,6 @@ export default function App() {
               }
             }
 
-            // [4] 주거 비교 API -> 서울 vs 춘천 월세 슬라이더 동기화
             if (houseCompRes && houseCompRes.ok) {
               const hCompData = await houseCompRes.json();
               setHousingCompareData(hCompData);
@@ -527,7 +519,6 @@ export default function App() {
               if (hCompData?.chuncheonRentAvg) setChuncheonRent(Number(hCompData.chuncheonRentAvg));
             }
 
-            // [5] 부동산 거래 API -> 실거래 정보 보관
             if (houseTransRes && houseTransRes.ok) {
               const hTransData = await houseTransRes.json();
               const hTransList = Array.isArray(hTransData) ? hTransData : hTransData.content || hTransData.items || [];
@@ -577,24 +568,64 @@ export default function App() {
   const nextBanner = (e) => { e.stopPropagation(); setCurrentBannerIdx((prev) => (prev + 1) % 4); };
   const prevBanner = (e) => { e.stopPropagation(); setCurrentBannerIdx((prev) => (prev === 0 ? 3 : prev - 1)); };
 
-  // 사용자 선택 전공 계열에 맞춰 추천 공고도 지능형 필터링
+  // =========================================================
+  // 🌟 ⭐북마크 + 🔥조회수 + /api/recommendations 가중치를 모두 합산한 지능형 추천 알고리즘
+  // =========================================================
   const displayRecommendedPicks = useMemo(() => {
-    const sourceList = serverRecommendedPicks.length > 0 ? serverRecommendedPicks : notices;
-    if (!sourceList || sourceList.length === 0) return [];
-    
-    const majorCategory = userProfile?.majorCategory || 'IT·소프트웨어';
-    const majorKeyword = majorCategory.split('·')[0].toLowerCase();
-    
-    const matched = sourceList.filter(item => {
-      const fullText = `${item.title || ''} ${item.description || ''} ${item.category || ''}`.toLowerCase();
-      if (majorCategory === '디자인·미디어') return fullText.includes('디자인') || fullText.includes('그래픽') || fullText.includes('ux') || fullText.includes('ui') || fullText.includes('미디어');
-      if (majorCategory === '경영·마케팅') return fullText.includes('마케팅') || fullText.includes('경영') || fullText.includes('기획') || fullText.includes('md') || fullText.includes('pm');
-      if (majorCategory === '바이오·자연과학') return fullText.includes('바이오') || fullText.includes('연구') || fullText.includes('품질') || fullText.includes('qa') || fullText.includes('qc');
-      return fullText.includes('it') || fullText.includes('sw') || fullText.includes('개발') || fullText.includes('코딩');
+    const allCandidates = [...notices, ...CAREER_OPPORTUNITIES, ...serverRecommendedPicks];
+    if (allCandidates.length === 0) return [];
+
+    const bookmarkedPosts = allCandidates.filter(n => bookmarks.includes(String(n.id)));
+    const favoriteCategories = {};
+    bookmarkedPosts.forEach(post => {
+      favoriteCategories[post.category] = (favoriteCategories[post.category] || 0) + 30;
     });
 
-    return (matched.length > 0 ? matched : sourceList).sort((a, b) => (viewCounts[b.id] || 0) - (viewCounts[a.id] || 0)).slice(0, 6);
-  }, [serverRecommendedPicks, notices, viewCounts, userProfile]);
+    allCandidates.forEach(post => {
+      const views = viewCounts[post.id] || 0;
+      if (views > 0) {
+        favoriteCategories[post.category] = (favoriteCategories[post.category] || 0) + (views * 3);
+      }
+    });
+
+    const majorCategory = userProfile?.majorCategory || 'IT·소프트웨어';
+    const uniqueCandidates = Array.from(new Map(allCandidates.map(item => [String(item.id), item])).values());
+
+    const scoredList = uniqueCandidates.map(item => {
+      let score = 0;
+      const cat = item.category || '기타';
+      const fullText = `${item.title || ''} ${item.description || ''} ${cat}`.toLowerCase();
+
+      if (favoriteCategories[cat]) {
+        score += favoriteCategories[cat];
+      }
+
+      if (bookmarkedPosts.some(bp => bp.category === cat && String(bp.id) !== String(item.id))) {
+        score += 25;
+      }
+
+      if (
+        (majorCategory === '디자인·미디어' && (fullText.includes('디자인') || fullText.includes('ux') || fullText.includes('ui') || fullText.includes('그래픽'))) ||
+        (majorCategory === '경영·마케팅' && (fullText.includes('마케팅') || fullText.includes('경영') || fullText.includes('pm') || fullText.includes('md'))) ||
+        (majorCategory === '바이오·자연과학' && (fullText.includes('바이오') || fullText.includes('연구') || fullText.includes('qa') || fullText.includes('qc'))) ||
+        (majorCategory === 'IT·소프트웨어' && (fullText.includes('it') || fullText.includes('sw') || fullText.includes('개발') || fullText.includes('코딩')))
+      ) {
+        score += 20;
+      }
+
+      score += (viewCounts[item.id] || 0) * 5;
+
+      if (serverRecommendedPicks.some(sr => String(sr.id) === String(item.id))) {
+        score += 15;
+      }
+
+      return { ...item, recommendationScore: score };
+    });
+
+    return scoredList
+      .sort((a, b) => b.recommendationScore - a.recommendationScore || (viewCounts[b.id] || 0) - (viewCounts[a.id] || 0))
+      .slice(0, 6);
+  }, [notices, serverRecommendedPicks, viewCounts, userProfile, bookmarks]);
 
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
@@ -656,13 +687,37 @@ export default function App() {
     setSelectedPost(post);
     setShowMyPage(false);
     setCurrentMemo(memos[String(post.id)] || '');
+
+    setViewCounts(prev => ({
+      ...prev,
+      [post.id]: (prev[post.id] || 0) + 1
+    }));
+
+    fetch(`${BASE_URL}/api/opportunities/${post.id}/view`, { method: 'POST' }).catch(() => null);
+
     scrollToTop();
   };
 
   const toggleBookmark = (e, item) => {
     if (e) e.stopPropagation();
     const itemIdStr = String(item.id);
-    setBookmarks((prev) => prev.includes(itemIdStr) ? prev.filter((bId) => String(bId) !== itemIdStr) : [...prev, itemIdStr]);
+    const isBookmarking = !bookmarks.includes(itemIdStr);
+
+    setBookmarks((prev) => 
+      isBookmarking ? [...prev, itemIdStr] : prev.filter((bId) => String(bId) !== itemIdStr)
+    );
+
+    if (isBookmarking) {
+      fetch(`${BASE_URL}/api/opportunities/${itemIdStr}/bookmark`, { method: 'POST' }).catch(() => null);
+      fetch(`${BASE_URL}/api/recommendations`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (Array.isArray(data) && data.length > 0) {
+            setServerRecommendedPicks(data.map((item, idx) => normalizeItem(item, `rec-dyn-${idx}`)));
+          }
+        })
+        .catch(() => null);
+    }
   };
 
   const handleSaveMemo = () => {
@@ -711,16 +766,81 @@ export default function App() {
     setUserProfile({ ...userProfile, majorCategory: category, job: defaultJob });
   };
 
+  // =========================================================
+  // 🌟 AI 스마트 로드맵 자동 진단 로직 (1~3단계 즉시 분기)
+  // =========================================================
   const handleFinishOnboarding = () => {
-    let step = 3;
-    let title = '프로젝트 경험 보완';
-    if (userProfile.projectCount === '2개 이상' || userProfile.teamExperience !== '없음') {
-      step = 4;
-      title = '실무 및 인턴십 준비';
+    const isUnderSophomore = userProfile.eduType === '대학 재학' && ['1학년', '2학년'].includes(userProfile.grade);
+    const hasNoExp = userProfile.projectCount === '0~1개 (없음/1개)' && userProfile.teamExperience === '없음';
+
+    let step = 1;
+    if (isUnderSophomore) {
+      if (hasNoExp) {
+        step = 1; // 2학년 이하 AND 경험 없음 -> 1단계
+      } else {
+        step = 2; // 2학년 이하 AND 경험 있음 -> 2단계
+      }
+    } else {
+      // 3학년 이상 OR 취준생/고졸 등
+      if (hasNoExp) {
+        step = 2; // 3학년 이상 AND 경험 없음 -> 2단계
+      } else {
+        step = 3; // 3학년 이상 AND 경험 있음 -> 3단계
+      }
     }
+
+    const steps = ROADMAP_STEPS_BY_MAJOR[userProfile.majorCategory] || ROADMAP_STEPS_BY_MAJOR['IT·소프트웨어'];
     setDiagnosedStepNum(step);
-    setDiagnosedTitle(title);
-    setCareerScreen('step1_roadmap');
+    setDiagnosedTitle(steps[step - 1]?.title || '역량 학습');
+
+    // 🌟 step1_roadmap 선택 창을 거치지 않고 바로 실전 기회(step2_now)로 직행!
+    setCareerScreen('step2_now');
+    scrollToTop();
+  };
+
+  // 🌟 상단에 표시되는 미니 로드맵 바 (Stepper)
+  const renderMiniRoadmap = () => {
+    const steps = ROADMAP_STEPS_BY_MAJOR[userProfile.majorCategory] || ROADMAP_STEPS_BY_MAJOR['IT·소프트웨어'];
+    return (
+      <div style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '16px', padding: '16px 20px', marginBottom: '28px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <span style={{ fontSize: '0.9rem', fontWeight: '800', color: '#1e3a8a' }}>
+            🧭 사용자 추천 단계: <span style={{ color: '#2563eb' }}>{diagnosedStepNum}단계 ({steps[diagnosedStepNum - 1]?.title})</span>
+          </span>
+          <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '700' }}>
+            {userProfile.eduType} {userProfile.eduType === '대학 재학' ? `(${userProfile.grade})` : ''} · {userProfile.job} 트랙
+          </span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
+          {steps.map((s, i) => {
+            const stepNumber = i + 1;
+            const isCurrent = stepNumber === diagnosedStepNum;
+            return (
+              <div
+                key={i}
+                style={{
+                  background: isCurrent ? '#2563eb' : '#ffffff',
+                  color: isCurrent ? '#ffffff' : '#475569',
+                  border: isCurrent ? '2px solid #1d4ed8' : '1px solid #e2e8f0',
+                  borderRadius: '10px',
+                  padding: '10px 8px',
+                  textAlign: 'center',
+                  boxShadow: isCurrent ? '0 4px 10px rgba(37,99,235,0.25)' : 'none',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <div style={{ fontSize: '0.75rem', fontWeight: '800', opacity: isCurrent ? 0.9 : 0.7 }}>
+                  {isCurrent ? `★ 현재 ${s.step}` : s.step}
+                </div>
+                <div style={{ fontSize: '0.82rem', fontWeight: '800', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {s.title}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
   };
 
   const filteredData = notices.filter((item) => {
@@ -876,7 +996,12 @@ export default function App() {
               <span className="detail-tag-src">출처: {selectedPost.sourceName || '춘천 청년 커리어 플랫폼'}</span>
             </div>
             <h1 className="detail-title">{selectedPost.title}</h1>
-            <img src={selectedPost.imageUrl} alt="포스터" className="detail-img" onError={handleImgError} />
+            <img
+              src={selectedPost.imageUrl || '/moabom.png'}
+              alt="포스터"
+              className="detail-img"
+              onError={handleImgError}
+            />
             <div className="detail-info-grid">
               <p className="detail-info-item"><strong>🏢 주관기관:</strong> {selectedPost.orgName}</p>
               <p className="detail-info-item"><strong>🎯 지원대상:</strong> {selectedPost.targets || '춘천 관내 청년 및 거주자'}</p>
@@ -1246,91 +1371,23 @@ export default function App() {
             </div>
           )}
 
-          {/* 🌟 STEP 1 / 4 : AI 맞춤 커리어 로드맵 (전공별 5단계 빌드업 동적 표시) */}
-          {careerScreen === 'step1_roadmap' && (
-            <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 20px', width: '100%' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                <span style={{ background: '#dbeafe', color: '#1e40af', padding: '6px 14px', borderRadius: '20px', fontWeight: '800' }}>
-                  STEP 1 / 4 : AI 맞춤 커리어 로드맵
-                </span>
-                <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '700' }}>
-                  {userProfile.eduType === '대학 재학' ? `${userProfile.grade} · ` : ''}{userProfile.job} ({userProfile.majorCategory}) 트랙
-                </span>
-              </div>
-
-              <h2 style={{ fontSize: '2rem', fontWeight: '900', marginBottom: '8px', color: '#0f172a' }}>
-                현재 단계에서 집중해야 할 5단계 빌드업 로드맵입니다
-              </h2>
-              <p style={{ color: '#64748b', marginBottom: '32px' }}>
-                💡 참여를 희망하는 단계를 1개 이상 선택(클릭)하면 <b>다음 단계(실전 빌드업 기회) 이동 버튼이 활성화</b>됩니다.
-              </p>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px', marginBottom: '40px' }}>
-                {(ROADMAP_STEPS_BY_MAJOR[userProfile.majorCategory] || ROADMAP_STEPS_BY_MAJOR['IT·소프트웨어']).map((item, idx) => {
-                  const isSelected = selectedRoadmapIdx === idx;
-                  return (
-                    <div
-                      key={idx}
-                      onClick={() => { setSelectedRoadmapIdx(idx); setIsRoadmapSelected(true); }}
-                      style={{
-                        background: isSelected ? '#eff6ff' : '#fff',
-                        border: isSelected ? '2px solid #2563eb' : '1px solid #e2e8f0',
-                        borderRadius: '16px',
-                        padding: '20px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        boxShadow: isSelected ? '0 10px 20px rgba(37,99,235,0.1)' : 'none',
-                        transition: 'all 0.2s'
-                      }}
-                    >
-                      <div>
-                        <span style={{ fontSize: '0.8rem', fontWeight: '800', color: isSelected ? '#2563eb' : '#64748b' }}>{item.step}</span>
-                        <h4 style={{ fontSize: '1.1rem', fontWeight: '800', margin: '8px 0', color: '#0f172a' }}>{item.title}</h4>
-                        <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: '1.4', marginBottom: '16px' }}>{item.desc}</p>
-                      </div>
-                      <div style={{ fontSize: '0.8rem', fontWeight: '800', color: '#16a34a', background: '#f1f5f9', padding: '6px 10px', borderRadius: '6px' }}>
-                        {item.benefit}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div style={{ textAlign: 'right', borderTop: '1px solid #e2e8f0', paddingTop: '24px' }}>
-                <button
-                  disabled={!isRoadmapSelected}
-                  onClick={() => setCareerScreen('step2_now')}
-                  style={{
-                    padding: '16px 36px',
-                    borderRadius: '12px',
-                    border: 'none',
-                    background: isRoadmapSelected ? '#2563eb' : '#cbd5e1',
-                    color: '#fff',
-                    fontSize: '1.1rem',
-                    fontWeight: '900',
-                    cursor: isRoadmapSelected ? 'pointer' : 'not-allowed',
-                    boxShadow: isRoadmapSelected ? '0 10px 20px rgba(37,99,235,0.3)' : 'none'
-                  }}
-                >
-                  {isRoadmapSelected ? '선택 완료 — STEP 2. 역량 빌드업 기회 보기 ➔' : '↑ 단계를 선택하면 버튼이 열립니다'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* 🌟 STEP 2 화면: 역량 빌드업 (전공/직무별 필터링 적용) */}
+          {/* 🌟 STEP 2 화면: 실전 역량 빌드업 (AI 자동 진단 1~3단계 로드맵 바 즉시 노출) */}
           {careerScreen === 'step2_now' && (
             <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 20px', width: '100%' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <span style={{ background: '#dbeafe', color: '#1e40af', padding: '6px 14px', borderRadius: '20px', fontWeight: '800' }}>
-                  STEP 2 / 4 : 역량 빌드업 — {userProfile.job} 맞춤
+                  AI 맞춤 진단 — {diagnosedStepNum}단계 : {diagnosedTitle} 집중
                 </span>
-                <button onClick={() => setCareerScreen('step1_roadmap')} style={{ border: 'none', background: 'none', color: '#64748b', fontWeight: '700', cursor: 'pointer' }}>
-                  ← 이전 로드맵으로
+                <button
+                  onClick={() => setCareerScreen('onboarding')}
+                  style={{ border: 'none', background: 'none', color: '#64748b', fontWeight: '700', cursor: 'pointer', fontSize: '0.9rem' }}
+                >
+                  ← 진단 다시하기
                 </button>
               </div>
+
+              {/* 🌟 기존 중간 창(step1_roadmap)을 대신하는 상단 미니 로드맵 바 */}
+              {renderMiniRoadmap()}
 
               <h2 style={{ fontSize: '2rem', fontWeight: '900', marginBottom: '6px', color: '#0f172a' }}>
                 실제 등록된 춘천 관내 실전 빌드업 기회입니다
@@ -1426,23 +1483,29 @@ export default function App() {
                     boxShadow: isOpportunityActioned ? '0 10px 20px rgba(37,99,235,0.3)' : 'none'
                   }}
                 >
-                  {isOpportunityActioned ? '기회 찜 완료 — STEP 3. 기업 연결 & 취업 보기 ➔' : '↑ 공고를 1개 이상 찜하면 버튼이 열립니다'}
+                  {isOpportunityActioned ? '다음 단계 미리보기 ➔' : '↑ 공고를 1개 이상 찜하면 버튼이 열립니다'}
                 </button>
               </div>
             </div>
           )}
 
-          {/* 🌟 STEP 3 화면: 기업 연결 & 취업 (전공/직무별 필터링 적용) */}
+          {/* 🌟 STEP 3 화면: 기업 연결 & 취업 */}
           {careerScreen === 'step3_job' && (
             <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 20px', width: '100%' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <span style={{ background: '#ede9fe', color: '#6d28d9', padding: '6px 14px', borderRadius: '20px', fontWeight: '800' }}>
-                  STEP 3 / 4 : 기업 연결 · 취업 · 창업 매칭
+                  AI 맞춤 진단 — 기업 연결 · 취업 · 창업 매칭
                 </span>
-                <button onClick={() => setCareerScreen('step2_now')} style={{ border: 'none', background: 'none', color: '#64748b', fontWeight: '700', cursor: 'pointer' }}>
+                <button
+                  onClick={() => setCareerScreen('step2_now')}
+                  style={{ border: 'none', background: 'none', color: '#64748b', fontWeight: '700', cursor: 'pointer', fontSize: '0.9rem' }}
+                >
                   ← 이전 실전 빌드업으로
                 </button>
               </div>
+
+              {/* 🌟 상단 미니 로드맵 바 */}
+              {renderMiniRoadmap()}
 
               <h2 style={{ fontSize: '2rem', fontWeight: '900', marginBottom: '6px', color: '#0f172a' }}>
                 실제 등록된 춘천 관내 기업 연결 및 일자리 공고입니다
@@ -1538,23 +1601,29 @@ export default function App() {
                     boxShadow: isJobActioned ? '0 10px 20px rgba(124,58,237,0.3)' : 'none'
                   }}
                 >
-                  {isJobActioned ? '취업 기회 찜 완료 — STEP 4. 최종 정착 & 인프라 보기 ➔' : '↑ 공고를 1개 이상 찜하면 버튼이 열립니다'}
+                  {isJobActioned ? '다음 단계 미리보기 ➔' : '↑ 공고를 1개 이상 찜하면 버튼이 열립니다'}
                 </button>
               </div>
             </div>
           )}
 
-          {/* 🌟 STEP 4 화면: 최종 정착 & 인프라 (공통 주거/복지 정책 및 실거래 비교 API 연계) */}
+          {/* 🌟 STEP 4 화면: 최종 정착 & 인프라 */}
           {careerScreen === 'step4_settle' && (
             <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 20px', width: '100%' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <span style={{ background: '#0284c7', color: '#fff', padding: '6px 14px', borderRadius: '20px', fontWeight: '800' }}>
-                  STEP 4 / 4 : 최종 정착 — 인프라 & 주거·복지 지원
+                  AI 맞춤 진단 — 최종 정착 : 인프라 & 주거·복지 지원
                 </span>
-                <button onClick={() => setCareerScreen('step3_job')} style={{ border: 'none', background: 'none', color: '#64748b', fontWeight: '700', cursor: 'pointer' }}>
+                <button
+                  onClick={() => setCareerScreen('step3_job')}
+                  style={{ border: 'none', background: 'none', color: '#64748b', fontWeight: '700', cursor: 'pointer', fontSize: '0.9rem' }}
+                >
                   ← 이전 기업 연결로
                 </button>
               </div>
+
+              {/* 🌟 상단 미니 로드맵 바 */}
+              {renderMiniRoadmap()}
 
               <h2 style={{ fontSize: '2.2rem', fontWeight: '900', marginBottom: '6px', color: '#0f172a' }}>
                 주거·월세·교통·인프라 지원이 더해져 완성되는 춘천 정착
@@ -1619,7 +1688,7 @@ export default function App() {
                 })}
               </div>
 
-              {/* 하단 스크롤 서울 vs 춘천 시뮬레이터 (housing/compare API 데이터 배지 표시) */}
+              {/* 하단 스크롤 서울 vs 춘천 시뮬레이터 */}
               <div style={{ borderTop: '2px dashed #cbd5e1', paddingTop: '48px', marginBottom: '40px' }}>
                 <div style={{ marginBottom: '28px' }}>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '10px' }}>
@@ -1986,8 +2055,8 @@ export default function App() {
 
                 {isLoggedIn && displayRecommendedPicks.length > 0 && (
                   <div className="recommendation-wrapper animate-fade-in">
-                    <h3>✨ {userName}님을 위한 {userProfile.majorCategory} 맞춤 추천 공고</h3>
-                    <p className="rec-desc">선택하신 직무와 최근 조회하신 관심사(클릭 패턴)를 분석하여 추천해 드립니다.</p>
+                    <h3>✨ {userName}님을 위한 맞춤 추천 공고</h3>
+                    <p className="rec-desc">⭐ 내가 찜한 관심 카테고리와 🔥 클릭/조회한 이력을 실시간 DB 알고리즘으로 분석하여 추천합니다.</p>
                     <div className="horizontal-scroll">
                       {displayRecommendedPicks.map((item) => (
                         <div key={`rec-${item.id}`} className="recommend-card" onClick={() => handleCardClick(item)}>
