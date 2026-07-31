@@ -41,7 +41,7 @@ export default async function handler(req, res) {
 
     const userContent = `현재 등록된 전체 공고 데이터:\n---\n${noticesSummary || '(공고 없음)'}\n---\n\n사용자의 질문: "${message}"`;
 
-    // 💡 gemini-3.5-flash 모델 적용
+    // 💡 원하시는 3.5 버전 모델명 적용
     const modelName = "gemini-3.5-flash";
 
     const geminiRes = await fetch(
