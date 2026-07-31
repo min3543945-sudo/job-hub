@@ -57,17 +57,38 @@ const calculateDDay = (endDate) => {
   return `D-${diffDays}`;
 };
 
+// ==========================================
+// 🌟 [v2.0 분류체계 적용] 백엔드 표준 카테고리 매핑
+// ==========================================
 const categoryMap = {
-  'INTERN': '인턴', 'HACKATHON': '해커톤', 'CONTEST': '공모전', 'JOB': '채용·일자리',
-  'EDUCATION': '교육·강좌', 'PROGRAM': '교육·강좌', 'ACTIVITY': '대외활동',
-  'POLICY': '지원금·정책', 'EVENT': '행사·공연', 'VOLUNTEER': '자원봉사',
-  'BUSINESS_OPPORTUNITY': '사업·창업', 'BUSINESS': '사업·창업'
+  'CONTEST': '공모전',
+  'JOB': '채용·일자리',
+  'EDUCATION': '교육·강좌',
+  'ACTIVITY': '대외활동',
+  'HACKATHON': '해커톤',
+  'STARTUP': '사업·창업',
+  'SUPPORT_POLICY': '지원금·정책',
+  'EVENT': '행사·공연',
+  'VOLUNTEER': '자원봉사',
+  // 구버전 호환용 (INTERN은 JOB 하위로 편입)
+  'INTERN': '채용·일자리', 
+  'POLICY': '지원금·정책',
+  'PROGRAM': '교육·강좌',
+  'BUSINESS_OPPORTUNITY': '사업·창업',
+  'BUSINESS': '사업·창업'
 };
 
 const categoryEmojiMap = {
-  '인턴': '💼', '채용·일자리': '🏢', '공모전': '🏆', '해커톤': '💻',
-  '교육·강좌': '📚', '대외활동': '🤝', '지원금·정책': '💰', '행사·공연': '🎪',
-  '사업·창업': '💡', '기타': '📌'
+  '공모전': '🏆',
+  '채용·일자리': '🏢',
+  '교육·강좌': '📚',
+  '대외활동': '🤝',
+  '해커톤': '💻',
+  '사업·창업': '💡',
+  '지원금·정책': '💰',
+  '행사·공연': '🎪',
+  '자원봉사': '💛',
+  '기타': '📌'
 };
 
 const detailKeyMap = {
