@@ -23,12 +23,19 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .highlight-text { background-color: #fef08a; color: #1e293b; font-weight: 800; padding: 0 2px; border-radius: 4px; }
 
 /* -------------------------------------
-   헤더 & 네비게이션
+   헤더 & 네비게이션 (로고 이미지 스타일 포함)
 ------------------------------------- */
 .top-header { background-color: #ffffff; border-bottom: 1px solid var(--border-color); padding: 20px 0; }
 .header-inner { max-width: var(--max-width); margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
-.logo-area { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.logo-area { display: flex; align-items: center; gap: 10px; cursor: pointer; }
 .logo-icon { font-size: 2rem; }
+/* ✨ 모아봄 로고 이미지 전용 스타일 */
+.logo-icon-img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  border-radius: 8px;
+}
 .logo-text { font-size: 1.5rem; font-weight: 800; color: #1e293b; letter-spacing: -0.5px; }
 
 .search-area { display: flex; align-items: center; gap: 24px; }
@@ -45,7 +52,6 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .btn-text { font-weight: bold; color: #64748b; background: none; border: none; cursor: pointer; font-size: 0.8rem; }
 .btn-text.primary { color: var(--primary-color); font-size: 0.9rem; }
 
-/* ✨ 헤더 마이페이지 진입 버튼 */
 .btn-mypage-top {
   background-color: #f1f5f9;
   border: 1px solid #cbd5e1;
@@ -102,7 +108,7 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .banner-page { color: white; font-size: 0.95rem; font-weight: 700; letter-spacing: 2px; }
 
 /* -------------------------------------
-   우측 영수증 / 로그인 박스 (스크린샷 비율 완벽 싱크로율)
+   우측 영수증 / 로그인 박스
 ------------------------------------- */
 .receipt-wrapper { flex: 0 0 320px; width: 100%; display: flex; justify-content: center; }
 .receipt-card { background: #fff; width: 100%; padding: 24px 20px 20px 20px; border-radius: 4px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; position: relative; color: #334155; display: flex; flex-direction: column; }
@@ -118,7 +124,6 @@ body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 
 .receipt-total span:last-child { font-size: 1.25rem; font-weight: 900; white-space: nowrap; }
 .receipt-footer-text { text-align: center; font-size: 0.8rem; color: #94a3b8; margin-top: 20px; word-break: keep-all; }
 
-/* ✨ 항목 마우스오버 시 클릭 유도 효과 */
 .dynamic-receipt-item:hover span:first-child {
   color: var(--primary-color);
   text-decoration: underline;

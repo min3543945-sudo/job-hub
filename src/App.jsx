@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useDeferredValue, useRef } from 'react';
+import React, { useState, useEffect, useDeferredValue, useRef, useCallback } from 'react';
 import './App.css'; 
 
 // ==========================================
@@ -114,6 +114,9 @@ const normalizeItem = (item, index) => {
     if (details.contact.email) details.contact_email = details.contact.email;
   }
 
+  // 🌟 [로고 교체] 썸네일 이미지가 없으면 랜덤 이미지 대신 공식 모아봄 로고('/moabom.png') 사용
+  const imageUrl = item.thumbnail_url || item.imageUrl || '/moabom.png';
+
   return {
     id,
     title: item.title || '제목 없음',
@@ -123,7 +126,7 @@ const normalizeItem = (item, index) => {
     category,
     topics,
     locTag,
-    imageUrl: item.thumbnail_url || item.imageUrl || `https://picsum.photos/seed/${id.length + index}/800/800`,
+    imageUrl,
     url: item.source_url || item.url || '#',
     targets: item.targets?.length > 0 ? item.targets.join(', ') : '제한없음',
     activityStart,
@@ -237,8 +240,42 @@ export default function App() {
   const [serverRecommendedPicks, setServerRecommendedPicks] = useState([]);
   const BASE_URL = 'https://moabom-backend.onrender.com';
 
+  // 🌟 이미지 로딩 실패 시 공식 로고('/moabom.png')로 대체하는 핸들러
+  const handleImgError = (e) => {
+    e.target.onerror = null; // 무한 루프 방지
+    e.target.src = '/moabom.png';
+  };
+
   useEffect(() => { localStorage.setItem('bookmarks', JSON.stringify(bookmarks)); }, [bookmarks]);
   useEffect(() => { localStorage.setItem('memos', JSON.stringify(memos)); }, [memos]);
+
+  // 🌟 [DB 연동] 백엔드 맞춤 추천 목록 조회 함수 (로그인 직후 및 클릭/찜 이벤트 발생 시 자동 호출)
+  const fetchRecommendations = useCallback(async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setServerRecommendedPicks([]);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${BASE_URL}/api/recommendations`, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        // 백엔드 응답 포맷(배열 또는 { data: [] }, { content: [] }, { recommendations: [] }) 완벽 대응
+        const listData = Array.isArray(data) ? data : data.content || data.items || data.data || data.recommendations || [];
+        const normalizedRecs = listData.map((item, index) => normalizeItem(item, index));
+        setServerRecommendedPicks(normalizedRecs);
+      }
+    } catch (error) {
+      console.error('추천 데이터 로드 실패:', error);
+    }
+  }, [BASE_URL]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -246,8 +283,9 @@ export default function App() {
     if (token) {
       setIsLoggedIn(true);
       if (savedName) setUserName(savedName);
+      fetchRecommendations();
     }
-  }, []);
+  }, [fetchRecommendations]);
 
   useEffect(() => {
     const fetchNotices = async () => {
@@ -289,29 +327,6 @@ export default function App() {
   }, [currentPage, showMyPage]);
 
   useEffect(() => {
-    const fetchRecommendations = async () => {
-      if (isLoggedIn) {
-        try {
-          const res = await fetch(`${BASE_URL}/api/recommendations`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-          });
-          if (res.ok) {
-            const data = await res.json();
-            const listData = Array.isArray(data) ? data : data.content || data.items || data.data || [];
-            const normalizedRecs = listData.map((item, index) => normalizeItem(item, index));
-            setServerRecommendedPicks(normalizedRecs);
-          }
-        } catch (error) {
-          console.error('추천 데이터 로드 실패', error);
-        }
-      } else {
-        setServerRecommendedPicks([]);
-      }
-    };
-    fetchRecommendations();
-  }, [isLoggedIn]);
-
-  useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 300) setShowTopBtn(true);
       else setShowTopBtn(false);
@@ -330,6 +345,7 @@ export default function App() {
     setShowMyPage(false);
   };
 
+  // 🌟 [DB 연동] 카드 클릭 시 DB에 사용자 관심사('click') 이벤트 전송 후 추천 목록 실시간 업데이트
   const handleCardClick = async (post) => {
     setSelectedPost(post);
     setShowMyPage(false);
@@ -340,16 +356,23 @@ export default function App() {
     setCategoryWeights((prev) => ({ ...prev, [post.category]: (prev[post.category] || 0) + 1 }));
     setViewCounts((prev) => ({ ...prev, [post.id]: (prev[post.id] || 0) + 1 }));
 
-    if (isLoggedIn && post.id && !post.id.startsWith('default-')) {
+    const token = localStorage.getItem('token');
+    if (isLoggedIn && token && post.id && !post.id.startsWith('default-')) {
       try {
         await fetch(`${BASE_URL}/api/user-events`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ action: 'click', postId: post.id, category: post.category })
+          body: JSON.stringify({ 
+            action: 'click', 
+            postId: post.id, 
+            category: post.category 
+          })
         });
+        // 사용자 이벤트 기록 직후 최신 맞춤 추천 목록 갱신
+        fetchRecommendations();
       } catch (error) {
         console.error('클릭 이벤트 전송 실패:', error);
       }
@@ -397,6 +420,7 @@ export default function App() {
     setEditingMemoId(null);
   };
 
+  // 🌟 [DB 연동] 찜하기 시 DB에 사용자 관심사('bookmark') 이벤트 전송 후 추천 목록 실시간 업데이트
   const toggleBookmark = async (e, item) => {
     e.stopPropagation();
     const itemIdStr = String(item.id);
@@ -404,16 +428,23 @@ export default function App() {
     
     setBookmarks((prev) => isAdding ? [...prev, itemIdStr] : prev.filter((bId) => String(bId) !== itemIdStr));
 
-    if (isLoggedIn) {
+    const token = localStorage.getItem('token');
+    if (isLoggedIn && token && item.id && !item.id.startsWith('default-')) {
       try {
         await fetch(`${BASE_URL}/api/user-events`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ action: isAdding ? 'bookmark' : 'unbookmark', postId: item.id, category: item.category })
+          body: JSON.stringify({ 
+            action: isAdding ? 'bookmark' : 'unbookmark', 
+            postId: item.id, 
+            category: item.category 
+          })
         });
+        // 찜하기 완료 후 백엔드 DB 기반 추천 목록 즉시 새로고침
+        fetchRecommendations();
       } catch (error) {
         console.error('북마크 이벤트 전송 실패:', error);
       }
@@ -590,6 +621,7 @@ export default function App() {
   const nextBanner = (e) => { e.stopPropagation(); setCurrentBannerIdx((prev) => (prev + 1) % topPicks.length); };
   const prevBanner = (e) => { e.stopPropagation(); setCurrentBannerIdx((prev) => (prev === 0 ? topPicks.length - 1 : prev - 1)); };
   
+  // 🌟 [DB 연동] 로그인/회원가입 처리 및 로그인 성공 직후 추천 목록 즉시 호출
   const handleAuthSubmit = async (e) => { 
     e.preventDefault(); 
     
@@ -621,6 +653,9 @@ export default function App() {
       setUserName(newUserName); 
       setAuthModal(null); 
       
+      // 로그인 완료 직후 DB에 저장된 사용자의 추천 목록 동기화
+      fetchRecommendations();
+      
       alert(`${isLogin ? '로그인' : '회원가입'} 완료되었습니다!`);
     } catch (error) {
       alert(`오류: ${error.message}`);
@@ -648,7 +683,8 @@ export default function App() {
       <header className="top-header">
         <div className="header-inner">
           <div className="logo-area" onClick={() => { setSelectedPost(null); setShowMyPage(false); setSearchTerm(''); handleCategoryClick('전체'); }}>
-            <span className="logo-icon">🎓</span>
+            {/* 🌟 헤더에 실제 모아봄 로고 이미지 적용 */}
+            <img src="/moabom.png" alt="모아봄 로고" className="logo-icon-img" onError={handleImgError} />
             <h1 className="logo-text">모아봄</h1>
           </div>
           
@@ -699,7 +735,7 @@ export default function App() {
               <span className="detail-tag-src">출처: {selectedPost.sourceName}</span>
             </div>
             <h1 className="detail-title">{selectedPost.title}</h1>
-            <img src={selectedPost.imageUrl} alt="포스터" className="detail-img" />
+            <img src={selectedPost.imageUrl} alt="포스터" className="detail-img" onError={handleImgError} />
             <div className="detail-info-grid">
               <p className="detail-info-item"><strong>🏢 주관기관:</strong> {selectedPost.orgName}</p>
               {selectedPost.targets !== '제한없음' && <p className="detail-info-item"><strong>🎯 지원대상:</strong> {selectedPost.targets}</p>}
@@ -855,7 +891,7 @@ export default function App() {
                   return (
                     <div key={item.id} className={`force-card ${isExpired ? 'expired' : ''}`} onClick={() => handleCardClick(item)}>
                       <div className="force-img-wrap">
-                        <img src={item.imageUrl} alt={item.title} />
+                        <img src={item.imageUrl} alt={item.title} onError={handleImgError} />
                         {isExpired && <div className="expired-overlay">마감됨</div>}
                         <button className="bookmark-btn" onClick={(e) => toggleBookmark(e, item)}>⭐</button>
                       </div>
@@ -914,7 +950,7 @@ export default function App() {
                           <p>{activePick.orgName} | 마감: {formatDateString(activePick.deadline)}</p>
                           <button className="btn-go">바로가기 &gt;</button>
                         </div>
-                        <img src={activePick.imageUrl} alt="인기 공고 이미지" className="banner-image" />
+                        <img src={activePick.imageUrl} alt="인기 공고 이미지" className="banner-image" onError={handleImgError} />
                         <div className="banner-controls">
                           <button onClick={prevBanner}>◀</button>
                           <span className="banner-page">{currentBannerIdx + 1} / {topPicks.length}</span>
@@ -931,7 +967,6 @@ export default function App() {
                         day: '2-digit'
                       });
 
-                      // 🌟 보여주신 스크린샷과 정확히 일치하는 춘천 청년 대표 혜택 3대장 고정 구성 (단위 포함)
                       const fixedReceiptItems = [
                         { id: 'receipt-1', title: '청년 구직활동 지원금', displayMoney: '500,000원', numMoney: 500000 },
                         { id: 'receipt-2', title: '면접 정장 대여 (춘천 날개)', displayMoney: '50,000원', numMoney: 50000 },
@@ -1109,7 +1144,7 @@ export default function App() {
                     return (
                       <div key={item.id} className={`force-card ${isExpired ? 'expired' : ''}`} onClick={() => handleCardClick(item)}>
                         <div className="force-img-wrap">
-                          <img src={item.imageUrl} alt={item.title} />
+                          <img src={item.imageUrl} alt={item.title} onError={handleImgError} />
                           {isExpired && <div className="expired-overlay">마감됨</div>}
                           <button className="bookmark-btn" onClick={(e) => toggleBookmark(e, item)}>{isBookmarked ? '⭐' : '☆'}</button>
                         </div>
